@@ -5,6 +5,8 @@
 #include "AssetPath.h"
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/InputAction.h"
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h"
+#include "Hunter/Hunter.h"
+#include "Camera/CameraComponent.h"
 
 // Sets default values for this component's properties
 UMoveComponent::UMoveComponent()
@@ -36,7 +38,6 @@ void UMoveComponent::BeginPlay()
 void UMoveComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
 	// ...
 }
 
@@ -47,20 +48,46 @@ void UMoveComponent::SetupInputBinding(class UEnhancedInputComponent* InputCompo
 	if (InputComponent)
 	{
 		InputComponent->BindAction(IA_Move, ETriggerEvent::Triggered, this, &UMoveComponent::Move);
+		InputComponent->BindAction(IA_Move, ETriggerEvent::Started, this, &UMoveComponent::MoveStart);
+		InputComponent->BindAction(IA_Move, ETriggerEvent::Completed, this, &UMoveComponent::MoveEnd);
 		InputComponent->BindAction(IA_Turn, ETriggerEvent::Triggered, this, &UMoveComponent::Turn);
 	}
 }
 
+void UMoveComponent::MoveStart()
+{
+	MoveState = EMoveState::START;
+}
+
+void UMoveComponent::MoveEnd()
+{
+	MoveState = EMoveState::STOP;
+}
+
 void UMoveComponent::Move(const FInputActionValue& Value)
 {
-	FVector Direction = Value.Get<FVector>();
-	PRINT_LOG(TEXT("Move Direction: %s"), *Direction.ToString());
+	FVector2D Scale = Value.Get<FVector2D>();
+	Direction = Scale;
+
+	// 카메라의 전방 방향 (앞뒤 이동)
+	FVector ForwardDirection = Owner->CameraComponent->GetForwardVector();
+	ForwardDirection.Z = 0.0f;
+	ForwardDirection.Normalize();
+
+	// 카메라의 오른쪽 방향 (좌우 이동)
+	FVector RightDirection = Owner->CameraComponent->GetRightVector();
+	RightDirection.Z = 0.0f;
+	RightDirection.Normalize();
+
+	// 이동 입력 적용
+	Owner->AddMovementInput(ForwardDirection, Scale.X);
+	Owner->AddMovementInput(RightDirection, Scale.Y);
 }
 
 void UMoveComponent::Turn(const FInputActionValue& Value)
 {
-	FVector Direction = Value.Get<FVector>();
-	PRINT_LOG(TEXT("Turn Direction: %s"), *Direction.ToString());
-
+	FVector2d Scale = Value.Get<FVector2d>();
+	Owner->AddControllerPitchInput(Scale.Y);
+	Owner->AddControllerYawInput(Scale.X);
 }
 

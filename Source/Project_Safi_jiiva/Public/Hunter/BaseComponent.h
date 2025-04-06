@@ -29,4 +29,10 @@ protected:
 	UPROPERTY()
 	class AHunter* Owner;
 
+	UPROPERTY()
+	class APlayerController* PC;
+
+	UPROPERTY()
+	class UHunterAnim* Anim;
+
 };

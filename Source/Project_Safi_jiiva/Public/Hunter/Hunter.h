@@ -30,14 +30,25 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-private:
+public:
+	UPROPERTY(EditAnywhere,Category="Camera")
+	class UCameraComponent* CameraComponent;
+
+	class UHunterAnim* Anim;
+
+
+	UPROPERTY(EditAnywhere, Category = "Camera")
+	class USpringArmComponent* SpringArmComponent;
+
 	UPROPERTY(EditDefaultsOnly, Category = "MoveComp")
 	class UMoveComponent* MoveComp;
+private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputMappingContext* IMC_Hunter;
 
-	class UHunterAnim* Anim;
 	class USkeletalMeshComponent* SkeletalMeshComp;
+
+
 
 };

@@ -9,6 +9,9 @@
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/InputMappingContext.h"
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h"
 #include "Hunter/HunterAnim.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "Camera/CameraComponent.h"
 
 // Sets default values
 AHunter::AHunter()
@@ -26,14 +29,37 @@ AHunter::AHunter()
 	ConstructorHelpers::FObjectFinder<UInputMappingContext> IMC_HunterTool(AssetPaths::HUNTER_IMC);
 
 
+
 	if (AB_Hunter.Succeeded()) {
 		GetMesh()->SetAnimInstanceClass(AB_Hunter.Class);
 		GetMesh()->SetRelativeLocationAndRotation(FVector(0,0,-90), FRotator(0,-90,0));
 		Anim = Cast<UHunterAnim>(GetMesh()->GetAnimInstance());
 		IMC_Hunter = IMC_HunterTool.Object;
 	}
+	// 컨트롤러 회전 비활성화 (캐릭터가 카메라 방향을 따르지 않음)
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
 
 
+	// 이동 방향이 카메라와 독립적이도록 설정
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->bUseControllerDesiredRotation = false;
+
+	// 스프링 암 생성 및 설정
+	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
+	SpringArmComponent->SetupAttachment(RootComponent);
+	SpringArmComponent->TargetArmLength = 300.0f; // 몬스터 헌터처럼 약간 멀리
+	SpringArmComponent->bUsePawnControlRotation = true; // 카메라가 컨트롤러 회전을 따름
+	SpringArmComponent->bInheritPitch = true;
+	SpringArmComponent->bInheritYaw = true;
+	SpringArmComponent->bInheritRoll = false;
+
+
+	// 카메라 생성 및 설정
+	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
+	CameraComponent->bUsePawnControlRotation = false; // 카메라 자체는 스프링 암에 종속
 
 }
 

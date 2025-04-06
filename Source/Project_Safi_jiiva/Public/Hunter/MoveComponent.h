@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "BaseComponent.h"
 #include "Project_Safi_jiiva.h"
+#include "EMoveState.h"
 #include "MoveComponent.generated.h"
 
 
@@ -34,8 +35,24 @@ private:
 	class UInputAction* IA_Move;
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputAction* IA_Turn;
+private:
+
+	void MoveStart();
+	void MoveEnd();
 	void Move(const struct FInputActionValue& Value);
+
 	void Turn(const struct FInputActionValue& Value);
 
+	float InputAngle = 0.0f;
 
+	float AngleDifference = 0.0f;
+
+	float CurrentCharacterAngle = 0.0f;
+
+	FVector2D Direction;
+
+public:
+	EMoveState MoveState = EMoveState::IDLE;
+
+	float CalculateDirection(const FVector& Velocity, const FRotator& BaseRotation) const;
 };

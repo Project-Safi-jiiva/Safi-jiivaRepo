@@ -4,6 +4,7 @@
 #include "Hunter/BaseComponent.h"
 #include "Hunter/Hunter.h"
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h"
+#include "Hunter/HunterAnim.h"
 
 // Sets default values for this component's properties
 UBaseComponent::UBaseComponent()
@@ -22,9 +23,13 @@ void UBaseComponent::InitializeComponent()
 	Super::InitializeComponent();
 
 
+
 	Owner = Cast<AHunter>(GetOwner());
-	if (Owner)
+	if (Owner){
 		Owner->InputBindingDeleagate.AddUObject(this, &UBaseComponent::SetupInputBinding);
+		PC = Cast<APlayerController>(Owner->GetController());
+		Anim = Cast<UHunterAnim>(Owner->GetMesh()->GetAnimInstance());
+	}
 
 }
 
