@@ -1,21 +1,21 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Hunter/Hunter.h"           
-#include "Hunter/HunterAnim.h"       
-#include "Hunter/MoveComponent.h"   
+#include "Hunter/Hunter.h"
+#include "Hunter/HunterAnim.h"
+#include "Hunter/MoveComponent.h"
 
-#include "AssetPath.h"              
-#include "Project_Safi_jiiva.h"    
+#include "AssetPath.h"
+#include "Project_Safi_jiiva.h"
 
-#include "Engine/LocalPlayer.h"     
-#include "UObject/ConstructorHelpers.h" 
+#include "Engine/LocalPlayer.h"
+#include "UObject/ConstructorHelpers.h"
 
-#include "Camera/CameraComponent.h"             
-#include "GameFramework/CharacterMovementComponent.h" 
-#include "GameFramework/SpringArmComponent.h"   
+#include "Camera/CameraComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 
-#include "EnhancedInput/Public/EnhancedInputComponent.h"    
-#include "EnhancedInput/Public/EnhancedInputSubsystems.h"  
+#include "EnhancedInput/Public/EnhancedInputComponent.h"
+#include "EnhancedInput/Public/EnhancedInputSubsystems.h"
 #include "EnhancedInput/Public/InputMappingContext.h"
 
 // Sets default values
@@ -37,7 +37,7 @@ AHunter::AHunter()
 
 	if (AB_Hunter.Succeeded()) {
 		GetMesh()->SetAnimInstanceClass(AB_Hunter.Class);
-		GetMesh()->SetRelativeLocationAndRotation(FVector(0,0,-90), FRotator(0,-90,0));
+		GetMesh()->SetRelativeLocationAndRotation(FVector(0,0,-200), FRotator(0,-90,0));
 		Anim = Cast<UHunterAnim>(GetMesh()->GetAnimInstance());
 		IMC_Hunter = IMC_HunterTool.Object;
 	}
