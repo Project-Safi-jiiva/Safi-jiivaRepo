@@ -60,11 +60,15 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = FSM)
 	EAttackState mAttState = EAttackState::None;
 
+public:
+	float currentTime = 0.f;
+
 private:	// 기본 State 함수
 	void IdleState();
+	void MoveState();
 
 private:	// AttState 함수
-	
+	void OnAttackProcess();
 public:
 	void TargetRotation();
 	FVector SearchTarget();

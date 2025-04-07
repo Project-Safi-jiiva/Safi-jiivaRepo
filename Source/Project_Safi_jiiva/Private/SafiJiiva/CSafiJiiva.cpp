@@ -8,6 +8,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "SafiJiiva/CSafiFSM.h"
 #include "Hunter/Hunter.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 ACSafiJiiva::ACSafiJiiva()
@@ -24,6 +25,8 @@ ACSafiJiiva::ACSafiJiiva()
 		SafiComponent->SetSkeletalMesh(TmpBody.Object);
 		SafiComponent->SetRelativeLocation(FVector(0.f, 0.f, -90.f));
 		SafiComponent->SetRelativeRotation(FRotator( 0.f, -90.f, 0.f));
+
+		SafiComponent->SetRelativeScale3D(FVector(0.45f));
 	}
 	
 	FireArrowComp = CreateDefaultSubobject<UArrowComponent>(TEXT("FireArrowComp"));
@@ -34,6 +37,7 @@ ACSafiJiiva::ACSafiJiiva()
 #pragma endregion
 
 #pragma region Components
+
 	FSM = CreateDefaultSubobject<UCSafiFSM>(TEXT("FSM"));
 	USkeletalMeshComponent* SkeletalMeshComp = GetMesh();
 	if (SkeletalMeshComp)
@@ -83,6 +87,11 @@ void ACSafiJiiva::SetNormal()
 
 	// 제일 마지막에
 	isDisturbed = false;
+}
+
+void ACSafiJiiva::SetSpeed(float _value)
+{
+	this->GetCharacterMovement()->MaxWalkSpeed = _value;
 }
 
 void ACSafiJiiva::OnDamageSafi(float _value)
