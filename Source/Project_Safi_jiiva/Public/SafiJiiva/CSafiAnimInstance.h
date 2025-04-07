@@ -21,10 +21,10 @@ public:
 
 public:	//FSM State 관련
 	UPROPERTY(EditDefaultsOnly, Category = "FSM")
-	ESafiState mState = ESafiState::Idle;
+	ESafiState aState = ESafiState::Idle;
 
 	UPROPERTY(EditDefaultsOnly, Category = "FSM")
-	EAttackState mAttState = EAttackState::None;
+	EAttackState aAttState = EAttackState::None;
 	
 public:	// 수치값
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MoveValue")

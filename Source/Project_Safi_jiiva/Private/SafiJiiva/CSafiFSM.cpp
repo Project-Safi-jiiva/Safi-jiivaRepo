@@ -34,6 +34,8 @@ void UCSafiFSM::BeginPlay()
 
 
 	me->SetSpeed(me->WalkSpeed);
+
+
 }
 
 
@@ -52,7 +54,7 @@ void UCSafiFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 
 	switch(mState)
 	{
-		case ESafiState::Idle		: { /*IdleState();*/ }	break;
+		case ESafiState::Idle		: { IdleState(); }	break;
 		case ESafiState::Move		: {  }	break;
 		case ESafiState::Attack		: {  }	break;
 		case ESafiState::Dead		: {  }	break;
@@ -73,10 +75,28 @@ void UCSafiFSM::IdleState()
 	FVector dir = SearchTarget();
 
 	currentTime += GetWorld()->DeltaTimeSeconds;
+	
+	// 일정 시간이 지나면 MoveState로
+	if (currentTime > me->idleTime)
+	{
+		mState = ESafiState::Move;
+		Anim->aState = mState;
+
+		currentTime = 0.f;
+	}
+
+
+	// 방향은 랜덤
+
+	// Safi의 Tick에서 or 한 패턴이 끝나면 사거리 내 player의 존재 여부 확인
+	// 플레이어가 없을 경우 다시 Idle
+	// 플레이어가 존재할 경우 다음 공격 패턴으로
+
 
 	if (dir.Size() < me->AttackRange)
 	{
-		currentTime = 0.f;
+		OnAttackProcess();
+		//	currentTime = 0.f;
 	}
 	
 	// 공격 프로세스 고민해보기.
@@ -92,16 +112,47 @@ void UCSafiFSM::IdleState()
 
 void UCSafiFSM::MoveState()
 {
+	currentTime += GetWorld()->DeltaTimeSeconds;
+
+	if (target != nullptr)
+	{
+		TargetRotation();
+		FVector dir = SearchTarget();
+		me->AddMovementInput(dir);
+	}
+
+	if (currentTime > me->idleTime)
+	{	
+
+		mState = ESafiState::Idle;
+		Anim->aState = mState;
+
+		currentTime = 0.f;
+	}
+
+	/*
 	TargetRotation();
 	FVector dir = SearchTarget();
 
 	me->AddMovementInput(dir);
+	*/
 
 	//여기도 커런트타임 경과 후 사거리에 따라 다음 공격을 결정하기로 함.
 }
 
 void UCSafiFSM::OnAttackProcess()
-{x	
+{
+	//공격 상태로의 전환
+	mState = ESafiState::Attack;
+	Anim->aState = mState;
+
+	//어떤 공격을 할 지 판별
+
+
+
+
+	//mAttState = EAttackState::Breath;
+	//Anim->aAttState = mAttState;
 
 }
 

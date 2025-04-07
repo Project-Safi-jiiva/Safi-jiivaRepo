@@ -9,6 +9,7 @@
 #include "SafiJiiva/CSafiFSM.h"
 #include "Hunter/Hunter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/BoxComponent.h"
 
 // Sets default values
 ACSafiJiiva::ACSafiJiiva()
@@ -34,9 +35,6 @@ ACSafiJiiva::ACSafiJiiva()
 	FireArrowComp->SetRelativeLocation(FVector());
 	FireArrowComp->SetRelativeRotation(FRotator( 0.f , 90.f, 0.f ));
 
-#pragma endregion
-
-#pragma region Components
 
 	FSM = CreateDefaultSubobject<UCSafiFSM>(TEXT("FSM"));
 	USkeletalMeshComponent* SkeletalMeshComp = GetMesh();
@@ -50,7 +48,28 @@ ACSafiJiiva::ACSafiJiiva()
 	}
 
 	
+#pragma endregion Components
+
+	//========================= 콜리전 세팅 파트
+
+#pragma  region Collision
+	Collision_1 = CreateDefaultSubobject<UBoxComponent>(TEXT("Collision_1"));
+	Collision_1->SetupAttachment(SafiComponent, TEXT("Collision_1"));
+	Collision_1->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+
+
+#pragma  endregion Collision
+
+
+	// ========================= 박스 크기 설정 파트
+
+
+#pragma region SetExtentBox
+
+	Collision_1->SetBoxExtent(FVector(50.f, 50.f, 50.f));
+
 #pragma endregion
+
 
 }
 
@@ -71,6 +90,8 @@ void ACSafiJiiva::Tick(float DeltaTime)
 	{
 		SetNormal();
 	}
+
+
 }
 
 // Called to bind functionality to input
@@ -88,6 +109,7 @@ void ACSafiJiiva::SetNormal()
 	// 제일 마지막에
 	isDisturbed = false;
 }
+
 
 void ACSafiJiiva::SetSpeed(float _value)
 {

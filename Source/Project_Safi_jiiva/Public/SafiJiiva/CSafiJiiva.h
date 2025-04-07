@@ -53,21 +53,27 @@ private:	// 함수용 변수들
 public:	// 체력 등 스탯 계수
 	float MAXHP = 100.f;
 	float hp = MAXHP;
+
 	float AttackRange = 500.f;
 	float SearchRange = 1000.f;
 
-	float RunSpeed = 900.f;
-	float WalkSpeed = 300.f;
+	float RunSpeed = 400.f;
+	float WalkSpeed = 100.f;
+
+	float idleTime = 3.f;
 
 public: // 상태 체크
 	bool isInBattle = false;		//전투상태인가
 	bool isFly = false;
 	//======================== 상태이상 관련 //========================
+
 	bool isDisturbed = false;		// 상태이상에 걸렸는지
 	bool isBreath = false;			// 브레스 사용중인지
 	bool isRepelled = false;		// 넉백당했는지
 
 	void SetNormal();	// bool형 변수들 false로 전부 바꿔주는 함수
+public:
+
 
 public:
 	void SetSpeed(float _value);
