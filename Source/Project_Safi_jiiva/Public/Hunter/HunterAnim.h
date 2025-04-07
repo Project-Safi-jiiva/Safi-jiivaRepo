@@ -25,12 +25,23 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Movement")
 	float Speed;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Movement")
+	float WalkAngleStart;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float WalkAngle;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Movement")
 	EMoveState MoveState;
+
+
+
 	class AHunter* Owner;
 private:
+	float CalculateDirection(const FVector& Velocity) const;
 	float CalculateDirection(const FVector& Velocity, const FRotator& BaseRotation) const;
+	bool bIsLerpingSpeed;
+	float SpeedLerpTime;
+	float SpeedLerpDuration=0;
+	bool isStart = false;
+
 
 
 };

@@ -7,6 +7,7 @@
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h"
 #include "Hunter/Hunter.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values for this component's properties
 UMoveComponent::UMoveComponent()
@@ -28,7 +29,7 @@ UMoveComponent::UMoveComponent()
 void UMoveComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
+	Owner->GetCharacterMovement()->MaxAcceleration = 900.0f;
 	// ...
 
 }
@@ -56,7 +57,12 @@ void UMoveComponent::SetupInputBinding(class UEnhancedInputComponent* InputCompo
 
 void UMoveComponent::MoveStart()
 {
-	MoveState = EMoveState::START;
+	MoveState = EMoveState::WALK;
+
+	//FTimerHandle StartTimerHandler;
+	//auto ChangeWalkMode = [this]() {
+	//	};
+	//GetWorld()->GetTimerManager().SetTimer(StartTimerHandler, ChangeWalkMode, 1.0f, false);
 }
 
 void UMoveComponent::MoveEnd()

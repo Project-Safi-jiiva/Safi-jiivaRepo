@@ -12,8 +12,8 @@ enum class EMoveState:uint8
 {
 	IDLE UMETA(DisplayName = "IDLE"),
 	START UMETA(DisplayName = "START"),
-	WALK UMETA(DisplayName = "RUN"),
-	RUN  UMETA(DisplayName = "START"),
+	WALK UMETA(DisplayName = "WALK"),
+	RUN  UMETA(DisplayName = "RUN"),
 	STOP UMETA(DisplayName = "STOP"),
 	MAX
 };

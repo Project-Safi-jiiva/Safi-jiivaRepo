@@ -5,6 +5,7 @@
 #include "Hunter/Hunter.h"
 #include "Project_Safi_jiiva.h"
 #include "Hunter/MoveComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 void UHunterAnim::NativeBeginPlay()
 {
@@ -15,12 +16,94 @@ void UHunterAnim::NativeUpdateAnimation(float DeltaTime)
 {
 	if (!Owner)return;
 	Speed=Owner->GetVelocity().Size2D();
-	WalkAngle = CalculateDirection(Owner->GetVelocity(), Owner->GetControlRotation());
+    WalkAngle = CalculateDirection(Owner->GetVelocity(),Owner->GetControlRotation());
 
-	PRINT_LOG(TEXT("Speed : %f"), WalkAngle);
+	//PRINT_LOG(TEXT("Speed : %f"), WalkAngle);
     MoveState = Owner->MoveComp->MoveState;
+
+    FString log = UEnum::GetValueAsString(MoveState);
+    GEngine->AddOnScreenDebugMessage(0, 1.0f, FColor::Red, log);
+
+	switch (MoveState)
+	{
+    case EMoveState::IDLE: { }
+						 break;
+
+    case EMoveState::START: {}
+	case EMoveState::WALK: {
+        if (isStart)return;
+        isStart = true;
+
+        WalkAngleStart = CalculateDirection(Owner->GetVelocity());
+        PRINT_LOG(TEXT("Speed : %f"), WalkAngleStart); }
+						 break;
+	case EMoveState::RUN: {}
+						break;
+    case EMoveState::STOP: {
+        isStart = false;
+                            SpeedLerpTime = 0; }
+						 break;
+	default:
+		break;
+	}
+
+
 }
 
+float UHunterAnim::CalculateDirection(const FVector& Velocity) const
+{
+    if (!Velocity.IsNearlyZero())
+    {
+        AActor* OwnerActor = GetOwningActor();
+        if (!OwnerActor)
+        {
+            return 0.0f;
+        }
+
+        // 캐릭터의 Yaw만 사용
+        FRotator CharacterRotation = FRotator(0.0f, OwnerActor->GetActorRotation().Yaw, 0.0f);
+        FMatrix RotMatrix = FRotationMatrix(CharacterRotation);
+
+        FVector ForwardVector = RotMatrix.GetScaledAxis(EAxis::X);
+        ForwardVector.Z = 0.0f;
+        ForwardVector.Normalize();
+
+        FVector RightVector = RotMatrix.GetScaledAxis(EAxis::Y);
+        RightVector.Z = 0.0f;
+        RightVector.Normalize();
+
+        FVector NormalizedVel = Velocity.GetSafeNormal2D();
+
+        float ForwardCosAngle = FVector::DotProduct(ForwardVector, NormalizedVel);
+        float ForwardDeltaDegree = FMath::RadiansToDegrees(FMath::Acos(ForwardCosAngle));
+
+        float RightCosAngle = FVector::DotProduct(RightVector, NormalizedVel);
+        if (RightCosAngle < 0)
+        {
+            ForwardDeltaDegree *= -1; // 오른쪽이면 음수
+        }
+
+        // 절대값으로 변환 (0 ~ 180)
+        float AbsDegree = FMath::Abs(ForwardDeltaDegree);
+
+        // 45도 간격으로 스냅
+        float SnappedDegree;
+        if (AbsDegree <= 22.5f)
+            SnappedDegree = 0.0f;
+        else if (AbsDegree <= 67.5f)
+            SnappedDegree = 45.0f;
+        else if (AbsDegree <= 112.5f)
+            SnappedDegree = 90.0f;
+        else if (AbsDegree <= 157.5f)
+            SnappedDegree = 135.0f;
+        else
+            SnappedDegree = 180.0f;
+
+        return SnappedDegree;
+    }
+
+    return 0.0f;
+}
 float UHunterAnim::CalculateDirection(const FVector& Velocity, const FRotator& BaseRotation) const
 {
     if (!Velocity.IsNearlyZero())

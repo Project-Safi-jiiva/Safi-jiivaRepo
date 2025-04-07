@@ -1,17 +1,22 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "AssetPath.h"
-#include "Hunter/Hunter.h/"
-#include "Project_Safi_jiiva.h"
-#include "Hunter/MoveComponent.h"
-#include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputSubsystems.h"
-#include "Engine/LocalPlayer.h"
-#include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/InputMappingContext.h"
-#include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h"
-#include "Hunter/HunterAnim.h"
-#include "GameFramework/CharacterMovementComponent.h"
-#include "GameFramework/SpringArmComponent.h"
-#include "Camera/CameraComponent.h"
+#include "Hunter/Hunter.h"           
+#include "Hunter/HunterAnim.h"       
+#include "Hunter/MoveComponent.h"   
+
+#include "AssetPath.h"              
+#include "Project_Safi_jiiva.h"    
+
+#include "Engine/LocalPlayer.h"     
+#include "UObject/ConstructorHelpers.h" 
+
+#include "Camera/CameraComponent.h"             
+#include "GameFramework/CharacterMovementComponent.h" 
+#include "GameFramework/SpringArmComponent.h"   
+
+#include "EnhancedInput/Public/EnhancedInputComponent.h"    
+#include "EnhancedInput/Public/EnhancedInputSubsystems.h"  
+#include "EnhancedInput/Public/InputMappingContext.h"
 
 // Sets default values
 AHunter::AHunter()
@@ -36,7 +41,6 @@ AHunter::AHunter()
 		Anim = Cast<UHunterAnim>(GetMesh()->GetAnimInstance());
 		IMC_Hunter = IMC_HunterTool.Object;
 	}
-	// 컨트롤러 회전 비활성화 (캐릭터가 카메라 방향을 따르지 않음)
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
@@ -49,8 +53,8 @@ AHunter::AHunter()
 	// 스프링 암 생성 및 설정
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArmComponent->SetupAttachment(RootComponent);
-	SpringArmComponent->TargetArmLength = 300.0f; // 몬스터 헌터처럼 약간 멀리
-	SpringArmComponent->bUsePawnControlRotation = true; // 카메라가 컨트롤러 회전을 따름
+	SpringArmComponent->TargetArmLength = 300.0f;
+	SpringArmComponent->bUsePawnControlRotation = true;
 	SpringArmComponent->bInheritPitch = true;
 	SpringArmComponent->bInheritYaw = true;
 	SpringArmComponent->bInheritRoll = false;
@@ -59,7 +63,7 @@ AHunter::AHunter()
 	// 카메라 생성 및 설정
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
-	CameraComponent->bUsePawnControlRotation = false; // 카메라 자체는 스프링 암에 종속
+	CameraComponent->bUsePawnControlRotation = false;
 
 }
 
