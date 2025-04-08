@@ -18,7 +18,7 @@ void UHunterAnim::NativeUpdateAnimation(float DeltaTime)
 	Speed=Owner->GetVelocity().Size2D();
     WalkAngle = CalculateDirection(Owner->GetVelocity(),Owner->GetControlRotation());
 
-	//PRINT_LOG(TEXT("Speed : %f"), WalkAngle);
+	PRINT_LOG(TEXT("Speed : %f"), CalculateDirection(Owner->GetVelocity()));
     MoveState = Owner->MoveComp->MoveState;
 
     FString log = UEnum::GetValueAsString(MoveState);
@@ -28,13 +28,22 @@ void UHunterAnim::NativeUpdateAnimation(float DeltaTime)
 	{
     case EMoveState::IDLE:break;
 
-    case EMoveState::START:break;
-	case EMoveState::WALK: {
+    case EMoveState::START: {
         if (isStart)return;
         isStart = true;
         WalkAngleStart = CalculateDirection(Owner->GetVelocity());
-        PRINT_LOG(TEXT("Speed : %f"), WalkAngleStart); }break;
+        PRINT_LOG(TEXT("Speed : %f"), WalkAngleStart);
+
+    }break;
+	case EMoveState::WALK: {
+        if (CalculateDirection(Owner->GetVelocity())>100|| CalculateDirection(Owner->GetVelocity()) < -100) {
+            WalkAngleStart = CalculateDirection(Owner->GetVelocity());
+
+            MoveState = EMoveState::TURN;
+        }
+ }break;
     case EMoveState::STOP: {
+
         isStart = false;
         SpeedLerpTime = 0; }break;
 	default:
@@ -54,7 +63,6 @@ float UHunterAnim::CalculateDirection(const FVector& Velocity) const
             return 0.0f;
         }
 
-        // 캐릭터의 Yaw만 사용
         FRotator CharacterRotation = FRotator(0.0f, OwnerActor->GetActorRotation().Yaw, 0.0f);
         FMatrix RotMatrix = FRotationMatrix(CharacterRotation);
 
@@ -77,11 +85,9 @@ float UHunterAnim::CalculateDirection(const FVector& Velocity) const
             ForwardDeltaDegree *= -1; // 오른쪽이면 음수
         }
 
-        // 절대값으로 변환 (0 ~ 180)
-        float AbsDegree = FMath::Abs(ForwardDeltaDegree);
-
-        // 45도 간격으로 스냅
+        // 음수를 유지하며 스냅
         float SnappedDegree;
+        float AbsDegree = FMath::Abs(ForwardDeltaDegree); // 스냅용 절댓값
         if (AbsDegree <= 22.5f)
             SnappedDegree = 0.0f;
         else if (AbsDegree <= 67.5f)
@@ -93,7 +99,13 @@ float UHunterAnim::CalculateDirection(const FVector& Velocity) const
         else
             SnappedDegree = 180.0f;
 
-        return SnappedDegree;
+        // 원래 부호 복원
+        if (ForwardDeltaDegree < 0)
+        {
+            SnappedDegree *= -1;
+        }
+
+        return SnappedDegree; // -180 ~ 180도 반환 가능
     }
 
     return 0.0f;

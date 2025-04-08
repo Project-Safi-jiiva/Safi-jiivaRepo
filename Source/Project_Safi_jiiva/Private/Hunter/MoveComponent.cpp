@@ -65,6 +65,12 @@ void UMoveComponent::MoveEnd()
 	MoveState = EMoveState::STOP;
 }
 
+
+void UMoveComponent::MoveTurn()
+{
+	MoveState = EMoveState::TURN;
+}
+
 void UMoveComponent::Move(const FInputActionValue& Value)
 {
 	FVector2D Scale = Value.Get<FVector2D>();

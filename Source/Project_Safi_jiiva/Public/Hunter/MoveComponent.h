@@ -38,7 +38,10 @@ private:
 private:
 
 	void MoveStart();
+
 	void MoveEnd();
+
+	void MoveTurn();
 	void Move(const struct FInputActionValue& Value);
 
 	void Turn(const struct FInputActionValue& Value);
