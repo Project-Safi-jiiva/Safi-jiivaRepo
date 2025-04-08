@@ -45,6 +45,9 @@ public:	// 소켓 추가 파트
 	UPROPERTY(EditDefaultsOnly)
 	class UBoxComponent* Collision_1;
 
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* Collision_2;
+
 #pragma endregion
 
 private:	// 함수용 변수들
@@ -54,8 +57,8 @@ public:	// 체력 등 스탯 계수
 	float MAXHP = 100.f;
 	float hp = MAXHP;
 
-	float AttackRange = 500.f;
-	float SearchRange = 1000.f;
+	float MeleeAttRange = 500.f;
+	float SearchRange = 3000.f;
 
 	float RunSpeed = 400.f;
 	float WalkSpeed = 100.f;
@@ -63,8 +66,9 @@ public:	// 체력 등 스탯 계수
 	float idleTime = 3.f;
 
 public: // 상태 체크
-	bool isInBattle = false;		//전투상태인가
-	bool isFly = false;
+	bool isInBattle = false;		// 전투상태인가
+	bool isFly = false;				// 비행 상태인가
+	bool isImmune = false;			// 특정 상황에서는 상태이상 면역.
 	//======================== 상태이상 관련 //========================
 
 	bool isDisturbed = false;		// 상태이상에 걸렸는지

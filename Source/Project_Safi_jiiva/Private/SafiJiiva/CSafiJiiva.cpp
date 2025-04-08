@@ -53,8 +53,9 @@ ACSafiJiiva::ACSafiJiiva()
 	//========================= 콜리전 세팅 파트
 
 #pragma  region Collision
-	Collision_1 = CreateDefaultSubobject<UBoxComponent>(TEXT("Collision_1"));
-	Collision_1->SetupAttachment(SafiComponent, TEXT("Collision_1"));
+
+	Collision_1 = CreateDefaultSubobject<UBoxComponent>(TEXT("BiteDMGBox"));
+	Collision_1->SetupAttachment(SafiComponent, TEXT("Socket_BiteDMGBox"));
 	Collision_1->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 
 
@@ -66,7 +67,7 @@ ACSafiJiiva::ACSafiJiiva()
 
 #pragma region SetExtentBox
 
-	Collision_1->SetBoxExtent(FVector(50.f, 50.f, 50.f));
+	Collision_1->SetBoxExtent(FVector(70.f, 80.f, 150.f));
 
 #pragma endregion
 
@@ -106,7 +107,6 @@ void ACSafiJiiva::SetNormal()
 	isBreath = false;
 	isRepelled = false;
 
-	// 제일 마지막에
 	isDisturbed = false;
 }
 

@@ -20,10 +20,10 @@ public:
 	class UCSafiFSM*	FSM;
 
 public:	//FSM State 관련
-	UPROPERTY(EditDefaultsOnly, Category = "FSM")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "FSM")
 	ESafiState aState = ESafiState::Idle;
 
-	UPROPERTY(EditDefaultsOnly, Category = "FSM")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "FSM")
 	EAttackState aAttState = EAttackState::None;
 	
 public:	// 수치값
@@ -34,4 +34,6 @@ public:	// 수치값
 
 public:	// AnimNotify 관련 -------- UFUNCTION() 잊지말것!!!
 
+	UFUNCTION() 
+	void AnimNotify_Roar_END();
 };

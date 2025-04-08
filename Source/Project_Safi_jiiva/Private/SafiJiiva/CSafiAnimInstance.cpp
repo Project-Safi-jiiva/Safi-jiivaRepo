@@ -22,4 +22,15 @@ void UCSafiAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	direction = FVector::DotProduct(velocity, rightVector);
 }
 
+
 // ===================== 노티파이 추가하는 파트 =====================
+
+void UCSafiAnimInstance::AnimNotify_Roar_END()
+{
+	if( !me ){ return; }
+
+	// 노티파이 종료시 OnAttackProcess 호출
+	FSM->OnAttackProcess();
+	// 노티파이 종료시 이뮨 해제
+	me->isImmune = false;
+}

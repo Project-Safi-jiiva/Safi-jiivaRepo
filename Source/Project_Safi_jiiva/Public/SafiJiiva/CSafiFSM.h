@@ -10,7 +10,7 @@ UENUM()
 enum class ESafiState : uint8
 {
 	Idle		UMETA(DisplayName = "Idle"),
-	Move		UMETA(DisplayName = "Move"),
+	//Move		UMETA(DisplayName = "Move"),
 	Attack		UMETA(DisplayName = "Attack"),
 	Dead		UMETA(DisplayName = "Dead")
 	// Fly			UMETA(DisplayName = "Fly") / Fly는 그냥 IsFly로 상태 체크하는게 나을듯?
@@ -20,9 +20,11 @@ UENUM()
 enum class EAttackState : uint8
 {
 	None			UMETA(DisplayName = "None"),
-	Breath			UMETA(DisplayName = "Breath"),
-	AimedBreath		UMETA(DisplayName = "AimedBreath"),
-	CloseAttack		UMETA(DisplayName = "CloseAttack")
+	Roar			UMETA(DisplayName = "Roar"),
+	MeleeBite		UMETA(DisplayName = "Melee_Bite"),
+	MeleeBP			UMETA(DisplayName = "Melee_BodyPress"),
+	NormalBreath	UMETA(DisplayName = "Normal_Breath"),
+	AimedBreath		UMETA(DisplayName = "Aimed_Breath")
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -62,13 +64,20 @@ public:
 
 public:
 	float currentTime = 0.f;
+	int AttType = 0;	// 랜덤 공격 번호로 사용할 예정
 
-private:	// 기본 State 함수
+private: // 기본 State 함수
 	void IdleState();
 	void MoveState();
+	void BreathState();
 
-private:	// AttState 함수
+public:	// AttState 함수
 	void OnAttackProcess();
+
+public: // 공격 관련 함수
+	void AttRoar();
+	void AttMelee();
+	void AttBreath();
 public:
 	void TargetRotation();
 	FVector SearchTarget();

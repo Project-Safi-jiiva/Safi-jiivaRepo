@@ -23,9 +23,9 @@ void UCSafiFSM::BeginPlay()
 {
 	Super::BeginPlay();
 
-	AActor* actor = UGameplayStatics::GetActorOfClass(GetWorld(), AHunter::StaticClass());
-	if(!actor) { return; }
-	target = Cast<AHunter>(actor);
+	// AActor* actor = UGameplayStatics::GetActorOfClass(GetWorld(), AHunter::StaticClass());
+	// if(!actor) { return; }
+	// target = Cast<AHunter>(actor);
 
 	me = Cast<ACSafiJiiva>(GetOwner());
 	if(!me) { return; }
@@ -44,18 +44,53 @@ void UCSafiFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+
 #pragma region LogMessageState
 	FString logMsgState = UEnum::GetValueAsString(mState);
-	GEngine->AddOnScreenDebugMessage(0, 1, FColor::Red, logMsgState);
+	GEngine->AddOnScreenDebugMessage(0, 1, FColor::Blue, logMsgState);
 
 	FString logMsgAtt = UEnum::GetValueAsString(mAttState);
 	GEngine->AddOnScreenDebugMessage(1, 1, FColor::Green, logMsgAtt);
+
+	// ==========================================================================
+
+	// bool형 변수 상태 출력
+
+	FColor inBattleColor = me->isInBattle ? FColor::Red : FColor::White;
+	FString logMsgInBattle = FString::Printf(TEXT("isInBattle: %s"), me->isInBattle ? TEXT("True") : TEXT("False"));
+	GEngine->AddOnScreenDebugMessage(3, 1, inBattleColor, logMsgInBattle);
+
+	// isFly 상태 출력 (True일 때 빨간색)
+	FColor flyColor = me->isFly ? FColor::Red : FColor::White;
+	FString logMsgFly = FString::Printf(TEXT("isFly: %s"), me->isFly ? TEXT("True") : TEXT("False"));
+	GEngine->AddOnScreenDebugMessage(4, 1, flyColor, logMsgFly);
+
+	// isImmune 상태 출력 (True일 때 빨간색)
+	FColor immuneColor = me->isImmune ? FColor::Red : FColor::White;
+	FString logMsgImmune = FString::Printf(TEXT("isImmune: %s"), me->isImmune ? TEXT("True") : TEXT("False"));
+	GEngine->AddOnScreenDebugMessage(5, 1, immuneColor, logMsgImmune);
+
+	// isDisturbed 상태 출력 (True일 때 빨간색)
+	FColor disturbedColor = me->isDisturbed ? FColor::Red : FColor::White;
+	FString logMsgDisturbed = FString::Printf(TEXT("isDisturbed: %s"), me->isDisturbed ? TEXT("True") : TEXT("False"));
+	GEngine->AddOnScreenDebugMessage(6, 1, disturbedColor, logMsgDisturbed);
+
+	// isBreath 상태 출력 (True일 때 빨간색)
+	FColor breathColor = me->isBreath ? FColor::Red : FColor::White;
+	FString logMsgBreath = FString::Printf(TEXT("isBreath: %s"), me->isBreath ? TEXT("True") : TEXT("False"));
+	GEngine->AddOnScreenDebugMessage(7, 1, breathColor, logMsgBreath);
+
+	// isRepelled 상태 출력 (True일 때 빨간색)
+	FColor repelledColor = me->isRepelled ? FColor::Red : FColor::White;
+	FString logMsgRepelled = FString::Printf(TEXT("isRepelled: %s"), me->isRepelled ? TEXT("True") : TEXT("False"));
+	GEngine->AddOnScreenDebugMessage(8, 1, repelledColor, logMsgRepelled);
+
 #pragma endregion
 
 	switch(mState)
 	{
 		case ESafiState::Idle		: { IdleState(); }	break;
-		case ESafiState::Move		: {  }	break;
+		//case ESafiState::Move		: {  }	break;
 		case ESafiState::Attack		: {  }	break;
 		case ESafiState::Dead		: {  }	break;
 	}
@@ -63,51 +98,43 @@ void UCSafiFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	switch(mAttState)
 	{
 		case EAttackState::None			: {  }	break;
+		case EAttackState::Roar			: {  }	break;
 		case EAttackState::Breath		: {  }	break;
 		case EAttackState::AimedBreath	: {  }	break;
-		case EAttackState::CloseAttack	: {  }	break;
+		case EAttackState::MeleeAttack	: {  }	break;
 	
 	}
 }
 
+// 타겟 사망시에 IdleState로 돌아옴
 void UCSafiFSM::IdleState()
 {
+	// ======== 탐지 -> 포효 -> 개전 ========
+
+//탐지파트
+	AActor* actor = UGameplayStatics::GetActorOfClass(GetWorld(), AHunter::StaticClass());
+	if (!actor) { return; }
+	target = Cast<AHunter>(actor);
+
 	FVector dir = SearchTarget();
 
-	currentTime += GetWorld()->DeltaTimeSeconds;
-	
-	// 일정 시간이 지나면 MoveState로
-	if (currentTime > me->idleTime)
+	//타겟과의 사거리가 색적범위보다 멀다면 타겟을 삭제
+	if ( dir.Size() > me->SearchRange)
 	{
-		mState = ESafiState::Move;
-		Anim->aState = mState;
-
-		currentTime = 0.f;
+		target = nullptr;
+		return;
 	}
 
-
-	// 방향은 랜덤
-
-	// Safi의 Tick에서 or 한 패턴이 끝나면 사거리 내 player의 존재 여부 확인
-	// 플레이어가 없을 경우 다시 Idle
-	// 플레이어가 존재할 경우 다음 공격 패턴으로
+	// 위 조건을 지나옴 = 색적범위 안쪽
+	me->isInBattle = true;
 
 
-	if (dir.Size() < me->AttackRange)
-	{
-		OnAttackProcess();
-		//	currentTime = 0.f;
-	}
-	
-	// 공격 프로세스 고민해보기.
-	// 탐지 -> 포효해야함
-	if( me->isInBattle == true )
-	{
-		//여기는 커런트타임 경과 후 사거리에 따라 다음 공격을 결정하기로 함.
-		me->SetSpeed(me->RunSpeed);
-		currentTime = 0.f;
-	}
+// 포효
+	// 포효 처리 및 공격 패턴으로 전환
+	mState = ESafiState::Attack;
+	Anim->aState = mState;
 
+	AttRoar();
 }
 
 void UCSafiFSM::MoveState()
@@ -123,7 +150,6 @@ void UCSafiFSM::MoveState()
 
 	if (currentTime > me->idleTime)
 	{	
-
 		mState = ESafiState::Idle;
 		Anim->aState = mState;
 
@@ -137,22 +163,59 @@ void UCSafiFSM::MoveState()
 	me->AddMovementInput(dir);
 	*/
 
-	//여기도 커런트타임 경과 후 사거리에 따라 다음 공격을 결정하기로 함.
 }
 
+void UCSafiFSM::BreathState()
+{
+
+}
+
+void UCSafiFSM::AttRoar()
+{
+	me->isImmune = true;
+	mAttState = EAttackState::Roar;
+	Anim->aAttState = mAttState;
+	// 포효 공격판정 실행
+
+	// 노티파이 종료시 OnAttackProcess 호출	- 수행완료
+	// 노티파이 종료시 이뮨 해제 - 수행완료
+}
+
+void UCSafiFSM::AttMelee()
+{
+	
+}
+
+void UCSafiFSM::AttBreath()
+{
+
+}
+
+// mState를 Attack으로 변경 / 다음 공격에 대한 판단 
 void UCSafiFSM::OnAttackProcess()
 {
+	FVector dir = SearchTarget();
+
 	//공격 상태로의 전환
 	mState = ESafiState::Attack;
 	Anim->aState = mState;
 
 	//어떤 공격을 할 지 판별
 
+	//근접 공격 사거리 안쪽에 있다면 팔, 다리중 가까운 쪽으로 공격
+	if (dir.Size() < me->MeleeAttRange)
+	{
+		mAttState = EAttackState::MeleeBite;
+		Anim->aAttState = mAttState;
+	}
 
+	// 근접공격 사거리 바깥쪽이라면 브레스 패턴으로
+	else 
+	{ 
+		mAttState = EAttackState::AimedBreath;
+		Anim->aAttState = mAttState;
+	}
 
-
-	//mAttState = EAttackState::Breath;
-	//Anim->aAttState = mAttState;
 
 }
 
