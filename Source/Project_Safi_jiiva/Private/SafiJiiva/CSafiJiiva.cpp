@@ -17,6 +17,7 @@ ACSafiJiiva::ACSafiJiiva()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+// 컴포넌트 생성 / 설정파트
 #pragma region Components
 	SafiComponent = GetMesh();
 	ConstructorHelpers::FObjectFinder<USkeletalMesh>TmpBody(TEXT("/Script/Engine.SkeletalMesh'/Game/KJY/Safi_Jiiva/Meshes/Safi_jiiva__FULL_ANIMATION_.Safi_jiiva__FULL_ANIMATION_'"));
@@ -31,10 +32,15 @@ ACSafiJiiva::ACSafiJiiva()
 	}
 	
 	FireArrowComp = CreateDefaultSubobject<UArrowComponent>(TEXT("FireArrowComp"));
-	FireArrowComp->SetupAttachment(SafiComponent/*, TEXT("FirePosition")*/);
+	FireArrowComp->SetupAttachment(SafiComponent, TEXT("Socket_BiteDMGBox"));
 	FireArrowComp->SetRelativeLocation(FVector());
-	FireArrowComp->SetRelativeRotation(FRotator( 0.f , 90.f, 0.f ));
+	FireArrowComp->SetRelativeRotation(FRotator( 90.f , 0.f, 0.f ));
 
+	LineArrowComp = CreateDefaultSubobject<UArrowComponent>(TEXT("LineArrowComp"));
+	LineArrowComp->SetupAttachment(SafiComponent /*, TEXT("Socket_Nose")*/);
+	LineArrowComp->SetRelativeLocation(FVector(0.f, 1580.f, 350.f));
+	LineArrowComp->SetRelativeRotation(FRotator(0.f, 90.f, 0.f));
+	
 
 	FSM = CreateDefaultSubobject<UCSafiFSM>(TEXT("FSM"));
 	USkeletalMeshComponent* SkeletalMeshComp = GetMesh();
@@ -47,7 +53,8 @@ ACSafiJiiva::ACSafiJiiva()
 		SkeletalMeshComp->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
 	}
 
-	
+
+
 #pragma endregion Components
 
 	//========================= 콜리전 세팅 파트
@@ -92,16 +99,51 @@ void ACSafiJiiva::Tick(float DeltaTime)
 		SetNormal();
 	}
 
+	DrawLineTrace();
 
+	// 근접 공격범위 체크
+	DrawDebugSphere(GetWorld(), this->GetActorLocation(), MeleeAttRange, 12, FColor::Green, true, -1, 0, 0);
+
+	// 원거리 공격범위 체크
+	//DrawDebugSphere(GetWorld(), this->GetActorLocation(), SearchRange, 12, FColor::Blue, true, -1, 0, 0);
 }
-
-// Called to bind functionality to input
+/*
 void ACSafiJiiva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 }
+*/
 
+void ACSafiJiiva::DrawLineTrace()
+{
+	FVector StartPos	= LineArrowComp->GetComponentLocation();
+	FVector EndPos		=  StartPos + LineArrowComp->GetForwardVector() * 1000;
+
+	bool bHit = CheckHitLineTrace(StartPos, EndPos);
+
+	DrawDebugLine(GetWorld(), StartPos, EndPos, FColor::Red, false, -1, 0, 3.f);
+}
+
+bool ACSafiJiiva::CheckHitLineTrace(FVector _startPos, FVector& _curPos)
+{
+	FHitResult HitInfo;
+	FCollisionQueryParams params;
+	// TArray<AActor*> ignoreActor;
+	params.AddIgnoredActor(this);
+
+	bool bHit = GetWorld()->LineTraceSingleByChannel(HitInfo, _startPos, _curPos, ECC_Visibility, params);
+
+	if (bHit && HitInfo.GetActor()->GetActorNameOrLabel().Contains("헌터이려나"))
+	{
+		// 충돌체크
+
+	}
+
+	return bHit;
+}
+
+// 브레스, 
 void ACSafiJiiva::SetNormal()
 {
 	isBreath = false;

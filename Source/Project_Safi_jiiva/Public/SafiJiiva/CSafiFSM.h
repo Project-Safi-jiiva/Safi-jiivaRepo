@@ -22,7 +22,7 @@ enum class EAttackState : uint8
 	None			UMETA(DisplayName = "None"),
 	Roar			UMETA(DisplayName = "Roar"),
 	MeleeBite		UMETA(DisplayName = "Melee_Bite"),
-	MeleeBP			UMETA(DisplayName = "Melee_BodyPress"),
+	MeleeBPress		UMETA(DisplayName = "Melee_BodyPress"),
 	NormalBreath	UMETA(DisplayName = "Normal_Breath"),
 	AimedBreath		UMETA(DisplayName = "Aimed_Breath")
 };

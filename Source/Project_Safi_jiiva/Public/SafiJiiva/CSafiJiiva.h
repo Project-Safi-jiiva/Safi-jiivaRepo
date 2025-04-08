@@ -22,9 +22,7 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	//virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 public: //기본 세팅 파트
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = FSM)
@@ -38,6 +36,10 @@ public: //기본 세팅 파트
 
 	UPROPERTY(EditDefaultsOnly)
 	class UArrowComponent* FireArrowComp;
+
+	UPROPERTY(EditDefaultsOnly)
+	class UArrowComponent* LineArrowComp;
+
 
 public:	// 소켓 추가 파트
 #pragma region CollisionSocketPart
@@ -57,7 +59,7 @@ public:	// 체력 등 스탯 계수
 	float MAXHP = 100.f;
 	float hp = MAXHP;
 
-	float MeleeAttRange = 500.f;
+	float MeleeAttRange = 1500.f;
 	float SearchRange = 3000.f;
 
 	float RunSpeed = 400.f;
@@ -69,15 +71,20 @@ public: // 상태 체크
 	bool isInBattle = false;		// 전투상태인가
 	bool isFly = false;				// 비행 상태인가
 	bool isImmune = false;			// 특정 상황에서는 상태이상 면역.
-	//======================== 상태이상 관련 //========================
 
-	bool isDisturbed = false;		// 상태이상에 걸렸는지
+	//======================== 상태이상 관련 //========================
+	bool isDisturbed = false;		// 상태이상에 걸렸는지 - 애니메이션 끊길 때 노티파이 삭제 대체용
 	bool isBreath = false;			// 브레스 사용중인지
 	bool isRepelled = false;		// 넉백당했는지
 
-	void SetNormal();	// bool형 변수들 false로 전부 바꿔주는 함수
-public:
+public: // 라인 트레이스
+	bool bLineTracing = false;
+	UFUNCTION()
+	void DrawLineTrace();
+	bool CheckHitLineTrace(FVector _startPos, FVector& _curPos);
 
+public:// bool형 변수들 false로 전부 바꿔주는 함수
+	void SetNormal();	
 
 public:
 	void SetSpeed(float _value);

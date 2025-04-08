@@ -99,9 +99,12 @@ void UCSafiFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	{
 		case EAttackState::None			: {  }	break;
 		case EAttackState::Roar			: {  }	break;
-		case EAttackState::Breath		: {  }	break;
+
+		case EAttackState::MeleeBite	: {  }	break;
+		case EAttackState::MeleeBPress	: {  }	break;
+
+		case EAttackState::NormalBreath	: {  }	break;
 		case EAttackState::AimedBreath	: {  }	break;
-		case EAttackState::MeleeAttack	: {  }	break;
 	
 	}
 }
@@ -209,13 +212,15 @@ void UCSafiFSM::OnAttackProcess()
 		Anim->aAttState = mAttState;
 	}
 
+	//물기 구현중이라 브레스 잠시 막음
+	/*
 	// 근접공격 사거리 바깥쪽이라면 브레스 패턴으로
 	else 
 	{ 
 		mAttState = EAttackState::AimedBreath;
 		Anim->aAttState = mAttState;
 	}
-
+	*/
 
 }
 
