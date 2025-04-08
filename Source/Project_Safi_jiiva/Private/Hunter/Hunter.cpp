@@ -17,6 +17,7 @@
 #include "EnhancedInput/Public/EnhancedInputComponent.h"
 #include "EnhancedInput/Public/EnhancedInputSubsystems.h"
 #include "EnhancedInput/Public/InputMappingContext.h"
+#include "Weapon/WeaponComponent.h"
 
 // Sets default values
 AHunter::AHunter()
@@ -25,6 +26,7 @@ AHunter::AHunter()
 
 	//컴포넌트 추가 부분
 	MoveComp = CreateDefaultSubobject<UMoveComponent>(TEXT("MoveComponent"));
+	WeaponComp = CreateDefaultSubobject<UWeaponComponent>(TEXT("WeaponComponent"));
 	//스켈레탈 메쉬 추가
 	ConstructorHelpers::FObjectFinder<USkeletalMesh> SK_Hunter(AssetPaths::HUNTER_MESH);
 	if (SK_Hunter.Succeeded()) GetMesh()->SetSkeletalMesh(SK_Hunter.Object);
@@ -81,6 +83,11 @@ void AHunter::BeginPlay()
 void AHunter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	if (isRun)
+		GetCharacterMovement()->MaxWalkSpeed = 800;
+	else
+		GetCharacterMovement()->MaxWalkSpeed = 400;
+
 
 }
 

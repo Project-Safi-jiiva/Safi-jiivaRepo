@@ -23,7 +23,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:
+protected:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -31,23 +31,29 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 public:
+	UPROPERTY(EditDefaultsOnly, Category = "MoveComp")
+	class UMoveComponent* MoveComp;
+
 	UPROPERTY(EditAnywhere,Category="Camera")
 	class UCameraComponent* CameraComponent;
 
+	UPROPERTY(EditDefaultsOnly, Category = "MoveComp")
+	class UWeaponComponent* WeaponComp;
+protected:
 	class UHunterAnim* Anim;
-
 
 	UPROPERTY(EditAnywhere, Category = "Camera")
 	class USpringArmComponent* SpringArmComponent;
 
-	UPROPERTY(EditDefaultsOnly, Category = "MoveComp")
-	class UMoveComponent* MoveComp;
 private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputMappingContext* IMC_Hunter;
 
 	class USkeletalMeshComponent* SkeletalMeshComp;
+
+public:
+	bool isRun = false;
 
 
 

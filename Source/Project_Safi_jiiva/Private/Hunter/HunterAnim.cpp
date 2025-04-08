@@ -26,23 +26,17 @@ void UHunterAnim::NativeUpdateAnimation(float DeltaTime)
 
 	switch (MoveState)
 	{
-    case EMoveState::IDLE: { }
-						 break;
+    case EMoveState::IDLE:break;
 
-    case EMoveState::START: {}
+    case EMoveState::START:break;
 	case EMoveState::WALK: {
         if (isStart)return;
         isStart = true;
-
         WalkAngleStart = CalculateDirection(Owner->GetVelocity());
-        PRINT_LOG(TEXT("Speed : %f"), WalkAngleStart); }
-						 break;
-	case EMoveState::RUN: {}
-						break;
+        PRINT_LOG(TEXT("Speed : %f"), WalkAngleStart); }break;
     case EMoveState::STOP: {
         isStart = false;
-                            SpeedLerpTime = 0; }
-						 break;
+        SpeedLerpTime = 0; }break;
 	default:
 		break;
 	}

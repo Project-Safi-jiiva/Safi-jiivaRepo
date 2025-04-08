@@ -10,7 +10,9 @@
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class PROJECT_SAFI_JIIVA_API UWeaponComponent : public UBaseComponent,public IWeaponInterface
+class PROJECT_SAFI_JIIVA_API UWeaponComponent
+	: public UBaseComponent
+	, public IWeaponInterface
 {
 	GENERATED_BODY()
 
@@ -40,6 +42,13 @@ protected:
 
 	virtual void ResetCombo() override;
 
+	//부모 상속
+
+	virtual void SetupInputBinding(class UEnhancedInputComponent* InputComponent) override;
+
+protected:
+	void Dash();
+
 public:
 
 	bool IsAttacking;
@@ -51,5 +60,11 @@ public:
 	class UAnimMontage* CurrentMontage;
 
 	FTimerHandle ComboTimerHandle;
+
+public:
+	class UInputAction* IA_Dash;
+	class UInputAction* IA_QuickStrike;
+	class UInputAction* IA_HeavyStrike;
+	class UInputAction* IA_UniqueStrike;
 
 };

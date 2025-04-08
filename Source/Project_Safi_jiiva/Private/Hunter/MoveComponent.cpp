@@ -58,11 +58,6 @@ void UMoveComponent::SetupInputBinding(class UEnhancedInputComponent* InputCompo
 void UMoveComponent::MoveStart()
 {
 	MoveState = EMoveState::WALK;
-
-	//FTimerHandle StartTimerHandler;
-	//auto ChangeWalkMode = [this]() {
-	//	};
-	//GetWorld()->GetTimerManager().SetTimer(StartTimerHandler, ChangeWalkMode, 1.0f, false);
 }
 
 void UMoveComponent::MoveEnd()
