@@ -22,8 +22,10 @@ UWeaponComponent::UWeaponComponent(){
 	IA_HeavyStrike = IA_HeavyStrikeTool.Object;
 	ConstructorHelpers::FObjectFinder<UInputAction> IA_UniqueStrikeTool(AssetPaths::IA_UniqueStrike);
 	IA_UniqueStrike = IA_UniqueStrikeTool.Object;
+	ConstructorHelpers::FObjectFinder<UWeaponDataAsset> WeaponDataTableTool(AssetPaths::WeaponDataAsset);
+	WeaponDataTable = WeaponDataTableTool.Object;
 
-	WeaponType = EWeaponType::NONE;
+	WeaponType = EWeaponType::GREATSWORD;
 	// ...
 }
 
@@ -49,6 +51,8 @@ void UWeaponComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	LoadWeaponData();
+
 	// ...
 
 }
@@ -65,16 +69,49 @@ void UWeaponComponent::SetupInputBinding(class UEnhancedInputComponent* InputCom
 
 	if (InputComponent)
 	{
-		InputComponent->BindAction(IA_Dash, ETriggerEvent::Started, this, &UWeaponComponent::Dash);
-		InputComponent->BindAction(IA_Dash, ETriggerEvent::Completed, this, &UWeaponComponent::Dash);
+		InputComponent->BindAction(IA_Dash, ETriggerEvent::Triggered, this, &UWeaponComponent::Dash);
+		InputComponent->BindAction(IA_Dash, ETriggerEvent::Completed, this, &UWeaponComponent::DashEnd);
 		InputComponent->BindAction(IA_QuickStrike, ETriggerEvent::Started, this, &UWeaponComponent::QuickStrike);
 		InputComponent->BindAction(IA_HeavyStrike, ETriggerEvent::Started, this, &UWeaponComponent::HeavyStrike);
 		InputComponent->BindAction(IA_UniqueStrike, ETriggerEvent::Started, this, &UWeaponComponent::UniqueStrike);
 	}
 }
 
+void UWeaponComponent::SetWeaponType(EWeaponType NewWeaponType)
+{
+	WeaponType= NewWeaponType;
+}
+
 void UWeaponComponent::Dash()
 {
-	Owner->isRun = !Owner->isRun;
+	Owner->isRun = true;
+	PRINT_LOG(TEXT("%d"), Owner->isRun);
 }
+
+void UWeaponComponent::DashEnd()
+{
+	Owner->isRun = false;
+
+}
+
+void UWeaponComponent::LoadWeaponData()
+{
+	if (!WeaponDataTable)return;
+	WeaponDataMap.Empty();
+	WeaponDataMap = WeaponDataTable->WeaponDataMap;
+
+}
+
+FWeaponDataTable UWeaponComponent::GetCurrentWeaponData() const
+{
+	const FWeaponDataTable* FoundData = WeaponDataMap.Find(WeaponType);
+	if (FoundData)
+	{
+		return *FoundData;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("No data found for CurrentWeaponType: %d"), (uint8)WeaponType);
+	return FWeaponDataTable();
+}
+
 

@@ -33,3 +33,16 @@
         } \
     } while (0)
 // 사용 예시 : PRINT_CHARACTER_STATUS(MyCharacter, "플레이어 상태 업데이트: %s", *MyCharacter->GetName());
+
+#define LOCAL_ROLE UEnum::GetValueAsString(GetLocalRole())
+#define REMOTE_ROLE UEnum::GetValueAsString(GetRemoteRole())
+
+#define PRINT_NET_LOG \
+{ \
+	const FString conStr = GetNetConnection() != nullptr ? TEXT("Valid Connection") : TEXT("Invalid Connection"); \
+	const FString ownerName = GetOwner() != nullptr ? GetOwner()->GetName() : TEXT("No Owner"); \
+	const FString logStr = FString::Printf(TEXT("Connection : %s\nOwner Name : %s\nLocal Role : %s\nRemote Role : %s"), \
+		*conStr, *ownerName, *LOCAL_ROLE, *REMOTE_ROLE); \
+	DrawDebugString(GetWorld(), GetActorLocation() + FVector::UpVector * 100.0f, logStr, nullptr, FColor::White, 0, true, 1); \
+}
+

@@ -34,6 +34,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "MoveComp")
 	class UMoveComponent* MoveComp;
 
+	//무기별 컴포넌트
+	class UGreatSword* GreatSword;
+
 	UPROPERTY(EditAnywhere,Category="Camera")
 	class UCameraComponent* CameraComponent;
 

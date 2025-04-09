@@ -18,7 +18,7 @@ void UHunterAnim::NativeUpdateAnimation(float DeltaTime)
 	Speed=Owner->GetVelocity().Size2D();
     WalkAngle = CalculateDirection(Owner->GetVelocity(),Owner->GetControlRotation());
 
-	PRINT_LOG(TEXT("Speed : %f"), CalculateDirection(Owner->GetVelocity()));
+	//PRINT_LOG(TEXT("Speed : %f"), CalculateDirection(Owner->GetVelocity()));
     MoveState = Owner->MoveComp->MoveState;
 
     FString log = UEnum::GetValueAsString(MoveState);

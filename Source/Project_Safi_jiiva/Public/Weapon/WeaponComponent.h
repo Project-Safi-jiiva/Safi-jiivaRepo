@@ -6,6 +6,8 @@
 #include "Hunter/BaseComponent.h"
 #include "WeaponInterface.h"
 #include "EWeaponType.h"
+#include "WeaponDataTable.h"
+#include "WeaponDataAsset.h"
 #include "WeaponComponent.generated.h"
 
 
@@ -28,7 +30,6 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	EWeaponType WeaponType;
 
 protected:
 	// 기본 생성자
@@ -46,8 +47,14 @@ protected:
 
 	virtual void SetupInputBinding(class UEnhancedInputComponent* InputComponent) override;
 
+public:
+	void SetWeaponType(EWeaponType NewWeaponType);
+
+private:
+	void LoadWeaponData();
 protected:
 	void Dash();
+	void DashEnd();
 
 public:
 
@@ -66,5 +73,20 @@ public:
 	class UInputAction* IA_QuickStrike;
 	class UInputAction* IA_HeavyStrike;
 	class UInputAction* IA_UniqueStrike;
+
+protected:
+	FWeaponDataTable GetCurrentWeaponData() const;
+
+private:
+    // 데이터 테이블 참조
+    UPROPERTY(EditAnywhere, Category = "Weapon")
+    UWeaponDataAsset* WeaponDataTable;
+
+    // 모든 무기 데이터를 저장하는 TMap
+    UPROPERTY()
+    TMap<EWeaponType, FWeaponDataTable> WeaponDataMap;
+
+	EWeaponType WeaponType;
+
 
 };

@@ -25,7 +25,18 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	virtual void QuickStrike() override;
+	virtual void HeavyStrike() override;
+	virtual void UniqueStrike() override;
+	virtual void ResetCombo() override;
+
+private:
+	void PlayMontage(UAnimMontage* Montage);
 
 
+private:
+	int32 QuickStrikeComboIndex = 0;
+	int32 HeavyStrikeComboIndex = 0;
+	int32 UniqueStrikeComboIndex = 0;
 
 };
