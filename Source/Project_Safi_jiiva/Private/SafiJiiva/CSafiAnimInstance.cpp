@@ -34,3 +34,12 @@ void UCSafiAnimInstance::AnimNotify_Roar_END()
 	// 노티파이 종료시 이뮨 해제
 	me->isImmune = false;
 }
+
+void UCSafiAnimInstance::AnimNotify_AttBiteSwitch()
+{
+	if (!me) { return; }
+	me->isOnAttBite = !me->isOnAttBite;
+
+	UE_LOG(LogTemp, Warning, TEXT("Bite_Test_Anim"));
+}
+

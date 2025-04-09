@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "CSafiJiiva.generated.h"
 
+
 UCLASS()
 class PROJECT_SAFI_JIIVA_API ACSafiJiiva : public ACharacter
 {
@@ -25,6 +26,7 @@ public:
 	//virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 public: //기본 세팅 파트
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = FSM)
 	class UCSafiFSM* FSM;
 
@@ -58,7 +60,10 @@ private:	// 함수용 변수들
 public:	// 체력 등 스탯 계수
 	float MAXHP = 100.f;
 	float hp = MAXHP;
+	float MeleeBiteDMG = 10.f;	// 물기 데미지
 
+
+public:	// 사거리, 속도 등
 	float MeleeAttRange = 1500.f;
 	float SearchRange = 3000.f;
 
@@ -67,6 +72,7 @@ public:	// 체력 등 스탯 계수
 
 	float idleTime = 3.f;
 
+
 public: // 상태 체크
 	bool isInBattle = false;		// 전투상태인가
 	bool isFly = false;				// 비행 상태인가
@@ -74,11 +80,15 @@ public: // 상태 체크
 
 	//======================== 상태이상 관련 //========================
 	bool isDisturbed = false;		// 상태이상에 걸렸는지 - 애니메이션 끊길 때 노티파이 삭제 대체용
-	bool isBreath = false;			// 브레스 사용중인지
 	bool isRepelled = false;		// 넉백당했는지
+
+public:// 공격 관련 노티파이 제어
+	bool isOnAttBite = false;		// 물기 공격중인지
+	bool isBreath = false;			// 브레스 사용중인지
 
 public: // 라인 트레이스
 	bool bLineTracing = false;
+
 	UFUNCTION()
 	void DrawLineTrace();
 	bool CheckHitLineTrace(FVector _startPos, FVector& _curPos);

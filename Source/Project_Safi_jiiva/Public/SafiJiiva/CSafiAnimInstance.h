@@ -36,4 +36,8 @@ public:	// AnimNotify 관련 -------- UFUNCTION() 잊지말것!!!
 
 	UFUNCTION() 
 	void AnimNotify_Roar_END();
+
+	UFUNCTION()
+	void AnimNotify_AttBiteSwitch();
+
 };

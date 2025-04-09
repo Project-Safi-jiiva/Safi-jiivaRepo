@@ -82,6 +82,4 @@ public:
 	void TargetRotation();
 	FVector SearchTarget();
 
-public: // Notify ฐüทร
-
 };

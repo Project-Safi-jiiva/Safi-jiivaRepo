@@ -8,6 +8,7 @@
 #include "SafiJiiva/CSafiAnimInstance.h"
 #include "SafiJiiva/CSafiJiiva.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/BoxComponent.h"
 
 // Sets default values for this component's properties
 UCSafiFSM::UCSafiFSM()
@@ -34,8 +35,6 @@ void UCSafiFSM::BeginPlay()
 
 
 	me->SetSpeed(me->WalkSpeed);
-
-
 }
 
 
@@ -100,7 +99,7 @@ void UCSafiFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 		case EAttackState::None			: {  }	break;
 		case EAttackState::Roar			: {  }	break;
 
-		case EAttackState::MeleeBite	: {  }	break;
+		case EAttackState::MeleeBite	: { AttMelee(); }	break;
 		case EAttackState::MeleeBPress	: {  }	break;
 
 		case EAttackState::NormalBreath	: {  }	break;
@@ -125,6 +124,13 @@ void UCSafiFSM::IdleState()
 	if ( dir.Size() > me->SearchRange)
 	{
 		target = nullptr;
+		currentTime += GetWorld()->DeltaTimeSeconds;
+		if (currentTime >me->idleTime)
+		{
+			return;
+
+		}
+			
 		return;
 	}
 
@@ -186,7 +192,19 @@ void UCSafiFSM::AttRoar()
 
 void UCSafiFSM::AttMelee()
 {
-	
+	// 해놓고 분리하던가 하자
+
+	// 노티파이로 isOnAttBite = true 활성화
+
+	// isOnAttBite 상태라면 Collision_1 활성화
+	if (me->isOnAttBite)
+	{
+		me->Collision_1->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	}
+
+	// 노티파이로 isOnAttBite = false
+
+	// 공격이 끝날땐 정리 프로세스
 }
 
 void UCSafiFSM::AttBreath()

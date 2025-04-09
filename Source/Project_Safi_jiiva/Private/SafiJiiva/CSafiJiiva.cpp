@@ -63,7 +63,7 @@ ACSafiJiiva::ACSafiJiiva()
 
 	Collision_1 = CreateDefaultSubobject<UBoxComponent>(TEXT("BiteDMGBox"));
 	Collision_1->SetupAttachment(SafiComponent, TEXT("Socket_BiteDMGBox"));
-	Collision_1->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	Collision_1->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 
 #pragma  endregion Collision
@@ -148,6 +148,7 @@ void ACSafiJiiva::SetNormal()
 {
 	isBreath = false;
 	isRepelled = false;
+	isOnAttBite = false;
 
 	isDisturbed = false;
 }
@@ -176,14 +177,18 @@ void ACSafiJiiva::KillSafi_Test()
 void ACSafiJiiva::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	AHunter* target = Cast<AHunter>(OtherActor);
-	
-	/*
-	if (target) 
+	if (!target) { return; }
+
+	if (OverlappedComp == Collision_1)
 	{
-		if(target->태클상태)
-		{
-			this->OnDamageSafi(태클데미지)
-		}
+		//target->SetDamage(MeleeBiteDMG);
+		UE_LOG(LogTemp,Warning,TEXT("Bite_Test"));
+	}
+
+	/*
+	if (target->태클상태)
+	{
+		this->OnDamageSafi(태클데미지)
 	}
 	*/
 
