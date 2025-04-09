@@ -29,7 +29,7 @@ UMoveComponent::UMoveComponent()
 void UMoveComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	Owner->GetCharacterMovement()->MaxAcceleration = 900.0f;
+	Owner->GetCharacterMovement()->MaxAcceleration = 600.0f;
 	// ...
 
 }

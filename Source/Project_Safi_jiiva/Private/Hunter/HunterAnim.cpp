@@ -23,7 +23,7 @@ void UHunterAnim::NativeUpdateAnimation(float DeltaTime)
 
     FString log = UEnum::GetValueAsString(MoveState);
     GEngine->AddOnScreenDebugMessage(0, 1.0f, FColor::Red, log);
-
+    isRun = Owner->isRun;
 	switch (MoveState)
 	{
     case EMoveState::IDLE:break;

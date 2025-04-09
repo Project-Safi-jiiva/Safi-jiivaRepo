@@ -31,6 +31,9 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Movement")
 	EMoveState MoveState;
 
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Movement")
+	bool isRun;
+
 
 
 	class AHunter* Owner;

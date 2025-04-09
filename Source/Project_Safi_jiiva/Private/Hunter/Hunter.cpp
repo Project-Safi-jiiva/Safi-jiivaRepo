@@ -84,11 +84,9 @@ void AHunter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	if (isRun)
-		GetCharacterMovement()->MaxWalkSpeed = 800;
+		GetCharacterMovement()->MaxWalkSpeed = 1000;
 	else
-		GetCharacterMovement()->MaxWalkSpeed = 400;
-
-
+		GetCharacterMovement()->MaxWalkSpeed = 600;
 }
 
 void AHunter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
