@@ -27,8 +27,7 @@ AHunter::AHunter()
 
 	//컴포넌트 추가 부분
 	MoveComp = CreateDefaultSubobject<UMoveComponent>(TEXT("MoveComponent"));
-	WeaponComp = CreateDefaultSubobject<UWeaponComponent>(TEXT("WeaponComponent"));
-	GreatSword = CreateDefaultSubobject<UGreatSword>(TEXT("GreatSwordComponent"));
+	//WeaponComp = CreateDefaultSubobject<UWeaponComponent>(TEXT("WeaponSample"));
 	//스켈레탈 메쉬 추가
 	ConstructorHelpers::FObjectFinder<USkeletalMesh> SK_Hunter(AssetPaths::HUNTER_MESH);
 	if (SK_Hunter.Succeeded()) GetMesh()->SetSkeletalMesh(SK_Hunter.Object);
@@ -74,6 +73,7 @@ AHunter::AHunter()
 void AHunter::BeginPlay()
 {
 	Super::BeginPlay();
+	ChangeWeapon(EWeaponType::GREATSWORD);
 	APlayerController* PC = Cast<APlayerController>(GetController());
 	UEnhancedInputLocalPlayerSubsystem* subSys = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer());
 
@@ -102,3 +102,32 @@ void AHunter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 }
 
+void AHunter::ChangeWeapon(EWeaponType NewWeaponType)
+{
+	if (WeaponComp)
+	{
+		WeaponComp->DestroyComponent();
+		WeaponComp = nullptr;
+	}
+
+	switch (NewWeaponType)
+	{
+	case EWeaponType::GREATSWORD:
+		WeaponComp = NewObject<UGreatSword>(this, TEXT("WeaponComponent"));
+		break;
+	default:
+		WeaponComp = NewObject<UWeaponComponent>(this, TEXT("WeaponComponent"));
+		break;
+	}
+
+	if (WeaponComp)
+	{
+		WeaponComp->RegisterComponent();
+		WeaponComp->SetWeaponType(NewWeaponType);
+		// 델리게이트로 알림
+		if (InputBindingDeleagate.IsBound())
+		{
+			InputBindingDeleagate.Broadcast(Cast<UEnhancedInputComponent>(InputComponent));
+		}
+	}
+}

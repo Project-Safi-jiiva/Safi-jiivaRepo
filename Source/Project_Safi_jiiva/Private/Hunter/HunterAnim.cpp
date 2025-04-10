@@ -6,12 +6,38 @@
 #include "Project_Safi_jiiva.h"
 #include "Hunter/MoveComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Weapon/WeaponComponent.h"
 
 void UHunterAnim::NativeBeginPlay()
 {
 	Owner = Cast<AHunter>(TryGetPawnOwner());
+    OnPlayMontageNotifyBegin.AddDynamic(this, &UHunterAnim::OnMontageNotifyBegin);
+    OnPlayMontageNotifyEnd.AddDynamic(this, &UHunterAnim::OnMontageNotifyEnd);
 
 }
+
+void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload)
+{
+    Owner->WeaponComp->IsAttacking = true;
+
+    if (NotifyName == FName(TEXT("Next"))) {
+        Owner->WeaponComp->SetQuickStrikeComboIndex(Owner->WeaponComp->GetQuickStrikeComboIndex()+1);
+    }
+    if (NotifyName == FName(TEXT("Next2"))) {
+        Owner->WeaponComp->SetHeavyStrikeComboIndex(Owner->WeaponComp->GetHeavyStrikeComboIndex() + 1);
+    }
+    if (NotifyName == FName(TEXT("ComboEnd"))) {
+        Owner->WeaponComp->ResetCombo();
+        PRINT_LOG(TEXT("ResetCombo"));
+    }
+}
+
+void UHunterAnim::OnMontageNotifyEnd(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload)
+{
+    Owner->WeaponComp->IsAttacking = false;
+
+}
+
 void UHunterAnim::NativeUpdateAnimation(float DeltaTime)
 {
 	if (!Owner)return;
@@ -145,4 +171,20 @@ float UHunterAnim::CalculateDirection(const FVector& Velocity, const FRotator& B
     }
 
     return 0.0f;
+}
+UAnimMontage* UHunterAnim::GetCurrentMontage(AHunter* Character)
+{
+    UAnimInstance* AnimInstance = Owner->GetMesh()->GetAnimInstance();
+    if (AnimInstance)
+    {
+        // 현재 재생 중인 몽타주 가져오기
+        for (FAnimMontageInstance* MontageInstance : AnimInstance->MontageInstances)
+        {
+            if (MontageInstance && MontageInstance->IsPlaying())
+            {
+                return MontageInstance->Montage; // 현재 재생 중인 몽타주 반환
+            }
+        }
+    }
+    return nullptr; // 재생 중인 몽타주가 없으면 nullptr 반환
 }

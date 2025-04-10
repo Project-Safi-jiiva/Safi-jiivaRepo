@@ -4,6 +4,7 @@
 #include "GreatSword.h"
 #include "Hunter/HunterAnim.h"
 #include "Project_Safi_jiiva.h"
+#include "Hunter/Hunter.h"
 
 // Sets default values for this component's properties
 UGreatSword::UGreatSword()
@@ -32,29 +33,46 @@ void UGreatSword::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 	// ...
 }
 
-void UGreatSword::QuickStrike()
+void UGreatSword::QuickStrikeStart()
 {
+	Super::QuickStrikeStart();
+	//if (IsAttacking)return;
 
 	FWeaponDataTable CurrentData = GetCurrentWeaponData();
 	if (CurrentData.QuickStrikeMontages.Num() > 0 && Owner)
 	{
-	PRINT_LOG(TEXT("UGreatSword:QuickStrike"));
-		// 첫 번째 QuickStrike 몽타주 재생 (필요하면 인덱스 조정 가능)
-		PlayMontage(CurrentData.QuickStrikeMontages[0]);
+		PlayMontage(CurrentData.QuickStrikeMontages[GetQuickStrikeComboIndex()]);
+		SetHeavyStrikeComboIndex(1);
 	}
 }
 
-void UGreatSword::HeavyStrike()
+void UGreatSword::QuickStrikeEnd()
 {
+	CurrentMontage = Anim->GetCurrentMontage(Owner);
+	if (Anim->Montage_IsPlaying(CurrentMontage)) {
+		Anim->Montage_JumpToSection(FName("Attack"), CurrentMontage);
+		Owner->WeaponComp->SetHeavyStrikeComboIndex(0);
+
+	}
+}
+
+void UGreatSword::HeavyStrikeStart()
+{
+	//if (IsAttacking&& GetHeavyStrikeComboIndex()!=1)return;
+
 	FWeaponDataTable CurrentData = GetCurrentWeaponData();
 	if (CurrentData.HeavyStrikeMontages.Num() > 0 && Owner)
 	{
-		// 첫 번째 QuickStrike 몽타주 재생 (필요하면 인덱스 조정 가능)
-		PlayMontage(CurrentData.HeavyStrikeMontages[0]);
+		PlayMontage(CurrentData.HeavyStrikeMontages[GetHeavyStrikeComboIndex()]);
 	}
 }
 
-void UGreatSword::UniqueStrike()
+void UGreatSword::HeavyStrikeEnd()
+{
+
+}
+
+void UGreatSword::UniqueStrikeStart()
 {
 	FWeaponDataTable CurrentData = GetCurrentWeaponData();
 	if (CurrentData.UniqueStrikeMontages.Num() > 0 && Owner)
@@ -64,12 +82,14 @@ void UGreatSword::UniqueStrike()
 	}
 }
 
+void UGreatSword::UniqueStrikeEnd()
+{
+
+}
+
 void UGreatSword::ResetCombo()
 {
-	QuickStrikeComboIndex = 0;
-	HeavyStrikeComboIndex = 0;
-	UniqueStrikeComboIndex = 0;
-	bNextAttackQueued = false;
+	Super::ResetCombo();
 	// PlayMontage(WeaponData->QuickStrikeMontages[QuickStrikeComboIndex]);
 	// PlayMontage(WeaponData->HeavyStrikeMontages[HeavyStrikeComboIndex]);
 	// PlayMontage(WeaponData->UniqueStrikeMontages[UniqueStrikeComboIndex]);

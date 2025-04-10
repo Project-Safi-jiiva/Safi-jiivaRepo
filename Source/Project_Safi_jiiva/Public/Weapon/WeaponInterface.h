@@ -23,11 +23,14 @@ class PROJECT_SAFI_JIIVA_API IWeaponInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 
-	virtual void QuickStrike()=0;
+	virtual void QuickStrikeStart()=0;
+	virtual void QuickStrikeEnd()=0;
 
-	virtual void HeavyStrike() = 0;
+	virtual void HeavyStrikeStart() = 0;
+	virtual void HeavyStrikeEnd() = 0;
 
-	virtual void UniqueStrike() = 0;
+	virtual void UniqueStrikeStart() = 0;
+	virtual void UniqueStrikeEnd() = 0;
 
 	virtual void ResetCombo() = 0;
 

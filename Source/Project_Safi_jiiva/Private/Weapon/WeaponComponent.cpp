@@ -28,33 +28,12 @@ UWeaponComponent::UWeaponComponent(){
 	WeaponType = EWeaponType::GREATSWORD;
 	// ...
 }
-
-void UWeaponComponent::QuickStrike(){
-	PRINT_LOG(TEXT("QuickStrike"));
-
-}
-
-void UWeaponComponent::HeavyStrike(){
-	PRINT_LOG(TEXT("HeavyStrike"));
-
-}
-
-void UWeaponComponent::UniqueStrike() {
-	PRINT_LOG(TEXT("UniqueStrike"));
-
-}
-
-void UWeaponComponent::ResetCombo() {}
-
 // Called when the game starts
 void UWeaponComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
 	LoadWeaponData();
-
-	// ...
-
 }
 // Called every frame
 void UWeaponComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -71,11 +50,54 @@ void UWeaponComponent::SetupInputBinding(class UEnhancedInputComponent* InputCom
 	{
 		InputComponent->BindAction(IA_Dash, ETriggerEvent::Triggered, this, &UWeaponComponent::Dash);
 		InputComponent->BindAction(IA_Dash, ETriggerEvent::Completed, this, &UWeaponComponent::DashEnd);
-		InputComponent->BindAction(IA_QuickStrike, ETriggerEvent::Started, this, &UWeaponComponent::QuickStrike);
-		InputComponent->BindAction(IA_HeavyStrike, ETriggerEvent::Started, this, &UWeaponComponent::HeavyStrike);
-		InputComponent->BindAction(IA_UniqueStrike, ETriggerEvent::Started, this, &UWeaponComponent::UniqueStrike);
+		InputComponent->BindAction(IA_QuickStrike, ETriggerEvent::Started, this, &UWeaponComponent::QuickStrikeStart);
+		InputComponent->BindAction(IA_QuickStrike, ETriggerEvent::Completed, this, &UWeaponComponent::QuickStrikeEnd);
+		InputComponent->BindAction(IA_HeavyStrike, ETriggerEvent::Started, this, &UWeaponComponent::HeavyStrikeStart);
+		InputComponent->BindAction(IA_HeavyStrike, ETriggerEvent::Completed, this, &UWeaponComponent::HeavyStrikeEnd);
+		InputComponent->BindAction(IA_UniqueStrike, ETriggerEvent::Started, this, &UWeaponComponent::UniqueStrikeStart);
+		InputComponent->BindAction(IA_UniqueStrike, ETriggerEvent::Completed, this, &UWeaponComponent::UniqueStrikeEnd);
 	}
 }
+
+void UWeaponComponent::QuickStrikeStart(){
+
+	PRINT_LOG(TEXT("QuickStrike"));
+
+}
+
+void UWeaponComponent::QuickStrikeEnd()
+{
+
+}
+
+void UWeaponComponent::HeavyStrikeStart(){
+	PRINT_LOG(TEXT("HeavyStrike"));
+
+}
+
+void UWeaponComponent::HeavyStrikeEnd()
+{
+
+}
+
+void UWeaponComponent::UniqueStrikeStart() {
+	PRINT_LOG(TEXT("UniqueStrike"));
+
+}
+
+void UWeaponComponent::UniqueStrikeEnd()
+{
+
+}
+
+void UWeaponComponent::ResetCombo() {
+	SetQuickStrikeComboIndex(0);
+	SetHeavyStrikeComboIndex(0);
+	SetUniqueStrikeComboIndex(0);
+	bNextAttackQueued = false;
+}
+
+
 
 void UWeaponComponent::SetWeaponType(EWeaponType NewWeaponType)
 {

@@ -31,17 +31,21 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 
+	virtual void ResetCombo() override;
 protected:
 	// 기본 생성자
 
 	//인터페이스 구현
-	virtual void QuickStrike() override;
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	virtual void QuickStrikeStart() override;
+	virtual void QuickStrikeEnd() override;
 
-	virtual void HeavyStrike() override;
+	virtual void HeavyStrikeStart() override;
+	virtual void HeavyStrikeEnd() override;
 
-	virtual void UniqueStrike() override;
+	virtual void UniqueStrikeStart() override;
+	virtual void UniqueStrikeEnd() override;
 
-	virtual void ResetCombo() override;
 
 	//부모 상속
 
@@ -58,7 +62,7 @@ protected:
 
 public:
 
-	bool IsAttacking;
+	bool IsAttacking =false;
 
 	bool bNextAttackQueued;
 
@@ -87,6 +91,19 @@ private:
     TMap<EWeaponType, FWeaponDataTable> WeaponDataMap;
 
 	EWeaponType WeaponType;
+private:
+	int32 QuickStrikeComboIndex = 0;
+	int32 HeavyStrikeComboIndex = 0;
+	int32 UniqueStrikeComboIndex = 0;
+public:
+	int32 GetQuickStrikeComboIndex() const { return QuickStrikeComboIndex; }
+	void SetQuickStrikeComboIndex(int32 NewIndex) {QuickStrikeComboIndex = NewIndex;}
+
+	int32 GetHeavyStrikeComboIndex() const { return HeavyStrikeComboIndex; }
+	void SetHeavyStrikeComboIndex(int32 NewIndex) { HeavyStrikeComboIndex = NewIndex; }
+
+	int32 GetUniqueStrikeComboIndex() const { return UniqueStrikeComboIndex; }
+	void SetUniqueStrikeComboIndex(int32 NewIndex) { UniqueStrikeComboIndex = NewIndex; }
 
 
 };

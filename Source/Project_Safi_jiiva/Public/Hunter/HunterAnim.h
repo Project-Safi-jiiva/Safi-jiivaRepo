@@ -20,6 +20,11 @@ private:
 	virtual void NativeUpdateAnimation(float DeltaTime) override;
 
 	virtual void NativeBeginPlay();
+	UFUNCTION()
+	void OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload);
+
+	UFUNCTION()
+	void OnMontageNotifyEnd(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload);
 
 public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Movement")
@@ -37,6 +42,7 @@ public:
 
 
 	class AHunter* Owner;
+	UAnimMontage* GetCurrentMontage(AHunter* Character);
 private:
 	float CalculateDirection(const FVector& Velocity) const;
 	float CalculateDirection(const FVector& Velocity, const FRotator& BaseRotation) const;

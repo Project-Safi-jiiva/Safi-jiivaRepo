@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Weapon/EWeaponType.h"
 #include "Hunter.generated.h"
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FInputBindingDeleagate, class UEnhancedInputComponent*)
@@ -34,8 +35,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "MoveComp")
 	class UMoveComponent* MoveComp;
 
-	//무기별 컴포넌트
-	class UGreatSword* GreatSword;
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+    void ChangeWeapon(EWeaponType NewWeaponType);
 
 	UPROPERTY(EditAnywhere,Category="Camera")
 	class UCameraComponent* CameraComponent;
