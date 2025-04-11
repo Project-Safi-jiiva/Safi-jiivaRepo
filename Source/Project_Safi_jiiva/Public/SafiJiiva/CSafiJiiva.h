@@ -52,6 +52,12 @@ public:	// 소켓 추가 파트
 	UPROPERTY(EditDefaultsOnly)
 	class UBoxComponent* Collision_2;
 
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* Collision_3;
+
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* Collision_4;
+
 #pragma endregion
 
 private:	// 함수용 변수들
@@ -64,7 +70,7 @@ public:	// 체력 등 스탯 계수
 
 
 public:	// 사거리, 속도 등
-	float MeleeAttRange = 1500.f;
+	float MeleeAttRange = 1000.f;
 	float SearchRange = 3000.f;
 
 	float RunSpeed = 400.f;
@@ -72,6 +78,9 @@ public:	// 사거리, 속도 등
 
 	float idleTime = 3.f;
 
+public: // 공격 위치
+	// 왼쪽 = 2, 오른쪽 = 3, 오른쪽 뒤 = 4
+	int attackPos =	0;	
 
 public: // 상태 체크
 	bool isInBattle = false;		// 전투상태인가
@@ -85,9 +94,11 @@ public: // 상태 체크
 public:// 공격 관련 노티파이 제어
 	bool isOnAttBite = false;		// 물기 공격중인지
 	bool isBreath = false;			// 브레스 사용중인지
+	bool isOnSearch = false;		// 탐색 중인지 (탐색용 콜리전 활성화)
 
 public: // 라인 트레이스
 	bool bLineTracing = false;
+
 
 	UFUNCTION()
 	void DrawLineTrace();

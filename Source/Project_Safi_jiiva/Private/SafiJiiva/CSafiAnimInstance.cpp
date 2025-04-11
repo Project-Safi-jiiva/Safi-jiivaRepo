@@ -3,9 +3,20 @@
 
 #include "SafiJiiva/CSafiAnimInstance.h"
 #include "SafiJiiva/CSafiJiiva.h"
+#include "SafiJiiva/CSafiFSM.h"
 
 void UCSafiAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
+	// FString logMsgState = UEnum::GetValueAsString(aState);
+	// GEngine->AddOnScreenDebugMessage(0, 1, FColor::Yellow, logMsgState);
+	// 
+	// FString logMsgAtt = UEnum::GetValueAsString(aAttState);
+	// GEngine->AddOnScreenDebugMessage(1, 1, FColor::Green, logMsgAtt);
+	// 
+	// FString logMsgTurn = UEnum::GetValueAsString(aTurnState);
+	// GEngine->AddOnScreenDebugMessage(2, 1, FColor::Yellow, logMsgTurn);
+
+
 	me = Cast<ACSafiJiiva>(TryGetPawnOwner());
 	if (!me) { return; }
 
@@ -29,17 +40,35 @@ void UCSafiAnimInstance::AnimNotify_Roar_END()
 {
 	if( !me ){ return; }
 
-	// 노티파이 종료시 OnAttackProcess 호출
-	FSM->OnAttackProcess();
+	// 노티파이 종료시 EndAttackProcess 호출
+	FSM->EndAttackProcess();
+
 	// 노티파이 종료시 이뮨 해제
 	me->isImmune = false;
+
 }
 
-void UCSafiAnimInstance::AnimNotify_AttBiteSwitch()
+void UCSafiAnimInstance::AnimNotify_AttBite_Start()
 {
 	if (!me) { return; }
-	me->isOnAttBite = !me->isOnAttBite;
+	me->isOnAttBite = true;
 
-	UE_LOG(LogTemp, Warning, TEXT("Bite_Test_Anim"));
+}
+void UCSafiAnimInstance::AnimNotify_AttBite_End()
+{
+	if (!me) { return; }
+	me->isOnAttBite = false;
 }
 
+void UCSafiAnimInstance::AnimNotify_Attack_End()
+{
+	FSM->EndAttackProcess();
+}
+
+
+void UCSafiAnimInstance::AnimNotify_Search_End()
+{
+	me->isOnSearch = false;
+	FSM->EndAttackProcess();
+	FSM->OnAttackProcess();
+}

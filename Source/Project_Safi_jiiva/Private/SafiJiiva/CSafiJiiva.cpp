@@ -64,10 +64,28 @@ ACSafiJiiva::ACSafiJiiva()
 	Collision_1 = CreateDefaultSubobject<UBoxComponent>(TEXT("BiteDMGBox"));
 	Collision_1->SetupAttachment(SafiComponent, TEXT("Socket_BiteDMGBox"));
 	Collision_1->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Collision_1->SetCollisionResponseToAllChannels(ECR_Block);
 
 
+	Collision_2 = CreateDefaultSubobject<UBoxComponent>(TEXT("MeleeAttLBBox"));
+	Collision_2->SetupAttachment(SafiComponent);
+	Collision_2->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Collision_2->SetCollisionResponseToAllChannels(ECR_Block);
+
+	Collision_3 = CreateDefaultSubobject<UBoxComponent>(TEXT("MeleeAttLFBox"));
+	Collision_3->SetupAttachment(SafiComponent);
+	Collision_3->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Collision_3->SetCollisionResponseToAllChannels(ECR_Block);
+
+	Collision_4 = CreateDefaultSubobject<UBoxComponent>(TEXT("MeleeAttRFBox"));
+	Collision_4->SetupAttachment(SafiComponent);
+	Collision_4->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Collision_4->SetCollisionResponseToAllChannels(ECR_Block);
 #pragma  endregion Collision
 
+	Collision_2->SetRelativeLocation(FVector(650.f, -350.f, 160.f));
+	Collision_3->SetRelativeLocation(FVector(-650.f, 630.f, 160.f));
+	Collision_4->SetRelativeLocation(FVector(-650.f, 630.f, 160.f));
 
 	// ========================= 박스 크기 설정 파트
 
@@ -75,6 +93,9 @@ ACSafiJiiva::ACSafiJiiva()
 #pragma region SetExtentBox
 
 	Collision_1->SetBoxExtent(FVector(70.f, 80.f, 150.f));
+	Collision_2->SetBoxExtent(FVector(200.f));     
+	Collision_3->SetBoxExtent(FVector(200.f));
+	Collision_4->SetBoxExtent(FVector(200.f));
 
 #pragma endregion
 
@@ -101,12 +122,34 @@ void ACSafiJiiva::Tick(float DeltaTime)
 
 	DrawLineTrace();
 
-	// 근접 공격범위 체크
-	DrawDebugSphere(GetWorld(), this->GetActorLocation(), MeleeAttRange, 12, FColor::Green, true, -1, 0, 0);
+	// DrawDebugSphere(GetWorld(), this->GetActorLocation(), MeleeAttRange, 12, FColor::Green, true, -1, 0, 0);
+
+
+	// 콜리전 활성화, 비활성화 파트
+
+	if (isOnAttBite == true) { Collision_1->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics); }
+	else { Collision_1->SetCollisionEnabled(ECollisionEnabled::NoCollision); }
+
+
+	if (isOnSearch == true)
+	{
+		Collision_2->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		Collision_3->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		Collision_4->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	}
+
+	else
+	{
+		Collision_2->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		Collision_3->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		Collision_4->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+
 
 	// 원거리 공격범위 체크
 	//DrawDebugSphere(GetWorld(), this->GetActorLocation(), SearchRange, 12, FColor::Blue, true, -1, 0, 0);
 }
+
 /*
 void ACSafiJiiva::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -146,11 +189,16 @@ bool ACSafiJiiva::CheckHitLineTrace(FVector _startPos, FVector& _curPos)
 // 브레스, 
 void ACSafiJiiva::SetNormal()
 {
+
 	isBreath = false;
+	isOnAttBite= false;
+
 	isRepelled = false;
 	isOnAttBite = false;
 
 	isDisturbed = false;
+
+	isOnSearch = false;
 }
 
 
@@ -176,6 +224,9 @@ void ACSafiJiiva::KillSafi_Test()
 
 void ACSafiJiiva::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Bite_Test"));
+
+
 	AHunter* target = Cast<AHunter>(OtherActor);
 	if (!target) { return; }
 
@@ -184,6 +235,25 @@ void ACSafiJiiva::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, clas
 		//target->SetDamage(MeleeBiteDMG);
 		UE_LOG(LogTemp,Warning,TEXT("Bite_Test"));
 	}
+
+	if (OverlappedComp == Collision_2)		// 왼쪽
+	{
+		attackPos = 2;
+		UE_LOG(LogTemp, Warning, TEXT("Hit LF"));
+	}
+
+	if (OverlappedComp == Collision_3)		// 오른쪽
+	{
+		attackPos = 3;
+		UE_LOG(LogTemp, Warning, TEXT("Hit RF"));
+	}
+
+	if (OverlappedComp == Collision_4)		// 오른쪽 뒤
+	{
+		attackPos = 4;
+		UE_LOG(LogTemp, Warning, TEXT("Hit RB"));
+	}
+
 
 	/*
 	if (target->태클상태)

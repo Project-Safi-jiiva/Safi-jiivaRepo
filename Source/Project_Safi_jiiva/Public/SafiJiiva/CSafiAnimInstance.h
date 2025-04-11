@@ -25,6 +25,9 @@ public:	//FSM State 관련
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "FSM")
 	EAttackState aAttState = EAttackState::None;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = FSM)
+	ETurnState aTurnState = ETurnState::None;
 	
 public:	// 수치값
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MoveValue")
@@ -38,6 +41,15 @@ public:	// AnimNotify 관련 -------- UFUNCTION() 잊지말것!!!
 	void AnimNotify_Roar_END();
 
 	UFUNCTION()
-	void AnimNotify_AttBiteSwitch();
+	void AnimNotify_AttBite_Start();
+
+	UFUNCTION()
+	void AnimNotify_AttBite_End();
+
+	UFUNCTION()
+	void AnimNotify_Attack_End();	// 공격 종료시 사용하는 범용함수. EndAttackProcess 호출
+
+	UFUNCTION()
+	void AnimNotify_Search_End();
 
 };

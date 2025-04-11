@@ -1,5 +1,17 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#pragma region AttDefine
+#define AttNONE 0
+#define AttROAR 1
+#define AttMELEE_LF 2
+#define AttMELEE_RF 3
+#define AttMELEE_RB 4
+#define AttMELEE_LB 5
+#define AttNMBREATH 6
+#define AttAIMBREATH 7
+
+#pragma endregion
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -11,6 +23,7 @@ enum class ESafiState : uint8
 {
 	Idle		UMETA(DisplayName = "Idle"),
 	//Move		UMETA(DisplayName = "Move"),
+	Turn		UMETA(DisplayName = "Turn"),
 	Attack		UMETA(DisplayName = "Attack"),
 	Dead		UMETA(DisplayName = "Dead")
 	// Fly			UMETA(DisplayName = "Fly") / Fly는 그냥 IsFly로 상태 체크하는게 나을듯?
@@ -19,12 +32,25 @@ enum class ESafiState : uint8
 UENUM()
 enum class EAttackState : uint8
 {
-	None			UMETA(DisplayName = "None"),
-	Roar			UMETA(DisplayName = "Roar"),
-	MeleeBite		UMETA(DisplayName = "Melee_Bite"),
-	MeleeBPress		UMETA(DisplayName = "Melee_BodyPress"),
-	NormalBreath	UMETA(DisplayName = "Normal_Breath"),
-	AimedBreath		UMETA(DisplayName = "Aimed_Breath")
+	None 				UMETA(DisplayName = "None"),
+	Roar				UMETA(DisplayName = "Roar"),
+	MeleeAttLF			UMETA(DisplayName = "Melee_AttLF"),
+	MeleeAttRF			UMETA(DisplayName = "Melee_AttLF"),
+	MeleeAttRB			UMETA(DisplayName = "Melee_AttRB"),
+	MeleeAttLB			UMETA(DisplayName = "Melee_AttLB"),
+	MeleeBite			UMETA(DisplayName = "Melee_Bite"),
+	MeleeBPress			UMETA(DisplayName = "Melee_BodyPress"),
+	NormalBreath		UMETA(DisplayName = "Normal_Breath"),
+	AimedBreath			UMETA(DisplayName = "Aimed_Breath")
+};
+
+UENUM()
+enum class ETurnState : uint8
+{
+	None 				UMETA(DisplayName = "None"),
+	TurnLeft			UMETA(DisplayName = "Turn_Left"),
+	TurnRight			UMETA(DisplayName = "Turn_Right"),
+	TrunBack			UMETA(DisplayName = "Trun_Back")
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -62,9 +88,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = FSM)
 	EAttackState mAttState = EAttackState::None;
 
+	UPROPERTY(EditDefaultsOnly, Category = FSM)
+	ETurnState mTurnState = ETurnState::None;
+
 public:
 	float currentTime = 0.f;
-	int AttType = 0;	// 랜덤 공격 번호로 사용할 예정
+	uint8 attType = 0;
 
 private: // 기본 State 함수
 	void IdleState();
@@ -72,14 +101,18 @@ private: // 기본 State 함수
 	void BreathState();
 
 public:	// AttState 함수
-	void OnAttackProcess();
+	void OnAttackProcess();		// 공격 스위치 시켜주기
+	void EndAttackProcess();	// AttState None 복귀, 다음 공격 판단
 
 public: // 공격 관련 함수
 	void AttRoar();
 	void AttMelee();
 	void AttBreath();
+
+	void CanMeleeAttack();				// 공격 가능 위치에 정확히 있는지
 public:
 	void TargetRotation();
+	void TargetRotationByAnim();		// 애니메이션으로 회전
 	FVector SearchTarget();
 
 };
