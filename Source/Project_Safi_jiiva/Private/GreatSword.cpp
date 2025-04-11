@@ -37,10 +37,14 @@ void UGreatSword::QuickStrikeStart()
 {
 	Super::QuickStrikeStart();
 	//if (IsAttacking)return;
-
 	FWeaponDataTable CurrentData = GetCurrentWeaponData();
-	if (CurrentData.QuickStrikeMontages.Num() > 0 && Owner)
-	{
+	if (CurrentData.QuickStrikeMontages.Num() > 0 && Owner) {
+
+		if (!isWeaponEquipped) {
+			PlayMontage(CurrentData.SheatheMontage);
+			isWeaponEquipped = true;
+			return;
+		}
 		PlayMontage(CurrentData.QuickStrikeMontages[GetQuickStrikeComboIndex()]);
 		SetHeavyStrikeComboIndex(1);
 	}
@@ -52,7 +56,6 @@ void UGreatSword::QuickStrikeEnd()
 	if (Anim->Montage_IsPlaying(CurrentMontage)) {
 		Anim->Montage_JumpToSection(FName("Attack"), CurrentMontage);
 		Owner->WeaponComp->SetHeavyStrikeComboIndex(0);
-
 	}
 }
 
@@ -90,10 +93,19 @@ void UGreatSword::UniqueStrikeEnd()
 void UGreatSword::ResetCombo()
 {
 	Super::ResetCombo();
-	// PlayMontage(WeaponData->QuickStrikeMontages[QuickStrikeComboIndex]);
-	// PlayMontage(WeaponData->HeavyStrikeMontages[HeavyStrikeComboIndex]);
-	// PlayMontage(WeaponData->UniqueStrikeMontages[UniqueStrikeComboIndex]);
 
+}
+
+void UGreatSword::Dash()
+{
+	Super::Dash();
+	FWeaponDataTable CurrentData = GetCurrentWeaponData();
+	if (CurrentData.QuickStrikeMontages.Num() > 0 && Owner){
+		if (isWeaponEquipped) {
+			PlayMontage(CurrentData.DrawMontage);
+			isWeaponEquipped = false;
+		}
+	}
 }
 
 void UGreatSword::PlayMontage(UAnimMontage* Montage)
@@ -101,10 +113,6 @@ void UGreatSword::PlayMontage(UAnimMontage* Montage)
 	if (Montage && Anim)
 	{
 		Anim->Montage_Play(Montage);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Failed to play montage: Invalid Hunter or Montage"));
 	}
 }
 

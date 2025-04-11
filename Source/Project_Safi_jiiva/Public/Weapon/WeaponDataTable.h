@@ -11,6 +11,10 @@ struct FWeaponDataTable : public FTableRowBase
 {
     GENERATED_BODY()
 
+    //무기 엑터
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Actor")
+    TSubclassOf<AActor> WeaponActorClass;
+
     // 무기 데미지 (기본 데미지)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Stats")
     float BaseDamage;

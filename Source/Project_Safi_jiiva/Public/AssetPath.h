@@ -24,4 +24,7 @@ namespace AssetPaths
     constexpr const TCHAR* IA_UniqueStrike = TEXT("/Script/EnhancedInput.InputAction'/Game/LHW/Input/IA_UniqueStrike.IA_UniqueStrike'");
     //데이터 에셋
     constexpr const TCHAR* WeaponDataAsset = TEXT("/Script/Project_Safi_jiiva.WeaponDataAsset'/Game/LHW/DataTable/WeaponData.WeaponData'");
+
+    //무기 MESH
+    constexpr const TCHAR* GREATSWORDMESH = TEXT("/Script/Engine.StaticMesh'/Game/LHW/Sword/GreatSword.GreatSword'");
 }

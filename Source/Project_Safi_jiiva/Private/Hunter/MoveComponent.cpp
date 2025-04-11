@@ -24,22 +24,15 @@ UMoveComponent::UMoveComponent()
 	// ...
 }
 
-
-// Called when the game starts
 void UMoveComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	Owner->GetCharacterMovement()->MaxAcceleration = 600.0f;
-	// ...
-
 }
 
-
-// Called every frame
 void UMoveComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	// ...
 }
 
 void UMoveComponent::SetupInputBinding(class UEnhancedInputComponent* InputComponent)
@@ -55,21 +48,11 @@ void UMoveComponent::SetupInputBinding(class UEnhancedInputComponent* InputCompo
 	}
 }
 
-void UMoveComponent::MoveStart()
-{
-	MoveState = EMoveState::WALK;
-}
+void UMoveComponent::MoveStart(){MoveState = EMoveState::WALK;}
 
-void UMoveComponent::MoveEnd()
-{
-	MoveState = EMoveState::STOP;
-}
+void UMoveComponent::MoveEnd(){MoveState = EMoveState::STOP;}
 
-
-void UMoveComponent::MoveTurn()
-{
-	MoveState = EMoveState::TURN;
-}
+void UMoveComponent::MoveTurn(){MoveState = EMoveState::TURN;}
 
 void UMoveComponent::Move(const FInputActionValue& Value)
 {

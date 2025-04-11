@@ -7,6 +7,7 @@
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h"
 #include "Project_Safi_jiiva.h"
 #include "Hunter/Hunter.h"
+#include "Weapon/IWeaponActor.h"
 
 // Sets default values for this component's properties
 UWeaponComponent::UWeaponComponent(){
@@ -28,14 +29,15 @@ UWeaponComponent::UWeaponComponent(){
 	WeaponType = EWeaponType::GREATSWORD;
 	// ...
 }
-// Called when the game starts
+
 void UWeaponComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
 	LoadWeaponData();
+	SpawnWeaponActor();
 }
-// Called every frame
+
 void UWeaponComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
@@ -59,36 +61,17 @@ void UWeaponComponent::SetupInputBinding(class UEnhancedInputComponent* InputCom
 	}
 }
 
-void UWeaponComponent::QuickStrikeStart(){
+void UWeaponComponent::QuickStrikeStart(){}
 
-	PRINT_LOG(TEXT("QuickStrike"));
+void UWeaponComponent::QuickStrikeEnd(){}
 
-}
+void UWeaponComponent::HeavyStrikeStart(){}
 
-void UWeaponComponent::QuickStrikeEnd()
-{
+void UWeaponComponent::HeavyStrikeEnd(){}
 
-}
+void UWeaponComponent::UniqueStrikeStart() {}
 
-void UWeaponComponent::HeavyStrikeStart(){
-	PRINT_LOG(TEXT("HeavyStrike"));
-
-}
-
-void UWeaponComponent::HeavyStrikeEnd()
-{
-
-}
-
-void UWeaponComponent::UniqueStrikeStart() {
-	PRINT_LOG(TEXT("UniqueStrike"));
-
-}
-
-void UWeaponComponent::UniqueStrikeEnd()
-{
-
-}
+void UWeaponComponent::UniqueStrikeEnd(){}
 
 void UWeaponComponent::ResetCombo() {
 	SetQuickStrikeComboIndex(0);
@@ -96,24 +79,20 @@ void UWeaponComponent::ResetCombo() {
 	SetUniqueStrikeComboIndex(0);
 	bNextAttackQueued = false;
 }
-
-
-
-void UWeaponComponent::SetWeaponType(EWeaponType NewWeaponType)
-{
-	WeaponType= NewWeaponType;
-}
-
+void UWeaponComponent::SetWeaponType(EWeaponType NewWeaponType){WeaponType= NewWeaponType;}
 void UWeaponComponent::Dash()
 {
+	if (isWeaponEquipped) {
+		Owner->isRun = false;
+		return;
+	}
 	Owner->isRun = true;
-	PRINT_LOG(TEXT("%d"), Owner->isRun);
 }
 
 void UWeaponComponent::DashEnd()
 {
+	if (isWeaponEquipped) return;
 	Owner->isRun = false;
-
 }
 
 void UWeaponComponent::LoadWeaponData()
@@ -121,19 +100,81 @@ void UWeaponComponent::LoadWeaponData()
 	if (!WeaponDataTable)return;
 	WeaponDataMap.Empty();
 	WeaponDataMap = WeaponDataTable->WeaponDataMap;
-
 }
 
 FWeaponDataTable UWeaponComponent::GetCurrentWeaponData() const
 {
 	const FWeaponDataTable* FoundData = WeaponDataMap.Find(WeaponType);
-	if (FoundData)
-	{
-		return *FoundData;
-	}
-
-	UE_LOG(LogTemp, Warning, TEXT("No data found for CurrentWeaponType: %d"), (uint8)WeaponType);
+	if (FoundData) return *FoundData;
 	return FWeaponDataTable();
 }
+void UWeaponComponent::SpawnWeaponActor()
+{
+	FWeaponDataTable WeaponData = GetCurrentWeaponData();
+	if (!WeaponData.WeaponActorClass) return;
 
+	DestroyEquippedWeapon();
 
+	Owner = Cast<AHunter>(GetOwner());
+	if (!Owner) return;
+
+	if (SpawnNewWeaponActor(WeaponData))
+	{
+		InitializeWeaponActor(EquippedWeapon, WeaponData);
+		AttachWeaponToOwner(EquippedWeapon);
+	}
+}
+
+// ÇïÆÛ ÇÔ¼öµé
+void UWeaponComponent::DestroyEquippedWeapon()
+{
+	if (EquippedWeapon)
+	{
+		EquippedWeapon->Destroy();
+		EquippedWeapon = nullptr;
+	}
+}
+
+bool UWeaponComponent::SpawnNewWeaponActor(const FWeaponDataTable& WeaponData)
+{
+	UWorld* World = GetWorld();
+	if (!World) return false;
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	SpawnParams.Owner = Owner;
+
+	FVector SpawnLocation = Owner->GetActorLocation();
+	FRotator SpawnRotation = Owner->GetActorRotation();
+
+	EquippedWeapon = World->SpawnActor<AActor>(
+		WeaponData.WeaponActorClass,
+		SpawnLocation,
+		SpawnRotation,
+		SpawnParams
+	);
+
+	return EquippedWeapon != nullptr;
+}
+
+void UWeaponComponent::InitializeWeaponActor(AActor* NewWeapon, const FWeaponDataTable& WeaponData)
+{
+	if (!NewWeapon) return;
+
+	if (NewWeapon->Implements<UIWeaponActor>())
+	{
+		IIWeaponActor::Execute_SetBaseDamage(NewWeapon, WeaponData.BaseDamage);
+	}
+}
+
+void UWeaponComponent::AttachWeaponToOwner(AActor* Weapon)
+{
+	if (Weapon && Owner)
+	{
+		Weapon->AttachToComponent(
+			Owner->GetMesh(),
+			FAttachmentTransformRules::SnapToTargetNotIncludingScale,
+			TEXT("hand_rSocket")
+		);
+	}
+}

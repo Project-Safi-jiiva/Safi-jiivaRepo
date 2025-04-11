@@ -32,6 +32,7 @@ public:
 	virtual void UniqueStrikeStart() override;
 	virtual void UniqueStrikeEnd() override;
 	virtual void ResetCombo() override;
+	virtual void Dash() override;
 
 private:
 	void PlayMontage(UAnimMontage* Montage);

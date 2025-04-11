@@ -53,15 +53,20 @@ protected:
 
 public:
 	void SetWeaponType(EWeaponType NewWeaponType);
+	void SpawnWeaponActor();
+	bool SpawnNewWeaponActor(const FWeaponDataTable& WeaponData);
+	void DestroyEquippedWeapon();
+	void AttachWeaponToOwner(AActor* WeaponActor);
+	void InitializeWeaponActor(AActor* WeaponActor, const FWeaponDataTable& WeaponData);
 
 private:
 	void LoadWeaponData();
 protected:
-	void Dash();
+	virtual void Dash();
 	void DashEnd();
 
 public:
-
+	AActor* EquippedWeapon;
 	bool IsAttacking =false;
 
 	bool bNextAttackQueued;
@@ -71,6 +76,9 @@ public:
 	class UAnimMontage* CurrentMontage;
 
 	FTimerHandle ComboTimerHandle;
+
+protected:
+	bool isWeaponEquipped = false;
 
 public:
 	class UInputAction* IA_Dash;
