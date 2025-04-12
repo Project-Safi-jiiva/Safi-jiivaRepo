@@ -16,40 +16,10 @@ void UHunterAnim::NativeBeginPlay()
 
 }
 
-void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload)
-{
-    Owner->WeaponComp->IsAttacking = true;
-
-    if (NotifyName == FName(TEXT("Next"))) {
-        Owner->WeaponComp->SetQuickStrikeComboIndex(Owner->WeaponComp->GetQuickStrikeComboIndex()+1);
-    }
-    if (NotifyName == FName(TEXT("Next2"))) {
-        Owner->WeaponComp->SetHeavyStrikeComboIndex(Owner->WeaponComp->GetHeavyStrikeComboIndex() + 1);
-    }
-    if (NotifyName == FName(TEXT("ComboEnd"))) {
-        Owner->WeaponComp->ResetCombo();
-        PRINT_LOG(TEXT("ResetCombo"));
-    }
-}
-
-void UHunterAnim::OnMontageNotifyEnd(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload)
-{
-    Owner->WeaponComp->IsAttacking = false;
-
-}
-
 void UHunterAnim::NativeUpdateAnimation(float DeltaTime)
 {
-	if (!Owner)return;
-	Speed=Owner->GetVelocity().Size2D();
-    WalkAngle = CalculateDirection(Owner->GetVelocity(),Owner->GetControlRotation());
+    SetBluePrintValues();
 
-	//PRINT_LOG(TEXT("Speed : %f"), CalculateDirection(Owner->GetVelocity()));
-    MoveState = Owner->MoveComp->MoveState;
-
-    FString log = UEnum::GetValueAsString(MoveState);
-    GEngine->AddOnScreenDebugMessage(0, 1.0f, FColor::Red, log);
-    isRun = Owner->isRun;
 	switch (MoveState)
 	{
     case EMoveState::IDLE:break;
@@ -58,7 +28,6 @@ void UHunterAnim::NativeUpdateAnimation(float DeltaTime)
         if (isStart)return;
         isStart = true;
         WalkAngleStart = CalculateDirection(Owner->GetVelocity());
-        PRINT_LOG(TEXT("Speed : %f"), WalkAngleStart);
 
     }break;
 	case EMoveState::WALK: {
@@ -67,16 +36,48 @@ void UHunterAnim::NativeUpdateAnimation(float DeltaTime)
 
             MoveState = EMoveState::TURN;
         }
- }break;
-    case EMoveState::STOP: {
-
+    }break;
+        case EMoveState::STOP: {
         isStart = false;
         SpeedLerpTime = 0; }break;
 	default:
 		break;
 	}
+}
 
+void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload)
+{
+    Owner->WeaponComp->isJumpDelay = true;
+    if (NotifyName == FName(TEXT("QuickStrikeStart"))) { Owner->WeaponComp->IsAttacking = true; }
+    if (NotifyName == FName(TEXT("IsAttackingOff"))) { Owner->WeaponComp->IsAttacking = false; }
+    if (NotifyName == FName(TEXT("QuickStrikeEnd"))) {Owner->WeaponComp->QuickStrikeNext();}
+    if (NotifyName == FName(TEXT("DelayStart"))) { Owner->WeaponComp->isJumpDelay = true; }
+    if (NotifyName == FName(TEXT("DelayEnd"))) {
+        Owner->WeaponComp->isJumpDelay = false;
+		Owner->WeaponComp->JumpToNextCombo();
+    }
+    if (NotifyName == FName(TEXT("Next2"))) {Owner->WeaponComp->SetHeavyStrikeComboIndex(Owner->WeaponComp->GetHeavyStrikeComboIndex() + 1);}
 
+    if (NotifyName == FName(TEXT("ComboEnd"))) { Owner->WeaponComp->ResetCombo(); PRINT_LOG(TEXT("TS")); }
+
+    if (NotifyName == FName(TEXT("iscancelStart"))) { Owner->WeaponComp->iscancel = true; }
+    if (NotifyName == FName(TEXT("iscancelEnd"))) { Owner->WeaponComp->iscancel = false; }
+
+    if (NotifyName == FName(TEXT("Attach"))) {Owner->WeaponComp->AttachWeaponToHand();}
+    if (NotifyName == FName(TEXT("Detach"))) {Owner->WeaponComp->AttachWeaponToOwner();}
+}
+
+void UHunterAnim::OnMontageNotifyEnd(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload){}
+
+void UHunterAnim::SetBluePrintValues()
+{
+    if (!Owner)return;
+    Speed = Owner->GetVelocity().Size2D();
+    WalkAngle = CalculateDirection(Owner->GetVelocity(), Owner->GetControlRotation());
+    MoveState = Owner->MoveComp->MoveState;
+    WeaponType = Owner->WeaponComp->GetWeaponType();
+    isWeaponEquipped = Owner->WeaponComp->GetisWeaponEquipped();
+    isRun = Owner->isRun;
 }
 
 float UHunterAnim::CalculateDirection(const FVector& Velocity) const
@@ -136,6 +137,7 @@ float UHunterAnim::CalculateDirection(const FVector& Velocity) const
 
     return 0.0f;
 }
+
 float UHunterAnim::CalculateDirection(const FVector& Velocity, const FRotator& BaseRotation) const
 {
     if (!Velocity.IsNearlyZero())

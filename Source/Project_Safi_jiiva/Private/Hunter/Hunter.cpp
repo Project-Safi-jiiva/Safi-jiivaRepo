@@ -85,10 +85,7 @@ void AHunter::BeginPlay()
 void AHunter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (isRun)
-		GetCharacterMovement()->MaxWalkSpeed = 1000;
-	else
-		GetCharacterMovement()->MaxWalkSpeed = 600;
+
 }
 
 void AHunter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -122,8 +119,8 @@ void AHunter::ChangeWeapon(EWeaponType NewWeaponType)
 
 	if (WeaponComp)
 	{
-		WeaponComp->RegisterComponent();
 		WeaponComp->SetWeaponType(NewWeaponType);
+		WeaponComp->RegisterComponent();
 		// 델리게이트로 알림
 		if (InputBindingDeleagate.IsBound())
 		{

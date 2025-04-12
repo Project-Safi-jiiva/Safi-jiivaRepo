@@ -8,6 +8,8 @@
 #include "Project_Safi_jiiva.h"
 #include "Hunter/Hunter.h"
 #include "Weapon/IWeaponActor.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Hunter/HunterAnim.h"
 
 // Sets default values for this component's properties
 UWeaponComponent::UWeaponComponent(){
@@ -26,8 +28,6 @@ UWeaponComponent::UWeaponComponent(){
 	ConstructorHelpers::FObjectFinder<UWeaponDataAsset> WeaponDataTableTool(AssetPaths::WeaponDataAsset);
 	WeaponDataTable = WeaponDataTableTool.Object;
 
-	WeaponType = EWeaponType::GREATSWORD;
-	// ...
 }
 
 void UWeaponComponent::BeginPlay()
@@ -41,31 +41,26 @@ void UWeaponComponent::BeginPlay()
 void UWeaponComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
 }
 
-void UWeaponComponent::SetupInputBinding(class UEnhancedInputComponent* InputComponent)
-{
-	Super::SetupInputBinding(InputComponent);
-
-	if (InputComponent)
-	{
-		InputComponent->BindAction(IA_Dash, ETriggerEvent::Triggered, this, &UWeaponComponent::Dash);
-		InputComponent->BindAction(IA_Dash, ETriggerEvent::Completed, this, &UWeaponComponent::DashEnd);
-		InputComponent->BindAction(IA_QuickStrike, ETriggerEvent::Started, this, &UWeaponComponent::QuickStrikeStart);
-		InputComponent->BindAction(IA_QuickStrike, ETriggerEvent::Completed, this, &UWeaponComponent::QuickStrikeEnd);
-		InputComponent->BindAction(IA_HeavyStrike, ETriggerEvent::Started, this, &UWeaponComponent::HeavyStrikeStart);
-		InputComponent->BindAction(IA_HeavyStrike, ETriggerEvent::Completed, this, &UWeaponComponent::HeavyStrikeEnd);
-		InputComponent->BindAction(IA_UniqueStrike, ETriggerEvent::Started, this, &UWeaponComponent::UniqueStrikeStart);
-		InputComponent->BindAction(IA_UniqueStrike, ETriggerEvent::Completed, this, &UWeaponComponent::UniqueStrikeEnd);
-	}
+void UWeaponComponent::ResetCombo() {
+	SetQuickStrikeComboIndex(0);
+	SetHeavyStrikeComboIndex(0);
+	SetUniqueStrikeComboIndex(0);
+	bNextAttackQueued = false;
+	IsAttacking = false;
+	isJumpDelay = false;
+	isHolding = false;
 }
+void UWeaponComponent::QuickStrikeStart() {}
 
-void UWeaponComponent::QuickStrikeStart(){}
+void UWeaponComponent::QuickStrikeHolding() { isHolding = true; }
 
-void UWeaponComponent::QuickStrikeEnd(){}
+void UWeaponComponent::QuickStrikeEnd() { isHolding = false; }
 
-void UWeaponComponent::HeavyStrikeStart(){}
+void UWeaponComponent::QuickStrikeNext(){}
+
+void UWeaponComponent::HeavyStrikeStart() {}
 
 void UWeaponComponent::HeavyStrikeEnd(){}
 
@@ -73,41 +68,32 @@ void UWeaponComponent::UniqueStrikeStart() {}
 
 void UWeaponComponent::UniqueStrikeEnd(){}
 
-void UWeaponComponent::ResetCombo() {
-	SetQuickStrikeComboIndex(0);
-	SetHeavyStrikeComboIndex(0);
-	SetUniqueStrikeComboIndex(0);
-	bNextAttackQueued = false;
-}
-void UWeaponComponent::SetWeaponType(EWeaponType NewWeaponType){WeaponType= NewWeaponType;}
-void UWeaponComponent::Dash()
+void UWeaponComponent::JumpToNextCombo(){}
+
+void UWeaponComponent::CancelHandler(){}
+
+void UWeaponComponent::SetupInputBinding(class UEnhancedInputComponent* InputComponent)
 {
-	if (isWeaponEquipped) {
-		Owner->isRun = false;
-		return;
+	Super::SetupInputBinding(InputComponent);
+	if (InputComponent)
+	{
+		InputComponent->BindAction(IA_Dash, ETriggerEvent::Started, this, &UWeaponComponent::Dash);
+		InputComponent->BindAction(IA_Dash, ETriggerEvent::Completed, this, &UWeaponComponent::DashEnd);
+			InputComponent->BindAction(IA_QuickStrike, ETriggerEvent::Started, this, &UWeaponComponent::QuickStrikeStart);
+			InputComponent->BindAction(IA_QuickStrike, ETriggerEvent::Triggered, this, &UWeaponComponent::QuickStrikeHolding);
+			InputComponent->BindAction(IA_QuickStrike, ETriggerEvent::Completed, this, &UWeaponComponent::QuickStrikeEnd);
+			InputComponent->BindAction(IA_HeavyStrike, ETriggerEvent::Started, this, &UWeaponComponent::HeavyStrikeStart);
+			InputComponent->BindAction(IA_HeavyStrike, ETriggerEvent::Completed, this, &UWeaponComponent::HeavyStrikeEnd);
+			InputComponent->BindAction(IA_UniqueStrike, ETriggerEvent::Started, this, &UWeaponComponent::UniqueStrikeStart);
+			InputComponent->BindAction(IA_UniqueStrike, ETriggerEvent::Completed, this, &UWeaponComponent::UniqueStrikeEnd);
 	}
-	Owner->isRun = true;
 }
 
-void UWeaponComponent::DashEnd()
+void UWeaponComponent::ModifyWeaponMoveSpeed()
 {
-	if (isWeaponEquipped) return;
-	Owner->isRun = false;
+	Super::ModifyWeaponMoveSpeed();
 }
 
-void UWeaponComponent::LoadWeaponData()
-{
-	if (!WeaponDataTable)return;
-	WeaponDataMap.Empty();
-	WeaponDataMap = WeaponDataTable->WeaponDataMap;
-}
-
-FWeaponDataTable UWeaponComponent::GetCurrentWeaponData() const
-{
-	const FWeaponDataTable* FoundData = WeaponDataMap.Find(WeaponType);
-	if (FoundData) return *FoundData;
-	return FWeaponDataTable();
-}
 void UWeaponComponent::SpawnWeaponActor()
 {
 	FWeaponDataTable WeaponData = GetCurrentWeaponData();
@@ -121,17 +107,8 @@ void UWeaponComponent::SpawnWeaponActor()
 	if (SpawnNewWeaponActor(WeaponData))
 	{
 		InitializeWeaponActor(EquippedWeapon, WeaponData);
-		AttachWeaponToOwner(EquippedWeapon);
-	}
-}
 
-// ÇïÆÛ ÇÔ¼öµé
-void UWeaponComponent::DestroyEquippedWeapon()
-{
-	if (EquippedWeapon)
-	{
-		EquippedWeapon->Destroy();
-		EquippedWeapon = nullptr;
+		AttachWeaponToOwner();
 	}
 }
 
@@ -157,6 +134,41 @@ bool UWeaponComponent::SpawnNewWeaponActor(const FWeaponDataTable& WeaponData)
 	return EquippedWeapon != nullptr;
 }
 
+// ÇïÆÛ ÇÔ¼öµé
+void UWeaponComponent::DestroyEquippedWeapon()
+{
+	if (EquippedWeapon)
+	{
+		EquippedWeapon->Destroy();
+		EquippedWeapon = nullptr;
+	}
+}
+
+void UWeaponComponent::AttachWeaponToOwner()
+{
+	if (EquippedWeapon && Owner)
+	{
+		USkeletalMeshComponent* MeshComp = Owner->GetMesh();
+
+		EquippedWeapon->AttachToComponent(
+			MeshComp,
+			FAttachmentTransformRules::SnapToTargetNotIncludingScale,
+			TEXT("Weapon")
+		);
+	}
+}
+
+void UWeaponComponent::AttachWeaponToHand()
+{
+	if (EquippedWeapon && Owner)
+	{
+		EquippedWeapon->AttachToComponent(
+			Owner->GetMesh(),
+			FAttachmentTransformRules::SnapToTargetNotIncludingScale,
+			TEXT("Hand")
+		);
+	}
+}
 void UWeaponComponent::InitializeWeaponActor(AActor* NewWeapon, const FWeaponDataTable& WeaponData)
 {
 	if (!NewWeapon) return;
@@ -167,14 +179,32 @@ void UWeaponComponent::InitializeWeaponActor(AActor* NewWeapon, const FWeaponDat
 	}
 }
 
-void UWeaponComponent::AttachWeaponToOwner(AActor* Weapon)
+void UWeaponComponent::LoadWeaponData()
 {
-	if (Weapon && Owner)
-	{
-		Weapon->AttachToComponent(
-			Owner->GetMesh(),
-			FAttachmentTransformRules::SnapToTargetNotIncludingScale,
-			TEXT("hand_rSocket")
-		);
-	}
+	if (!WeaponDataTable)return;
+	WeaponDataMap.Empty();
+	WeaponDataMap = WeaponDataTable->WeaponDataMap;
 }
+
+void UWeaponComponent::Dash()
+{
+	if (isWeaponEquipped) {
+		Owner->isRun = false;
+		return;
+	}
+	Owner->isRun = true;
+}
+
+void UWeaponComponent::DashEnd()
+{
+	if (isWeaponEquipped) return;
+	Owner->isRun = false;
+}
+
+FWeaponDataTable UWeaponComponent::GetCurrentWeaponData() const
+{
+	const FWeaponDataTable* FoundData = WeaponDataMap.Find(WeaponType);
+	if (FoundData) return *FoundData;
+	return FWeaponDataTable();
+}
+

@@ -18,7 +18,8 @@ AGreatSwordActor::AGreatSwordActor()
 	{
 		SwordMesh->SetStaticMesh(SwordMeshTool.Object);
 		SwordMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		SwordMesh->SetRelativeScale3D(FVector(0.8));
+		SwordMesh->SetRelativeScale3D(FVector(0.7));
+		//SwordMesh->SetRelativeLocationAndRotation(FVector(0, -20, -20), FRotator(20, 0, 0));
 	}
 }
 

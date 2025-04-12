@@ -5,6 +5,7 @@
 #include "Hunter/Hunter.h"
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h"
 #include "Hunter/HunterAnim.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values for this component's properties
 UBaseComponent::UBaseComponent()
@@ -37,6 +38,7 @@ void UBaseComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+
 }
 
 
@@ -47,4 +49,12 @@ void UBaseComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 }
 
 void UBaseComponent::SetupInputBinding(class UEnhancedInputComponent* InputComponent){}
+
+void UBaseComponent::ModifyWeaponMoveSpeed()
+{
+	if (Owner->isRun)
+		Owner->GetCharacterMovement()->MaxWalkSpeed = 500;
+	else
+		Owner->GetCharacterMovement()->MaxWalkSpeed = 300;
+}
 

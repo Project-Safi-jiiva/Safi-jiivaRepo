@@ -24,7 +24,9 @@ class PROJECT_SAFI_JIIVA_API IWeaponInterface
 public:
 
 	virtual void QuickStrikeStart()=0;
+	virtual void QuickStrikeHolding()=0;
 	virtual void QuickStrikeEnd()=0;
+	virtual void QuickStrikeNext()=0;
 
 	virtual void HeavyStrikeStart() = 0;
 	virtual void HeavyStrikeEnd() = 0;
@@ -32,6 +34,9 @@ public:
 	virtual void UniqueStrikeStart() = 0;
 	virtual void UniqueStrikeEnd() = 0;
 
+	virtual void JumpToNextCombo() = 0;
 	virtual void ResetCombo() = 0;
+
+	virtual void CancelHandler() {};
 
 };

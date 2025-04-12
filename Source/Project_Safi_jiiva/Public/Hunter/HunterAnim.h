@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
 #include "EMoveState.h"
+#include "Weapon/EWeaponType.h"
 #include "HunterAnim.generated.h"
 
 /**
@@ -26,6 +27,8 @@ private:
 	UFUNCTION()
 	void OnMontageNotifyEnd(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload);
 
+	void SetBluePrintValues();
+
 public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Movement")
 	float Speed;
@@ -34,10 +37,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float WalkAngle;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Movement")
-	EMoveState MoveState;
+	EMoveState MoveState = EMoveState::IDLE;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Movement")
+	EWeaponType WeaponType=EWeaponType::NONE;
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Movement")
 	bool isRun;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Movement")
+	bool isWeaponEquipped;
 
 
 

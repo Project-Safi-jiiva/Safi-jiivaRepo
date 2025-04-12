@@ -32,31 +32,41 @@ public:
 
 
 	virtual void ResetCombo() override;
+
+	virtual void QuickStrikeNext() override;
+
+	virtual void QuickStrikeEnd() override;
 protected:
 	// 기본 생성자
 
 	//인터페이스 구현
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	virtual void QuickStrikeStart() override;
-	virtual void QuickStrikeEnd() override;
+	virtual void QuickStrikeHolding() override;
 
 	virtual void HeavyStrikeStart() override;
 	virtual void HeavyStrikeEnd() override;
 
 	virtual void UniqueStrikeStart() override;
 	virtual void UniqueStrikeEnd() override;
+public:
+	virtual void JumpToNextCombo() override;
+	virtual void CancelHandler() override;
+
+
 
 
 	//부모 상속
 
 	virtual void SetupInputBinding(class UEnhancedInputComponent* InputComponent) override;
+	virtual void ModifyWeaponMoveSpeed() override;;
 
 public:
-	void SetWeaponType(EWeaponType NewWeaponType);
 	void SpawnWeaponActor();
 	bool SpawnNewWeaponActor(const FWeaponDataTable& WeaponData);
 	void DestroyEquippedWeapon();
-	void AttachWeaponToOwner(AActor* WeaponActor);
+	void AttachWeaponToOwner();
+	void AttachWeaponToHand();
 	void InitializeWeaponActor(AActor* WeaponActor, const FWeaponDataTable& WeaponData);
 
 private:
@@ -64,10 +74,13 @@ private:
 protected:
 	virtual void Dash();
 	void DashEnd();
-
 public:
 	AActor* EquippedWeapon;
 	bool IsAttacking =false;
+	bool isJumpDelay = false;
+	bool iscancel = false;
+protected:
+	bool isHolding = false;
 
 	bool bNextAttackQueued;
 
@@ -76,7 +89,6 @@ public:
 	class UAnimMontage* CurrentMontage;
 
 	FTimerHandle ComboTimerHandle;
-
 protected:
 	bool isWeaponEquipped = false;
 
@@ -99,6 +111,7 @@ private:
     TMap<EWeaponType, FWeaponDataTable> WeaponDataMap;
 
 	EWeaponType WeaponType;
+
 private:
 	int32 QuickStrikeComboIndex = 0;
 	int32 HeavyStrikeComboIndex = 0;
@@ -107,11 +120,17 @@ public:
 	int32 GetQuickStrikeComboIndex() const { return QuickStrikeComboIndex; }
 	void SetQuickStrikeComboIndex(int32 NewIndex) {QuickStrikeComboIndex = NewIndex;}
 
+
 	int32 GetHeavyStrikeComboIndex() const { return HeavyStrikeComboIndex; }
-	void SetHeavyStrikeComboIndex(int32 NewIndex) { HeavyStrikeComboIndex = NewIndex; }
+	void SetHeavyStrikeComboIndex(int32 NewIndex) {HeavyStrikeComboIndex = NewIndex;}
 
 	int32 GetUniqueStrikeComboIndex() const { return UniqueStrikeComboIndex; }
 	void SetUniqueStrikeComboIndex(int32 NewIndex) { UniqueStrikeComboIndex = NewIndex; }
+
+	EWeaponType GetWeaponType() { return WeaponType; };
+	void SetWeaponType(EWeaponType NewWeaponType) { WeaponType = NewWeaponType; }
+
+	bool GetisWeaponEquipped() { return isWeaponEquipped; }
 
 
 };

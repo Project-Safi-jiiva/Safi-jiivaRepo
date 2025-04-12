@@ -5,78 +5,103 @@
 #include "Hunter/HunterAnim.h"
 #include "Project_Safi_jiiva.h"
 #include "Hunter/Hunter.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values for this component's properties
 UGreatSword::UGreatSword()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
 }
 // Called when the game starts
 void UGreatSword::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// ...
-
 }
-
-
-// Called every frame
 void UGreatSword::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
+	ModifyWeaponMoveSpeed();
 	// ...
 }
 
 void UGreatSword::QuickStrikeStart()
 {
 	Super::QuickStrikeStart();
-	//if (IsAttacking)return;
-	FWeaponDataTable CurrentData = GetCurrentWeaponData();
-	if (CurrentData.QuickStrikeMontages.Num() > 0 && Owner) {
 
-		if (!isWeaponEquipped) {
+	if (iscancel)return;if (IsAttacking)return;
+	FWeaponDataTable CurrentData = GetCurrentWeaponData();
+
+	if (CurrentData.QuickStrikeMontages.Num() > 0 && Owner) {
+		if (!isWeaponEquipped&&Owner->GetVelocity().Size2D()<=0) {
 			PlayMontage(CurrentData.SheatheMontage);
 			isWeaponEquipped = true;
 			return;
 		}
+		if (!isWeaponEquipped && Owner->GetVelocity().Size2D() > 0) {
+			PlayMontage(CurrentData.DodgeMontage);
+			isWeaponEquipped = true;
+			return;
+		}
+		else {
 		PlayMontage(CurrentData.QuickStrikeMontages[GetQuickStrikeComboIndex()]);
-		SetHeavyStrikeComboIndex(1);
+		}
 	}
+}
+
+void UGreatSword::QuickStrikeHolding()
+{
+	Super::QuickStrikeHolding();
 }
 
 void UGreatSword::QuickStrikeEnd()
 {
-	CurrentMontage = Anim->GetCurrentMontage(Owner);
-	if (Anim->Montage_IsPlaying(CurrentMontage)) {
-		Anim->Montage_JumpToSection(FName("Attack"), CurrentMontage);
-		Owner->WeaponComp->SetHeavyStrikeComboIndex(0);
-	}
+	isHolding = false;
+	Super::QuickStrikeEnd();
+	if (isJumpDelay) return;
+	if (isHolding) return;
+	JumpToNextCombo();
+}
+
+void UGreatSword::QuickStrikeNext()
+{
+	Super::QuickStrikeNext();
+	if(!iscancel)
+		SetQuickStrikeComboIndex(Owner->WeaponComp->GetQuickStrikeComboIndex() + 1);
+	IsAttacking = false;
+	if (isHolding)
+		QuickStrikeStart();
 }
 
 void UGreatSword::HeavyStrikeStart()
 {
-	//if (IsAttacking&& GetHeavyStrikeComboIndex()!=1)return;
+	Super::HeavyStrikeStart();
+	if (!isWeaponEquipped) return;
+	if (!IsAttacking){
+		FWeaponDataTable CurrentData = GetCurrentWeaponData();
+		if (CurrentData.HeavyStrikeMontages.Num() > 0 && Owner)
+		{
+			PlayMontage(CurrentData.HeavyStrikeMontages[GetHeavyStrikeComboIndex()]);
+		}
+		return;
+	}
+	else{
+		if (iscancel)return;
 
-	FWeaponDataTable CurrentData = GetCurrentWeaponData();
-	if (CurrentData.HeavyStrikeMontages.Num() > 0 && Owner)
-	{
-		PlayMontage(CurrentData.HeavyStrikeMontages[GetHeavyStrikeComboIndex()]);
+		CancelHandler();
+		return;
 	}
 }
 
 void UGreatSword::HeavyStrikeEnd()
 {
-
+	//isHolding = false;
 }
 
 void UGreatSword::UniqueStrikeStart()
 {
+	Super::UniqueStrikeStart();
+	if (!isWeaponEquipped) return;
+
 	FWeaponDataTable CurrentData = GetCurrentWeaponData();
 	if (CurrentData.UniqueStrikeMontages.Num() > 0 && Owner)
 	{
@@ -99,6 +124,8 @@ void UGreatSword::ResetCombo()
 void UGreatSword::Dash()
 {
 	Super::Dash();
+
+	if(!IsAttacking){
 	FWeaponDataTable CurrentData = GetCurrentWeaponData();
 	if (CurrentData.QuickStrikeMontages.Num() > 0 && Owner){
 		if (isWeaponEquipped) {
@@ -106,6 +133,38 @@ void UGreatSword::Dash()
 			isWeaponEquipped = false;
 		}
 	}
+	}
+}
+
+void UGreatSword::ModifyWeaponMoveSpeed()
+{
+	if (!isWeaponEquipped) {
+		Super::ModifyWeaponMoveSpeed();
+	}
+	else {
+		Owner->GetCharacterMovement()->MaxWalkSpeed = 200;
+	}
+}
+
+void UGreatSword::JumpToNextCombo()
+{
+	if (isHolding)return;
+	CurrentMontage = Anim->GetCurrentMontage(Owner);
+	if (Anim->Montage_IsPlaying(CurrentMontage)) {
+		Anim->Montage_JumpToSection(FName("Attack"), CurrentMontage);
+		Owner->WeaponComp->SetHeavyStrikeComboIndex(0);
+	}
+}
+
+void UGreatSword::CancelHandler()
+{
+	if (!isHolding)return;
+	FWeaponDataTable CurrentData = GetCurrentWeaponData();
+	if (CurrentData.HeavyStrikeMontages.Num() > 0 && Owner)
+	{
+		PlayMontage(CurrentData.HeavyStrikeMontages[1]);
+	}
+	SetHeavyStrikeComboIndex(0);
 }
 
 void UGreatSword::PlayMontage(UAnimMontage* Montage)

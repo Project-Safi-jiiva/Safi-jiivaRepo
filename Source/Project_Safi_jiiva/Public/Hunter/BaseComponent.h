@@ -35,4 +35,6 @@ protected:
 	UPROPERTY()
 	class UHunterAnim* Anim;
 
+	virtual void ModifyWeaponMoveSpeed();
+
 };
