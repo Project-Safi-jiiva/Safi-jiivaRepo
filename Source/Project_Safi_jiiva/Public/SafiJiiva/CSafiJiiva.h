@@ -72,11 +72,12 @@ public:	// 체력 등 스탯 계수
 public:	// 사거리, 속도 등
 	float MeleeAttRange = 1000.f;
 	float SearchRange = 3000.f;
+	float MaxBreathRange = 5000.f;
 
 	float RunSpeed = 400.f;
 	float WalkSpeed = 100.f;
 
-	float idleTime = 3.f;
+	float idleTime = 2.f;
 
 public: // 공격 위치
 	// 왼쪽 = 2, 오른쪽 = 3, 오른쪽 뒤 = 4
@@ -93,8 +94,9 @@ public: // 상태 체크
 
 public:// 공격 관련 노티파이 제어
 	bool isOnAttBite = false;		// 물기 공격중인지
-	bool isBreath = false;			// 브레스 사용중인지
+	bool isOnBreath = false;			// 브레스 사용중인지
 	bool isOnSearch = false;		// 탐색 중인지 (탐색용 콜리전 활성화)
+	bool isOnBodyPress = false;
 
 public: // 라인 트레이스
 	bool bLineTracing = false;

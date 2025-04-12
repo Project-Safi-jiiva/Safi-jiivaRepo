@@ -32,13 +32,13 @@ ACSafiJiiva::ACSafiJiiva()
 	}
 	
 	FireArrowComp = CreateDefaultSubobject<UArrowComponent>(TEXT("FireArrowComp"));
-	FireArrowComp->SetupAttachment(SafiComponent, TEXT("Socket_BiteDMGBox"));
-	FireArrowComp->SetRelativeLocation(FVector());
+	FireArrowComp->SetupAttachment(SafiComponent,TEXT("Socket_FirePos") /*TEXT("Socket_BiteDMGBox")*/);
+	FireArrowComp->SetRelativeLocation(FVector(0.f, 75.f, 220.f));
 	FireArrowComp->SetRelativeRotation(FRotator( 90.f , 0.f, 0.f ));
 
 	LineArrowComp = CreateDefaultSubobject<UArrowComponent>(TEXT("LineArrowComp"));
 	LineArrowComp->SetupAttachment(SafiComponent /*, TEXT("Socket_Nose")*/);
-	LineArrowComp->SetRelativeLocation(FVector(0.f, 1580.f, 350.f));
+	LineArrowComp->SetRelativeLocation(FVector(0.f, 1600.f, 250.f));
 	LineArrowComp->SetRelativeRotation(FRotator(0.f, 90.f, 0.f));
 	
 
@@ -46,41 +46,39 @@ ACSafiJiiva::ACSafiJiiva()
 	USkeletalMeshComponent* SkeletalMeshComp = GetMesh();
 	if (SkeletalMeshComp)
 	{
-		//SkeletalMeshComp->bEnablePerPolyCollision = true;
+		SkeletalMeshComp->bEnablePerPolyCollision = true;
 		SkeletalMeshComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		SkeletalMeshComp->SetCollisionResponseToAllChannels(ECR_Ignore);
+		SkeletalMeshComp->SetCollisionResponseToAllChannels(ECR_Overlap);
 
 		SkeletalMeshComp->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
 	}
-
-
-
 #pragma endregion Components
 
 	//========================= 콜리전 세팅 파트
 
 #pragma  region Collision
-
 	Collision_1 = CreateDefaultSubobject<UBoxComponent>(TEXT("BiteDMGBox"));
 	Collision_1->SetupAttachment(SafiComponent, TEXT("Socket_BiteDMGBox"));
 	Collision_1->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	Collision_1->SetCollisionResponseToAllChannels(ECR_Block);
+	Collision_1->SetCollisionResponseToAllChannels(ECR_Overlap);
 
 
 	Collision_2 = CreateDefaultSubobject<UBoxComponent>(TEXT("MeleeAttLBBox"));
 	Collision_2->SetupAttachment(SafiComponent);
 	Collision_2->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	Collision_2->SetCollisionResponseToAllChannels(ECR_Block);
+	Collision_2->SetCollisionResponseToAllChannels(ECR_Overlap);
+
 
 	Collision_3 = CreateDefaultSubobject<UBoxComponent>(TEXT("MeleeAttLFBox"));
 	Collision_3->SetupAttachment(SafiComponent);
 	Collision_3->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	Collision_3->SetCollisionResponseToAllChannels(ECR_Block);
+	Collision_3->SetCollisionResponseToAllChannels(ECR_Overlap);
+
 
 	Collision_4 = CreateDefaultSubobject<UBoxComponent>(TEXT("MeleeAttRFBox"));
 	Collision_4->SetupAttachment(SafiComponent);
 	Collision_4->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	Collision_4->SetCollisionResponseToAllChannels(ECR_Block);
+	Collision_4->SetCollisionResponseToAllChannels(ECR_Overlap);
 #pragma  endregion Collision
 
 	Collision_2->SetRelativeLocation(FVector(650.f, -350.f, 160.f));
@@ -91,15 +89,17 @@ ACSafiJiiva::ACSafiJiiva()
 
 
 #pragma region SetExtentBox
-
 	Collision_1->SetBoxExtent(FVector(70.f, 80.f, 150.f));
 	Collision_2->SetBoxExtent(FVector(200.f));     
 	Collision_3->SetBoxExtent(FVector(200.f));
 	Collision_4->SetBoxExtent(FVector(200.f));
-
 #pragma endregion
 
-
+	// ========================= 콜리전 충돌 체크
+	Collision_1->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+	Collision_2->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+	Collision_3->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+	Collision_4->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
 }
 
 // Called when the game starts or when spawned
@@ -177,20 +177,19 @@ bool ACSafiJiiva::CheckHitLineTrace(FVector _startPos, FVector& _curPos)
 
 	bool bHit = GetWorld()->LineTraceSingleByChannel(HitInfo, _startPos, _curPos, ECC_Visibility, params);
 
-	if (bHit && HitInfo.GetActor()->GetActorNameOrLabel().Contains("헌터이려나"))
+	if ( bHit && HitInfo.GetActor()->GetActorNameOrLabel().Contains("Hunter"))
 	{
 		// 충돌체크
-
+		UE_LOG(LogTemp, Error, TEXT("TEST"));
 	}
 
 	return bHit;
 }
 
-// 브레스, 
 void ACSafiJiiva::SetNormal()
 {
 
-	isBreath = false;
+	isOnBreath = false;
 	isOnAttBite= false;
 
 	isRepelled = false;
@@ -254,6 +253,11 @@ void ACSafiJiiva::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, clas
 		UE_LOG(LogTemp, Warning, TEXT("Hit RB"));
 	}
 
+	if (isOnBodyPress == true)
+	{
+		//헌터에 데미지 주기
+	}
+
 
 	/*
 	if (target->태클상태)
@@ -263,7 +267,7 @@ void ACSafiJiiva::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, clas
 	*/
 
 	// 데미지 처리는 FSM ,or AnimInstance 쪽에서 처리
-	// Tick에서 스테이터스 체크해서 isDisturbed 체크
-	// 스턴 / 경직 등이 들어왔다면 다른 bool형 변수들 false로 해주는 처리 필요
+	// Tick에서 스테이터스 체크해서 isDisturbed 체크		- AnimInstance쪽 isDisturbedA와 연동 완료
+	// 스턴 / 경직 등이 들어왔다면 다른 bool형 변수들 false로 해주는 처리 필요 - SetNormal() 로 처리
 }
 

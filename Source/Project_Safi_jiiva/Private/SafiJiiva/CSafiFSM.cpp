@@ -1,5 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+// ** 주의! **
+// 무페토지바 각도가 빠르게 회전한다면 Idle 회전값 조건이 잘못 걸려있는 것임. 조정하면 돌아옴.
+// Idle에 있는 각도별 모션판정은 Server 기준으로 판정하게 하기.	- 잘못하면 유저별로 몹 모션 다르게 나옴
 
 #include "SafiJiiva/CSafiFSM.h"
 #include "Kismet/GameplayStatics.h"
@@ -9,13 +12,13 @@
 #include "SafiJiiva/CSafiJiiva.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/ArrowComponent.h"
 
 // Sets default values for this component's properties
 UCSafiFSM::UCSafiFSM()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 
-		
 }
 
 
@@ -44,7 +47,20 @@ void UCSafiFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 
+	// LogMessageState : Only 로그 출력용 (통째로 지워도 됨)
 #pragma region LogMessageState
+
+	/// ==================================== 에러 테스트용 계산 ====================================
+	FVector dir = SearchTarget();
+	FRotator targetRot = dir.Rotation();
+	FRotator currentRot = me->GetActorRotation();
+	float length = dir.Size();
+	float targetYaw = FMath::Abs(FMath::FindDeltaAngleDegrees(currentRot.Yaw, targetRot.Yaw));
+
+
+	/// ============================================================================================
+
+
 	FString logMsgState = UEnum::GetValueAsString(mState);
 	GEngine->AddOnScreenDebugMessage(0, 1, FColor::Yellow, logMsgState);
 
@@ -54,6 +70,9 @@ void UCSafiFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	FString logMsgTurn = UEnum::GetValueAsString(mTurnState);
 	GEngine->AddOnScreenDebugMessage(2, 1, FColor::Yellow, logMsgTurn);
 
+	GEngine->AddOnScreenDebugMessage(3, 1, FColor::Emerald, FString::Printf(TEXT("distance: %f"),length));
+
+	GEngine->AddOnScreenDebugMessage(4, 1, FColor::Emerald, FString::Printf(TEXT("targetYaw: %f"), targetYaw));
 	// ==========================================================================
 
 	// bool형 변수 상태 출력
@@ -79,8 +98,8 @@ void UCSafiFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	GEngine->AddOnScreenDebugMessage(8, 1, disturbedColor, logMsgDisturbed);
 
 	// isBreath 상태 출력 (True일 때 빨간색)
-	FColor breathColor = me->isBreath ? FColor::Red : FColor::White;
-	FString logMsgBreath = FString::Printf(TEXT("isBreath: %s"), me->isBreath ? TEXT("True") : TEXT("False"));
+	FColor breathColor = me->isOnBreath ? FColor::Red : FColor::White;
+	FString logMsgBreath = FString::Printf(TEXT("isBreath: %s"), me->isOnBreath ? TEXT("True") : TEXT("False"));
 	GEngine->AddOnScreenDebugMessage(9, 1, breathColor, logMsgBreath);
 
 	// isRepelled 상태 출력 (True일 때 빨간색)
@@ -97,6 +116,7 @@ void UCSafiFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 
 	switch(mState)
 	{
+		case ESafiState::Start		: { StartState(); }	break;
 		case ESafiState::Idle		: { IdleState(); }	break;
 		//case ESafiState::Move		: {  }	break;
 		case ESafiState::Turn		: { CanMeleeAttack(); }	break;
@@ -112,14 +132,12 @@ void UCSafiFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 		case EAttackState::MeleeBite	: { AttMelee(); }	break;
 		case EAttackState::MeleeBPress	: {  }	break;
 
-		case EAttackState::NormalBreath	: {  }	break;
-		case EAttackState::AimedBreath	: {  }	break;
-	
+		case EAttackState::NormalBreath : { AttBreath(); }	break;
+		case EAttackState::AimedBreath	: { AttBreath(); }	break;
 	}
 }
 
-// 타겟 사망시에 IdleState로 돌아옴
-void UCSafiFSM::IdleState()
+void UCSafiFSM::StartState()
 {
 	// ======== 탐지 -> 포효 -> 개전 ========
 
@@ -131,15 +149,15 @@ void UCSafiFSM::IdleState()
 	FVector dir = SearchTarget();
 
 	//타겟과의 사거리가 색적범위보다 멀다면 타겟을 삭제
-	if ( dir.Size() > me->SearchRange)
+	if (dir.Size() > me->SearchRange)
 	{
 		target = nullptr;
 		currentTime += GetWorld()->DeltaTimeSeconds;
-		if (currentTime >me->idleTime)
+		if (currentTime > me->idleTime)
 		{
 			return;
 		}
-			
+
 		return;
 	}
 
@@ -147,37 +165,93 @@ void UCSafiFSM::IdleState()
 	me->isInBattle = true;
 
 
-// 포효
-	// 포효 처리 및 공격 패턴으로 전환
+	// 포효
+		// 포효 처리 및 공격 패턴으로 전환
 	mState = ESafiState::Attack;
 	Anim->aState = mState;
 
 	AttRoar();
 }
 
-void UCSafiFSM::CanMeleeAttack()
+// 타겟 사망시에 IdleState로 돌아옴
+void UCSafiFSM::IdleState()
 {
+	// AnimState에서 애니메이션 분기 만들어 놓을 것.	
+	// ㄴ isInBattle이 true일 땐 일반 idle이 아니라 팔 움직이는 idle (회전용)		- 수행 완료
 
+	if (me->isInBattle == false)	// 처음 조우할땐 StartState로 감
+	{
+		StartState();
+		return;
+	}
+
+	CanMeleeAttack();	// 공격 수행시 노티파이로 attackPos = 0;		- 미수행
+
+	// 공격 판단부분도 Idle에서 수행
+	FRotator targetRot = SearchTarget().Rotation();
+	FRotator currentRot = me->GetActorRotation();
+	float targetYaw = FMath::Abs(FMath::FindDeltaAngleDegrees(currentRot.Yaw, targetRot.Yaw));
+
+
+	// 이 부분은 따로 떼서 서버처리 하는게 나을듯 (각 차이 나면 모션 다르게 나올 수 있음.)
+	// 돌아야 하는 값이 60도 미만이라면 TargetRotationByAnim으로 회전
+	if (targetYaw < 45.f)
+	{
+
+		TargetRotation();
+
+		if (targetYaw <= 1.f)
+		{
+			CanMeleeAttack();
+			OnAttackProcess();
+		}
+	}
+
+	// currentTime += GetWorld()->DeltaTimeSeconds;
+	// if (currentTime <= me->idleTime) { return; }
+
+	// 돌아야 한다면 플레이어 방향으로 회전, 아닐시 return; - TargetRotationByAnim 에서 return;
+
+
+	// 돌아야 하는 값이 60도 이상이라면 TargetRotationByAnim으로 회전
+	if (targetYaw >= 45.0f)
+	{
+		TargetRotationByAnim();
+	}
+
+}
+
+void UCSafiFSM::CanMeleeAttack()	// SetAttackType으로 이름 바꾸고 근접공격 파트만 빼는것도 나쁘지 않을듯.
+{
+	FVector dir = SearchTarget();
+	int BFattType = attType;
 	// 해당 위치에 있다면 AttType 근접공격으로 return;
-	if (me->attackPos == 2)
+	if (me->attackPos == 2 || me->attackPos == 3 || me->attackPos == 4)
 	{
-		attType = AttMELEE_LF;
+		attType = me->attackPos;
+		mTurnState = ETurnState::None;
 		OnAttackProcess();
-		return;
+	}
+	
+	// 우선 공격 사거리 체크, 사거리보다 멀리 있다면 브레스
+	else if (dir.Size() < me->MeleeAttRange )
+	{
+		int iMelee = FMath::RandRange(AttBITE, AttBITE + 1);
+		while (BFattType == iMelee)
+		{
+			iMelee = FMath::RandRange(AttBITE, AttBITE + 1);
+		}
+		attType = iMelee;
 	}
 
-	if (me->attackPos == 3)
+	else
 	{
-		attType = AttMELEE_RF;
-		OnAttackProcess();
-		return;
-	}
-
-	if (me->attackPos == 4)
-	{
-		attType = AttMELEE_RB;
-		OnAttackProcess();
-		return;
+		int iBreathType = FMath::RandRange(AttNMBREATH, AttNMBREATH + 1);
+		while (BFattType == iBreathType)
+		{
+			iBreathType = FMath::RandRange(AttNMBREATH, AttNMBREATH + 1);
+		}
+		attType = iBreathType;
 	}
 
 	// 해당 위치에 적이 없는 경우는 노티파이로 EndAttackProcess	- 수행 완료
@@ -204,13 +278,6 @@ void UCSafiFSM::MoveState()
 		currentTime = 0.f;
 	}
 
-	/*
-	TargetRotation();
-	FVector dir = SearchTarget();
-
-	me->AddMovementInput(dir);
-	*/
-
 }
 
 void UCSafiFSM::BreathState()
@@ -218,13 +285,14 @@ void UCSafiFSM::BreathState()
 
 }
 
+
 void UCSafiFSM::AttRoar()
 {
 	me->isImmune = true;
 
 	mAttState = EAttackState::Roar;
 	Anim->aAttState = mAttState;
-	// 포효 공격판정 실행
+	// 포효 공격판정 실행						- *** 이건 플레이어 함수 불러와야 할 듯?
 
 	// 노티파이 종료시 EndAttackProcess 호출	- 수행완료
 	// 노티파이 종료시 이뮨 해제				- 수행완료
@@ -244,22 +312,68 @@ void UCSafiFSM::AttMelee()
 
 void UCSafiFSM::AttBreath()
 {
+	// 브레스 사용중에만 실행
+	if (me->isOnBreath == false){ return; }
+
+	FVector Start = me->FireArrowComp->GetComponentLocation();
+	FVector Forward = GetOwner()->GetActorForwardVector();
+	
+	// FVector Start = me->FireArrowComp->GetComponentLocation();
+	// FVector Forward = me->FireArrowComp->GetForwardVector();
+
+
+	float MaxDistance = me->MaxBreathRange; 
+	FVector End = Start + Forward * MaxDistance * 5000.f;
+
+	// 트레이스 파라미터
+	FCollisionQueryParams TraceParams;
+	TraceParams.AddIgnoredActor(me);
+	TraceParams.AddIgnoredComponent(me->GetMesh());
+
+	FHitResult Hit;
+
+	bool bHit = GetWorld()->SweepSingleByChannel( Hit,Start,End,FQuat::Identity, ECC_GameTraceChannel1, FCollisionShape::MakeSphere(50.f), TraceParams );
+
+
+// ================== 디버그용 =====================================
+
+	DrawDebugSphere(GetWorld(), Start, 50.f, 12, FColor::Green, false, 0.05f);
+	DrawDebugLine(GetWorld(), Start, bHit ? Hit.Location : End, FColor::Red, false, 2.0f);
+	if (bHit)
+	{
+		DrawDebugSphere(GetWorld(), Hit.Location, 50.f, 12, FColor::Blue, false, 2.0f);
+	}
+
+// ================== 디버그용 =====================================
+
+	// 충돌한 대상이 있는지 체크
+	if (!bHit){ return; }
+
+	AActor* HitActor = Hit.GetActor();
+	if (!HitActor)
+	{ 
+		AHunter* hunter = Cast<AHunter>(HitActor);
+		if (hunter)
+		{
+			//Hunter->SetDamage(_value);
+		}
+		return; 
+	}
+
+
 
 }
 
-// mState를 Attack으로 변경 / 공격 스위치
+// mState를 Attack으로 변경 / 공격스위치
 void UCSafiFSM::OnAttackProcess()
 {
 	me->isOnSearch = false;
 	FVector dir = SearchTarget();
 
-	//공격 상태로의 전환
-	if (mState != ESafiState::Attack)
-	{
-		mState = ESafiState::Attack;
-		Anim->aState = mState;
-	}
 
+// ======================== 스위치 ======================== 
+// 
+	// attType에 따라 mAttState를 변경만 해준다.
 	switch (attType)
 	{
 	case AttNONE:
@@ -269,7 +383,7 @@ void UCSafiFSM::OnAttackProcess()
 	case AttROAR:
 		mAttState = EAttackState::Roar;
 		break;
-
+//========================== 팔다리 공격 부분 ==========================
 	case AttMELEE_LF:
 		mAttState = EAttackState::MeleeAttLF;
 		break;
@@ -285,29 +399,47 @@ void UCSafiFSM::OnAttackProcess()
 	case AttMELEE_LB:
 		mAttState = EAttackState::MeleeAttLB;
 		break;
-
+//========================== 브레스 부분 ==========================
 	case AttNMBREATH:
 		mAttState = EAttackState::NormalBreath;
 		break;
-
 	case AttAIMBREATH:
 		mAttState = EAttackState::AimedBreath;
 		break;
-	}
+//========================== 근접공격 부분 ==========================
+	case AttBITE:
+		mAttState = EAttackState::MeleeBite;
+		break;
+	case AttBPRESS:
+		mAttState = EAttackState::MeleeBPress;
+		break;
+	} 
 	Anim->aAttState = mAttState;
+
+// ========================================================
+
+	//공격 상태로의 전환, 수행
+	if (mState != ESafiState::Attack)
+	{
+		mState = ESafiState::Attack;
+		Anim->aState = mState;
+	}
+
+	// attType = AttNONE;	// 공격 타입 초기화
 
 }
 
 
 void UCSafiFSM::EndAttackProcess()
 {
-	FVector dir = SearchTarget();
-
 	mAttState = EAttackState::None;
 	Anim->aAttState = mAttState;
+
+	mState = ESafiState::Idle;
+	Anim->aState = mState;
 	
 
-	//어떤 공격을 할 지 판별 	// 공격 타입 번호만 정해주기
+	//어떤 공격을 할 지 판별 	// 공격 타입 번호만 정해주기	
 
 	// 근접 공격 사거리 안쪽에 있다면 위치에 따라 공격
 	// 범위 내에 없다면 브레스 패턴으로	*우선은 정면 브레스만
@@ -315,26 +447,13 @@ void UCSafiFSM::EndAttackProcess()
 	me->isOnSearch = true;	// 공격할 때 꺼주기	- OnAttackProcess에 false 해줌
 
 
-	//if 돌아야 한다면 플레이어 방향으로 회전, 아닐시 return; - TargetRotationByAnim 에서 return
-	TargetRotationByAnim();
 
-	if (dir.Size() > me->MeleeAttRange)
-	{
-		mAttState = EAttackState::AimedBreath;
-		Anim->aAttState = mAttState;
-		return;
-	}
+	//CanMeleeAttack();		// 공격 가능 대상 있다면 바로 공격
 
-	
-	/*
-	if (정면일 경우)
-	{
-		둘 중 하나
-		물기 / 정면브레스 / 바디프레스
-	}
-	*/
+	//if 돌아야 한다면 플레이어 방향으로 회전, 아닐시 return;		- 수행완료
+	// ㄴ> 회전 적게해야할지 많이해야할지를 판단때려줌.				- 수행완료
+	// ㄴ> Idle에서 수행.											- 수행완료
 
-	//OnAttackProcess();		// 회전 테스트 중이라 잠시 막음.
 }
 
 void UCSafiFSM::TargetRotation()
@@ -345,9 +464,9 @@ void UCSafiFSM::TargetRotation()
 	FRotator TargetRotation = dir.Rotation();
 	FRotator CurrentRotation = me->GetActorRotation();
 
-	FRotator NewRotation = FMath::RInterpTo(CurrentRotation , TargetRotation, DeltaTime, 1.0f);
+	FRotator NewRotation = FMath::RInterpTo(CurrentRotation , TargetRotation, DeltaTime, 2.f);
 
-	NewRotation.Yaw = TargetRotation.Yaw;
+
 	me->SetActorRotation(NewRotation);
 }
 
@@ -356,7 +475,7 @@ void UCSafiFSM::TargetRotationByAnim()
 	FVector dir = SearchTarget();
 	FVector dirLocal = me->GetActorTransform().InverseTransformVectorNoScale(dir);	// 로컬 방향 계산
 
-
+	
 	// 캐릭터가 앞에 있음. 회전 불필요. return.
 	// 나중에 idle이나 백스텝 밟으면서 rotation만 조금 돌리게 수정할 것.
 
@@ -389,7 +508,7 @@ void UCSafiFSM::TargetRotationByAnim()
 		Anim->aTurnState = mTurnState;
 	}
 
-	// 적이 해당 위치에 있다면 공격으로 전환 -> TrunState( Turn Tick에서 )
+	// 적이 해당 위치에 있다면 공격으로 전환 -> TrunState( Turn Tick에서 )		- 미수행
 
 
 	// 노티파이로 isOnSearch 꺼주기			- 수행완료
@@ -410,4 +529,5 @@ FVector UCSafiFSM::SearchTarget()
 
 	return dir;
 }
+ 
 

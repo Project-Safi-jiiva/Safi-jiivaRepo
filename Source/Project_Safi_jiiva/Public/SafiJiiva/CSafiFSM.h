@@ -3,12 +3,17 @@
 #pragma region AttDefine
 #define AttNONE 0
 #define AttROAR 1
+
 #define AttMELEE_LF 2
 #define AttMELEE_RF 3
 #define AttMELEE_RB 4
 #define AttMELEE_LB 5
+
 #define AttNMBREATH 6
 #define AttAIMBREATH 7
+
+#define AttBITE 10
+#define AttBPRESS 11
 
 #pragma endregion
 
@@ -21,9 +26,10 @@
 UENUM()
 enum class ESafiState : uint8
 {
+	Start		UMETA(DisplayName = "Start"),
 	Idle		UMETA(DisplayName = "Idle"),
 	//Move		UMETA(DisplayName = "Move"),
-	Turn		UMETA(DisplayName = "Turn"),
+	Turn		UMETA(DisplayName = "Turn"),		// AnimState 제어용. 코드적 기능은 Idle에 전부 있음.
 	Attack		UMETA(DisplayName = "Attack"),
 	Dead		UMETA(DisplayName = "Dead")
 	// Fly			UMETA(DisplayName = "Fly") / Fly는 그냥 IsFly로 상태 체크하는게 나을듯?
@@ -96,6 +102,7 @@ public:
 	uint8 attType = 0;
 
 private: // 기본 State 함수
+	void StartState();
 	void IdleState();
 	void MoveState();
 	void BreathState();
@@ -109,10 +116,11 @@ public: // 공격 관련 함수
 	void AttMelee();
 	void AttBreath();
 
-	void CanMeleeAttack();				// 공격 가능 위치에 정확히 있는지
+	void CanMeleeAttack();				// 공격 가능 위치에 정확히 있는지 확인 , 브레스 종류 랜덤 결정.
 public:
 	void TargetRotation();
 	void TargetRotationByAnim();		// 애니메이션으로 회전
 	FVector SearchTarget();
+
 
 };
