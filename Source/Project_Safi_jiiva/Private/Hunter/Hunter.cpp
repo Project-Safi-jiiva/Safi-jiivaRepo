@@ -1,8 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Hunter/Hunter.h"
+
 #include "Hunter/HunterAnim.h"
 #include "Hunter/MoveComponent.h"
+
 
 #include "AssetPath.h"
 #include "Project_Safi_jiiva.h"
@@ -25,13 +27,13 @@ AHunter::AHunter()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	//ÄÄÆ÷³ÍÆ® Ãß°¡ ºÎºÐ
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ß°ï¿½ ï¿½Îºï¿½
 	MoveComp = CreateDefaultSubobject<UMoveComponent>(TEXT("MoveComponent"));
 	//WeaponComp = CreateDefaultSubobject<UWeaponComponent>(TEXT("WeaponSample"));
-	//½ºÄÌ·¹Å» ¸Þ½¬ Ãß°¡
+	//ï¿½ï¿½ï¿½Ì·ï¿½Å» ï¿½Þ½ï¿½ ï¿½ß°ï¿½
 	ConstructorHelpers::FObjectFinder<USkeletalMesh> SK_Hunter(AssetPaths::HUNTER_MESH);
 	if (SK_Hunter.Succeeded()) GetMesh()->SetSkeletalMesh(SK_Hunter.Object);
-	//¾Ö´Ï¸ÞÀÌ¼Ç ºí·çÇÁ¸°Æ® Ãß°¡
+	//ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ß°ï¿½
 	ConstructorHelpers::FClassFinder<UHunterAnim> AB_Hunter(AssetPaths::HUNTER_ANIM);
 
 	ConstructorHelpers::FObjectFinder<UInputMappingContext> IMC_HunterTool(AssetPaths::HUNTER_IMC);
@@ -49,11 +51,11 @@ AHunter::AHunter()
 	bUseControllerRotationRoll = false;
 
 
-	// ÀÌµ¿ ¹æÇâÀÌ Ä«¸Þ¶ó¿Í µ¶¸³ÀûÀÌµµ·Ï ¼³Á¤
+	// ï¿½Ìµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ä«ï¿½Þ¶ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ìµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->bUseControllerDesiredRotation = false;
 
-	// ½ºÇÁ¸µ ¾Ï »ý¼º ¹× ¼³Á¤
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArmComponent->SetupAttachment(RootComponent);
 	SpringArmComponent->TargetArmLength = 300.0f;
@@ -63,7 +65,7 @@ AHunter::AHunter()
 	SpringArmComponent->bInheritRoll = false;
 
 
-	// Ä«¸Þ¶ó »ý¼º ¹× ¼³Á¤
+	// Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
 	CameraComponent->bUsePawnControlRotation = false;
@@ -121,7 +123,7 @@ void AHunter::ChangeWeapon(EWeaponType NewWeaponType)
 	{
 		WeaponComp->SetWeaponType(NewWeaponType);
 		WeaponComp->RegisterComponent();
-		// µ¨¸®°ÔÀÌÆ®·Î ¾Ë¸²
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½Ë¸ï¿½
 		if (InputBindingDeleagate.IsBound())
 		{
 			InputBindingDeleagate.Broadcast(Cast<UEnhancedInputComponent>(InputComponent));
