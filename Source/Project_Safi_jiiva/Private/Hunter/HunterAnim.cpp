@@ -49,7 +49,7 @@ void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNo
 {
     Owner->WeaponComp->isJumpDelay = true;
     if (NotifyName == FName(TEXT("QuickStrikeStart"))) { Owner->WeaponComp->IsAttacking = true; }
-    if (NotifyName == FName(TEXT("IsAttackingOff"))) { Owner->WeaponComp->IsAttacking = false; }
+    if (NotifyName == FName(TEXT("IsAttackingOff"))) { Owner->WeaponComp->IsAttacking = false; Owner->WeaponComp->SetQuickStrikeComboIndex(1); }
     if (NotifyName == FName(TEXT("QuickStrikeEnd"))) {Owner->WeaponComp->QuickStrikeNext();}
     if (NotifyName == FName(TEXT("DelayStart"))) { Owner->WeaponComp->isJumpDelay = true; }
     if (NotifyName == FName(TEXT("DelayEnd"))) {

@@ -25,6 +25,8 @@ UWeaponComponent::UWeaponComponent(){
 	IA_HeavyStrike = IA_HeavyStrikeTool.Object;
 	ConstructorHelpers::FObjectFinder<UInputAction> IA_UniqueStrikeTool(AssetPaths::IA_UniqueStrike);
 	IA_UniqueStrike = IA_UniqueStrikeTool.Object;
+	ConstructorHelpers::FObjectFinder<UInputAction> IA_RollTool(AssetPaths::IA_ROLL);
+	IA_Roll = IA_RollTool.Object;
 	ConstructorHelpers::FObjectFinder<UWeaponDataAsset> WeaponDataTableTool(AssetPaths::WeaponDataAsset);
 	WeaponDataTable = WeaponDataTableTool.Object;
 
@@ -86,6 +88,7 @@ void UWeaponComponent::SetupInputBinding(class UEnhancedInputComponent* InputCom
 			InputComponent->BindAction(IA_HeavyStrike, ETriggerEvent::Completed, this, &UWeaponComponent::HeavyStrikeEnd);
 			InputComponent->BindAction(IA_UniqueStrike, ETriggerEvent::Started, this, &UWeaponComponent::UniqueStrikeStart);
 			InputComponent->BindAction(IA_UniqueStrike, ETriggerEvent::Completed, this, &UWeaponComponent::UniqueStrikeEnd);
+			InputComponent->BindAction(IA_Roll, ETriggerEvent::Started, this, &UWeaponComponent::Roll);
 	}
 }
 
@@ -178,6 +181,8 @@ void UWeaponComponent::InitializeWeaponActor(AActor* NewWeapon, const FWeaponDat
 		IIWeaponActor::Execute_SetBaseDamage(NewWeapon, WeaponData.BaseDamage);
 	}
 }
+
+void UWeaponComponent::Roll(){}
 
 void UWeaponComponent::LoadWeaponData()
 {

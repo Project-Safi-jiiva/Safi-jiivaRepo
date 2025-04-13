@@ -22,6 +22,7 @@ namespace AssetPaths
     constexpr const TCHAR* IA_HeavyStrike = TEXT("/Script/EnhancedInput.InputAction'/Game/LHW/Input/IA_HeavyStrike.IA_HeavyStrike'");
 
     constexpr const TCHAR* IA_UniqueStrike = TEXT("/Script/EnhancedInput.InputAction'/Game/LHW/Input/IA_UniqueStrike.IA_UniqueStrike'");
+    constexpr const TCHAR* IA_ROLL = TEXT("/Script/EnhancedInput.InputAction'/Game/LHW/Input/IA_Roll.IA_Roll'");
     //데이터 에셋
     constexpr const TCHAR* WeaponDataAsset = TEXT("/Script/Project_Safi_jiiva.WeaponDataAsset'/Game/LHW/DataTable/WeaponData.WeaponData'");
 

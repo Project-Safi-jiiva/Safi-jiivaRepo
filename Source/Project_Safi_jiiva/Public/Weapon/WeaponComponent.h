@@ -59,7 +59,7 @@ public:
 	//부모 상속
 
 	virtual void SetupInputBinding(class UEnhancedInputComponent* InputComponent) override;
-	virtual void ModifyWeaponMoveSpeed() override;;
+	virtual void ModifyWeaponMoveSpeed() override;
 
 public:
 	void SpawnWeaponActor();
@@ -68,6 +68,7 @@ public:
 	void AttachWeaponToOwner();
 	void AttachWeaponToHand();
 	void InitializeWeaponActor(AActor* WeaponActor, const FWeaponDataTable& WeaponData);
+	virtual void Roll();
 
 private:
 	void LoadWeaponData();
@@ -97,6 +98,7 @@ public:
 	class UInputAction* IA_QuickStrike;
 	class UInputAction* IA_HeavyStrike;
 	class UInputAction* IA_UniqueStrike;
+	class UInputAction* IA_Roll;
 
 protected:
 	FWeaponDataTable GetCurrentWeaponData() const;

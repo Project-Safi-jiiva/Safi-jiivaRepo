@@ -38,7 +38,7 @@ void UGreatSword::QuickStrikeStart()
 			return;
 		}
 		if (!isWeaponEquipped && Owner->GetVelocity().Size2D() > 0) {
-			PlayMontage(CurrentData.DodgeMontage);
+			PlayMontage(CurrentData.UniqueStrikeMontages[1]);
 			isWeaponEquipped = true;
 			return;
 		}
@@ -165,6 +165,13 @@ void UGreatSword::CancelHandler()
 		PlayMontage(CurrentData.HeavyStrikeMontages[1]);
 	}
 	SetHeavyStrikeComboIndex(0);
+}
+
+void UGreatSword::Roll()
+{
+	FWeaponDataTable CurrentData = GetCurrentWeaponData();
+
+	PlayMontage(CurrentData.DodgeMontage);
 }
 
 void UGreatSword::PlayMontage(UAnimMontage* Montage)

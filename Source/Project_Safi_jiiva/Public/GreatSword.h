@@ -40,6 +40,7 @@ public:
 	virtual void JumpToNextCombo() override;
 
 	virtual void CancelHandler() override;
+	virtual void Roll() override;
 
 private:
 	void PlayMontage(UAnimMontage* Montage);
