@@ -49,57 +49,111 @@ ACSafiJiiva::ACSafiJiiva()
 		SkeletalMeshComp->bEnablePerPolyCollision = true;
 		SkeletalMeshComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		SkeletalMeshComp->SetCollisionResponseToAllChannels(ECR_Overlap);
-
-		SkeletalMeshComp->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
 	}
 #pragma endregion Components
 
-	//========================= 콜리전 세팅 파트
+//========================= 콜리전 세팅 파트
 
 #pragma  region Collision
-	Collision_1 = CreateDefaultSubobject<UBoxComponent>(TEXT("BiteDMGBox"));
-	Collision_1->SetupAttachment(SafiComponent, TEXT("Socket_BiteDMGBox"));
-	Collision_1->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	Collision_1->SetCollisionResponseToAllChannels(ECR_Overlap);
+// =================== 공격용 콜리전 ===================	
+
+	AttCollisionBite = CreateDefaultSubobject<UBoxComponent>(TEXT("AttCollisionBite"));	// 머리
+	AttCollisionBite->SetupAttachment(SafiComponent, TEXT("Socket_BiteDMGBox"));
+	AttCollisionBite->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	AttCollisionBite->SetCollisionResponseToAllChannels(ECR_Overlap);
+
+	AttCollisionLF = CreateDefaultSubobject<UBoxComponent>(TEXT("AttCollisionLF"));		// 왼손
+	AttCollisionLF->SetupAttachment(SafiComponent, TEXT("Socket_LF"));
+	AttCollisionLF->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	AttCollisionLF->SetCollisionResponseToAllChannels(ECR_Overlap);
+
+	AttCollisionRF = CreateDefaultSubobject<UBoxComponent>(TEXT("AttCollisionRF"));		// 오른손
+	AttCollisionRF->SetupAttachment(SafiComponent, TEXT("Socket_RF"));
+	AttCollisionRF->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	AttCollisionRF->SetCollisionResponseToAllChannels(ECR_Overlap);
+
+	AttCollisionLB = CreateDefaultSubobject<UBoxComponent>(TEXT("AttCollisionLB"));		// 왼발
+	AttCollisionLB->SetupAttachment(SafiComponent, TEXT("Socket_LB"));
+	AttCollisionLB->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	AttCollisionLB->SetCollisionResponseToAllChannels(ECR_Overlap);
+
+	AttCollisionRB = CreateDefaultSubobject<UBoxComponent>(TEXT("AttCollisionRB"));		// 오른발
+	AttCollisionRB->SetupAttachment(SafiComponent, TEXT("Socket_RB"));
+	AttCollisionRB->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	AttCollisionRB->SetCollisionResponseToAllChannels(ECR_Overlap);
 
 
-	Collision_2 = CreateDefaultSubobject<UBoxComponent>(TEXT("MeleeAttLBBox"));
-	Collision_2->SetupAttachment(SafiComponent);
-	Collision_2->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	Collision_2->SetCollisionResponseToAllChannels(ECR_Overlap);
+
+// =================== 공격 위치 판정용 콜리전===================
+
+	AttPosLF = CreateDefaultSubobject<UBoxComponent>(TEXT("AttPosLF"));
+	AttPosLF->SetupAttachment(SafiComponent);
+	AttPosLF->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	AttPosLF->SetCollisionResponseToAllChannels(ECR_Overlap);
 
 
-	Collision_3 = CreateDefaultSubobject<UBoxComponent>(TEXT("MeleeAttLFBox"));
-	Collision_3->SetupAttachment(SafiComponent);
-	Collision_3->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	Collision_3->SetCollisionResponseToAllChannels(ECR_Overlap);
+	AttPosRF = CreateDefaultSubobject<UBoxComponent>(TEXT("AttPosRF"));
+	AttPosRF->SetupAttachment(SafiComponent);
+	AttPosRF->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	AttPosRF->SetCollisionResponseToAllChannels(ECR_Overlap);
 
 
-	Collision_4 = CreateDefaultSubobject<UBoxComponent>(TEXT("MeleeAttRFBox"));
-	Collision_4->SetupAttachment(SafiComponent);
-	Collision_4->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	Collision_4->SetCollisionResponseToAllChannels(ECR_Overlap);
+	AttPosLB = CreateDefaultSubobject<UBoxComponent>(TEXT("AttPosLB"));
+	AttPosLB->SetupAttachment(SafiComponent);
+	AttPosLB->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	AttPosLB->SetCollisionResponseToAllChannels(ECR_Overlap);
+
+	AttPosRB = CreateDefaultSubobject<UBoxComponent>(TEXT("AttPosRB"));
+	AttPosRB->SetupAttachment(SafiComponent);
+	AttPosRB->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	AttPosRB->SetCollisionResponseToAllChannels(ECR_Overlap);
 #pragma  endregion Collision
 
-	Collision_2->SetRelativeLocation(FVector(650.f, -350.f, 160.f));
-	Collision_3->SetRelativeLocation(FVector(-650.f, 630.f, 160.f));
-	Collision_4->SetRelativeLocation(FVector(-650.f, 630.f, 160.f));
 
-	// ========================= 박스 크기 설정 파트
+#pragma region Location&Extent
+// ========================= 박스 위치 설정 파트
+
+	AttCollisionLF->SetRelativeLocation(FVector(5.f, 0.f, 110.f));
+	AttCollisionRF->SetRelativeLocation(FVector(5.f, 0.f, 110.f));
+	AttCollisionLB->SetRelativeLocation(FVector(25.f, 0.f, 130.f));
+	AttCollisionRB->SetRelativeLocation(FVector(-40.f, 0.f, 130.f));
+
+	AttPosLF->SetRelativeLocation(FVector(650.f, 630.f, 160.f));
+	AttPosRF->SetRelativeLocation(FVector(-650.f, 630.f, 160.f));
+	AttPosLB->SetRelativeLocation(FVector(650.f, -350.f, 160.f));
+	AttPosRB->SetRelativeLocation(FVector(-650.f, -350.f, 160.f));
+
+// ========================= 박스 크기 설정 파트
+
+	AttCollisionBite->SetBoxExtent(FVector(70.f, 80.f, 150.f));
+
+	AttCollisionLF->SetBoxExtent(FVector(180.f, 70.f, 170.f));
+	AttCollisionRF->SetBoxExtent(FVector(180.f, 70.f, 170.f));
+	AttCollisionLB->SetBoxExtent(FVector(140.f, 70.f, 180.f));
+	AttCollisionRB->SetBoxExtent(FVector(140.f, 70.f, 180.f));
+
+	AttPosLF->SetBoxExtent(FVector(200.f));
+	AttPosRF->SetBoxExtent(FVector(200.f));
+	AttPosLB->SetBoxExtent(FVector(200.f));
+	AttPosRB->SetBoxExtent(FVector(200.f));
 
 
-#pragma region SetExtentBox
-	Collision_1->SetBoxExtent(FVector(70.f, 80.f, 150.f));
-	Collision_2->SetBoxExtent(FVector(200.f));     
-	Collision_3->SetBoxExtent(FVector(200.f));
-	Collision_4->SetBoxExtent(FVector(200.f));
-#pragma endregion
+#pragma endregion Location&Extent
 
 	// ========================= 콜리전 충돌 체크
-	Collision_1->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
-	Collision_2->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
-	Collision_3->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
-	Collision_4->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+	AttCollisionBite->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+
+	AttCollisionLF->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+	AttCollisionRF->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+	AttCollisionLB->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+	AttCollisionRB->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+	
+	AttPosLF->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+	AttPosRF->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+	AttPosLB->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+	AttPosRB->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+
+	SkeletalMeshComp->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
 }
 
 // Called when the game starts or when spawned
@@ -126,23 +180,57 @@ void ACSafiJiiva::Tick(float DeltaTime)
 
 
 	// 콜리전 활성화, 비활성화 파트
+	
+// 머리공격 콜리전 활성화 / 비활성화
+	if (isOnAttBite == true) { AttCollisionBite->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics); }
+	else { AttCollisionBite->SetCollisionEnabled(ECollisionEnabled::NoCollision); }
 
-	if (isOnAttBite == true) { Collision_1->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics); }
-	else { Collision_1->SetCollisionEnabled(ECollisionEnabled::NoCollision); }
-
-
-	if (isOnSearch == true)
+// 다리공격 콜리전 활성화 / 비활성화
+	if (isFootAttack == true)
 	{
-		Collision_2->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		Collision_3->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		Collision_4->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		switch (attackPos)
+		{
+		case AttMELEE_LF: 
+			AttCollisionLF->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+			break;
+
+		case AttMELEE_RF:
+			AttCollisionRF->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+			break;
+
+		case AttMELEE_LB:
+			AttCollisionLB->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+			break;
+
+		case AttMELEE_RB:
+			AttCollisionRB->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+			break;
+		}
 	}
 
 	else
 	{
-		Collision_2->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		Collision_3->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		Collision_4->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		AttCollisionLF->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		AttCollisionRF->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		AttCollisionLB->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		AttCollisionRB->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+
+// 색적 콜리전 활성화/비활성화
+	if (isOnSearch == true)
+	{
+		AttPosLF->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		AttPosRF->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		AttPosLB->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		AttPosRB->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	}
+
+	else
+	{
+		AttPosLF->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		AttPosRF->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		AttPosLB->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		AttPosRB->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 
 
@@ -191,6 +279,7 @@ void ACSafiJiiva::SetNormal()
 
 	isOnBreath = false;
 	isOnAttBite= false;
+	isFootAttack = false;
 
 	isRepelled = false;
 	isOnAttBite = false;
@@ -229,27 +318,33 @@ void ACSafiJiiva::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, clas
 	AHunter* target = Cast<AHunter>(OtherActor);
 	if (!target) { return; }
 
-	if (OverlappedComp == Collision_1)
+	if (OverlappedComp == AttCollisionBite)
 	{
 		//target->SetDamage(MeleeBiteDMG);
 		UE_LOG(LogTemp,Warning,TEXT("Bite_Test"));
 	}
 
-	if (OverlappedComp == Collision_2)		// 왼쪽
+	if (OverlappedComp == AttPosLF)		// 왼쪽
 	{
-		attackPos = 2;
+		attackPos = AttMELEE_LF;
 		UE_LOG(LogTemp, Warning, TEXT("Hit LF"));
 	}
 
-	if (OverlappedComp == Collision_3)		// 오른쪽
+	if (OverlappedComp == AttPosRF)		// 오른쪽
 	{
-		attackPos = 3;
+		attackPos = AttMELEE_RF;
 		UE_LOG(LogTemp, Warning, TEXT("Hit RF"));
 	}
 
-	if (OverlappedComp == Collision_4)		// 오른쪽 뒤
+	if (OverlappedComp == AttPosLB)		// 왼쪽 뒤
 	{
-		attackPos = 4;
+		attackPos = AttMELEE_LB;
+		UE_LOG(LogTemp, Warning, TEXT("Hit LB"));
+	}
+
+	if (OverlappedComp == AttPosRB)		// 오른쪽 뒤
+	{
+		attackPos = AttMELEE_RB;
 		UE_LOG(LogTemp, Warning, TEXT("Hit RB"));
 	}
 

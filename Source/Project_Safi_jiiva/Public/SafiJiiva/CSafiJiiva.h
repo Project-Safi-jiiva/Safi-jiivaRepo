@@ -1,4 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
+#define AttMELEE_LF 2
+#define AttMELEE_RF 3
+#define AttMELEE_LB 4
+#define AttMELEE_RB 5
 
 #pragma once
 
@@ -46,17 +50,34 @@ public: //기본 세팅 파트
 public:	// 소켓 추가 파트
 #pragma region CollisionSocketPart
 
+// =================== 공격용 콜리전 ===================
 	UPROPERTY(EditDefaultsOnly)
-	class UBoxComponent* Collision_1;
+	class UBoxComponent* AttCollisionBite;
 
 	UPROPERTY(EditDefaultsOnly)
-	class UBoxComponent* Collision_2;
+	class UBoxComponent* AttCollisionLF;
 
 	UPROPERTY(EditDefaultsOnly)
-	class UBoxComponent* Collision_3;
+	class UBoxComponent* AttCollisionRF;
 
 	UPROPERTY(EditDefaultsOnly)
-	class UBoxComponent* Collision_4;
+	class UBoxComponent* AttCollisionLB;
+
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* AttCollisionRB;
+
+// =================== 공격 위치 판정용 콜리전===================
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* AttPosLF;
+
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* AttPosRF;
+
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* AttPosLB;
+
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* AttPosRB;
 
 #pragma endregion
 
@@ -94,7 +115,8 @@ public: // 상태 체크
 
 public:// 공격 관련 노티파이 제어
 	bool isOnAttBite = false;		// 물기 공격중인지
-	bool isOnBreath = false;			// 브레스 사용중인지
+	bool isFootAttack = false;		// 발 공격중인지
+	bool isOnBreath = false;		// 브레스 사용중인지
 	bool isOnSearch = false;		// 탐색 중인지 (탐색용 콜리전 활성화)
 	bool isOnBodyPress = false;
 

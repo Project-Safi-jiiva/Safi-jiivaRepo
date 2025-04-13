@@ -108,8 +108,8 @@ void UCSafiFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	GEngine->AddOnScreenDebugMessage(10, 1, repelledColor, logMsgRepelled);
 
 	// Collision_1 활성화 상태 출력 (True일 때 빨간색)
-	FColor collisionColor = me->Collision_1->IsCollisionEnabled() ? FColor::Red : FColor::White;
-	FString logMsgCollision = FString::Printf(TEXT("Collision_1 is enabled: %s"), me->Collision_1->IsCollisionEnabled() ? TEXT("True") : TEXT("False"));
+	FColor collisionColor = me->AttCollisionBite->IsCollisionEnabled() ? FColor::Red : FColor::White;
+	FString logMsgCollision = FString::Printf(TEXT("Collision_1 is enabled: %s"), me->AttCollisionBite->IsCollisionEnabled() ? TEXT("True") : TEXT("False"));
 	GEngine->AddOnScreenDebugMessage(11, 1, collisionColor, logMsgCollision);
 
 #pragma endregion
@@ -226,7 +226,32 @@ void UCSafiFSM::CanMeleeAttack()	// SetAttackType으로 이름 바꾸고 근접공격 파트�
 	FVector dir = SearchTarget();
 	int BFattType = attType;
 	// 해당 위치에 있다면 AttType 근접공격으로 return;
-	if (me->attackPos == 2 || me->attackPos == 3 || me->attackPos == 4)
+
+
+	//for문으로 2-5만큼 돌림
+	// BFattType이 attType에 해당하는지 확인, 해당한다면 바디프레스로 변환
+	/*
+	for (int i = AttMELEE_LF ; i <= AttMELEE_RB; ++i)
+	{
+		if (BFattType == attType)
+		{
+			attType = AttBPRESS;
+			return;
+		}
+		// attpose가 2-5에 해당하는지 확인, 맞다면 attType에 대입.
+		if (me->attackPos == i)
+		{
+			attType = i;
+			mTurnState = ETurnState::None;
+			OnAttackProcess();
+		}
+	}
+	*/
+
+
+
+	// 여기랑 섞어서 if문 돌리는것도 해보기.
+	if (me->attackPos == AttMELEE_LF || me->attackPos == AttMELEE_RF || me->attackPos == AttMELEE_LB || me->attackPos == AttMELEE_RB)
 	{
 		attType = me->attackPos;
 		mTurnState = ETurnState::None;
@@ -425,7 +450,8 @@ void UCSafiFSM::OnAttackProcess()
 		Anim->aState = mState;
 	}
 
-	// attType = AttNONE;	// 공격 타입 초기화
+	attType = AttNONE;	// 공격 타입 초기화
+	me->attackPos = 0;	// 공격 후엔 팔공격도 초기화
 
 }
 

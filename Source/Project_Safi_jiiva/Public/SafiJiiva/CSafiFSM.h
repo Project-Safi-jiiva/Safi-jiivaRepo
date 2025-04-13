@@ -6,8 +6,8 @@
 
 #define AttMELEE_LF 2
 #define AttMELEE_RF 3
-#define AttMELEE_RB 4
-#define AttMELEE_LB 5
+#define AttMELEE_LB 4
+#define AttMELEE_RB 5
 
 #define AttNMBREATH 6
 #define AttAIMBREATH 7
@@ -41,9 +41,9 @@ enum class EAttackState : uint8
 	None 				UMETA(DisplayName = "None"),
 	Roar				UMETA(DisplayName = "Roar"),
 	MeleeAttLF			UMETA(DisplayName = "Melee_AttLF"),
-	MeleeAttRF			UMETA(DisplayName = "Melee_AttLF"),
-	MeleeAttRB			UMETA(DisplayName = "Melee_AttRB"),
+	MeleeAttRF			UMETA(DisplayName = "Melee_AttRF"),
 	MeleeAttLB			UMETA(DisplayName = "Melee_AttLB"),
+	MeleeAttRB			UMETA(DisplayName = "Melee_AttRB"),
 	MeleeBite			UMETA(DisplayName = "Melee_Bite"),
 	MeleeBPress			UMETA(DisplayName = "Melee_BodyPress"),
 	NormalBreath		UMETA(DisplayName = "Normal_Breath"),
@@ -56,6 +56,7 @@ enum class ETurnState : uint8
 	None 				UMETA(DisplayName = "None"),
 	TurnLeft			UMETA(DisplayName = "Turn_Left"),
 	TurnRight			UMETA(DisplayName = "Turn_Right"),
+	// 사실 왼회전 우회전 모션 다 있긴 한데 지금은 중요해보이진 않아서 제외.
 	TrunBack			UMETA(DisplayName = "Trun_Back")
 };
 
