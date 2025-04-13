@@ -12,19 +12,5 @@
 				"Engine"
 			]
 		}
-	],
-	"Plugins": [
-		{
-			"Name": "ModelingToolsEditorMode",
-			"Enabled": true,
-			"TargetAllowList": [
-				"Editor"
-			]
-		},
-		{
-			"Name": "RMFixTool",
-			"Enabled": true,
-			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/63784b32c0b44fe6ad5e814b52c8e75e"
-		}
 	]
 }
