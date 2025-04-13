@@ -43,6 +43,7 @@ void UWeaponComponent::BeginPlay()
 void UWeaponComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	checkCommand(DeltaTime);
 }
 
 void UWeaponComponent::ResetCombo() {
@@ -54,21 +55,28 @@ void UWeaponComponent::ResetCombo() {
 	isJumpDelay = false;
 	isHolding = false;
 }
-void UWeaponComponent::QuickStrikeStart() {}
 
-void UWeaponComponent::QuickStrikeHolding() { isHolding = true; }
+void UWeaponComponent::QuickInputStart() {}
 
-void UWeaponComponent::QuickStrikeEnd() { isHolding = false; }
+void UWeaponComponent::QuickInputHolding() { isCommandInput[0] = true; isHolding = true;}
+
+void UWeaponComponent::QuickInputEnd() { isHolding = false; isCommandInput[0] = false;}
+
+void UWeaponComponent::HeavyInputStart(){}
+
+void UWeaponComponent::HeavyInputHolding(){ isCommandInput[1] = true; }
+
+void UWeaponComponent::HeavyInputEnd(){ isCommandInput[1] = false; }
+
+void UWeaponComponent::UniqueInputStart() {}
+
+void UWeaponComponent::UniqueInputHolding(){ isCommandInput[2] = true; }
+
+void UWeaponComponent::UniqueInputEnd(){ isCommandInput[2] = false; }
+
+void UWeaponComponent::checkCommand(float DeltaTime) {}
 
 void UWeaponComponent::QuickStrikeNext(){}
-
-void UWeaponComponent::HeavyStrikeStart() {}
-
-void UWeaponComponent::HeavyStrikeEnd(){}
-
-void UWeaponComponent::UniqueStrikeStart() {}
-
-void UWeaponComponent::UniqueStrikeEnd(){}
 
 void UWeaponComponent::JumpToNextCombo(){}
 
@@ -81,14 +89,16 @@ void UWeaponComponent::SetupInputBinding(class UEnhancedInputComponent* InputCom
 	{
 		InputComponent->BindAction(IA_Dash, ETriggerEvent::Started, this, &UWeaponComponent::Dash);
 		InputComponent->BindAction(IA_Dash, ETriggerEvent::Completed, this, &UWeaponComponent::DashEnd);
-			InputComponent->BindAction(IA_QuickStrike, ETriggerEvent::Started, this, &UWeaponComponent::QuickStrikeStart);
-			InputComponent->BindAction(IA_QuickStrike, ETriggerEvent::Triggered, this, &UWeaponComponent::QuickStrikeHolding);
-			InputComponent->BindAction(IA_QuickStrike, ETriggerEvent::Completed, this, &UWeaponComponent::QuickStrikeEnd);
-			InputComponent->BindAction(IA_HeavyStrike, ETriggerEvent::Started, this, &UWeaponComponent::HeavyStrikeStart);
-			InputComponent->BindAction(IA_HeavyStrike, ETriggerEvent::Completed, this, &UWeaponComponent::HeavyStrikeEnd);
-			InputComponent->BindAction(IA_UniqueStrike, ETriggerEvent::Started, this, &UWeaponComponent::UniqueStrikeStart);
-			InputComponent->BindAction(IA_UniqueStrike, ETriggerEvent::Completed, this, &UWeaponComponent::UniqueStrikeEnd);
-			InputComponent->BindAction(IA_Roll, ETriggerEvent::Started, this, &UWeaponComponent::Roll);
+		InputComponent->BindAction(IA_QuickStrike, ETriggerEvent::Started, this, &UWeaponComponent::QuickInputStart);
+		InputComponent->BindAction(IA_QuickStrike, ETriggerEvent::Triggered, this, &UWeaponComponent::QuickInputHolding);
+		InputComponent->BindAction(IA_QuickStrike, ETriggerEvent::Completed, this, &UWeaponComponent::QuickInputEnd);
+		InputComponent->BindAction(IA_HeavyStrike, ETriggerEvent::Started, this, &UWeaponComponent::HeavyInputStart);
+		InputComponent->BindAction(IA_HeavyStrike, ETriggerEvent::Triggered, this, &UWeaponComponent::HeavyInputHolding);
+		InputComponent->BindAction(IA_HeavyStrike, ETriggerEvent::Completed, this, &UWeaponComponent::HeavyInputEnd);
+		InputComponent->BindAction(IA_UniqueStrike, ETriggerEvent::Started, this, &UWeaponComponent::UniqueInputStart);
+		InputComponent->BindAction(IA_UniqueStrike, ETriggerEvent::Triggered, this, &UWeaponComponent::UniqueInputHolding);
+		InputComponent->BindAction(IA_UniqueStrike, ETriggerEvent::Completed, this, &UWeaponComponent::UniqueInputEnd);
+		InputComponent->BindAction(IA_Roll, ETriggerEvent::Started, this, &UWeaponComponent::Roll);
 	}
 }
 
@@ -212,4 +222,14 @@ FWeaponDataTable UWeaponComponent::GetCurrentWeaponData() const
 	if (FoundData) return *FoundData;
 	return FWeaponDataTable();
 }
+
+void UWeaponComponent::IsCommandInputReset()
+{
+	for (int i = 0; i < isCommandInput.Num(); i++)
+	{
+		isCommandInput[i] = false;
+	}
+	CommandInputTime = 0.0f;
+}
+
 

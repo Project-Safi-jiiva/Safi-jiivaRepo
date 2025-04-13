@@ -48,21 +48,28 @@ void UHunterAnim::NativeUpdateAnimation(float DeltaTime)
 void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload)
 {
     Owner->WeaponComp->isJumpDelay = true;
-    if (NotifyName == FName(TEXT("QuickStrikeStart"))) { Owner->WeaponComp->IsAttacking = true; }
-    if (NotifyName == FName(TEXT("IsAttackingOff"))) { Owner->WeaponComp->IsAttacking = false; Owner->WeaponComp->SetQuickStrikeComboIndex(1); }
-    if (NotifyName == FName(TEXT("QuickStrikeEnd"))) {Owner->WeaponComp->QuickStrikeNext();}
-    if (NotifyName == FName(TEXT("DelayStart"))) { Owner->WeaponComp->isJumpDelay = true; }
-    if (NotifyName == FName(TEXT("DelayEnd"))) {
-        Owner->WeaponComp->isJumpDelay = false;
-		Owner->WeaponComp->JumpToNextCombo();
-    }
-    if (NotifyName == FName(TEXT("Next2"))) {Owner->WeaponComp->SetHeavyStrikeComboIndex(Owner->WeaponComp->GetHeavyStrikeComboIndex() + 1);}
+    //노티파이 공통 부분
+    if (NotifyName == FName(TEXT("AttackStart"))) {Owner->WeaponComp->IsAttacking = true;}
+    if (NotifyName == FName(TEXT("AttackEnd"))) {Owner->WeaponComp->IsAttacking = false;}
+    if (NotifyName == FName(TEXT("ComboEnd"))) { Owner->WeaponComp->ResetCombo(); PRINT_LOG(TEXT("Reset")); }
+    //약공격 노티파이
+    if (NotifyName == FName(TEXT("QuickAttackAddIndex"))) { Owner->WeaponComp->SetQuickStrikeComboIndex(Owner->WeaponComp->GetQuickStrikeComboIndex()+1);}
+    if (NotifyName == FName(TEXT("QuickAttackPass"))) {Owner->WeaponComp->QuickStrikeNext();} //선입력 처리 부분
 
-    if (NotifyName == FName(TEXT("ComboEnd"))) { Owner->WeaponComp->ResetCombo(); PRINT_LOG(TEXT("TS")); }
+    //강공격 노티파이
+    if (NotifyName == FName(TEXT("HeavyAttackAddIndex"))) {Owner->WeaponComp->SetHeavyStrikeComboIndex(Owner->WeaponComp->GetHeavyStrikeComboIndex() + 1);}
 
+    //특수공격 노티파이
+
+    //구르기, 캔슬 노티파이
     if (NotifyName == FName(TEXT("iscancelStart"))) { Owner->WeaponComp->iscancel = true; }
     if (NotifyName == FName(TEXT("iscancelEnd"))) { Owner->WeaponComp->iscancel = false; }
 
+    //대체 해야 할 넘
+
+    //중복 입력 방지 부분
+    if (NotifyName == FName(TEXT("DelayEnd"))) { Owner->WeaponComp->isJumpDelay = false; }
+    //무기 붙이고 때기
     if (NotifyName == FName(TEXT("Attach"))) {Owner->WeaponComp->AttachWeaponToHand();}
     if (NotifyName == FName(TEXT("Detach"))) {Owner->WeaponComp->AttachWeaponToOwner();}
 }
