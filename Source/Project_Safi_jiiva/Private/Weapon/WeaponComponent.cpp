@@ -44,13 +44,6 @@ void UWeaponComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	checkCommand(DeltaTime);
-
-	if (isCommandInput[0])
-		FCommandInput[0] += DeltaTime;
-	if (isCommandInput[1])
-		FCommandInput[1] += DeltaTime;
-	if (isCommandInput[2])
-		FCommandInput[2] += DeltaTime;
 }
 
 void UWeaponComponent::ResetCombo() {
@@ -63,52 +56,54 @@ void UWeaponComponent::ResetCombo() {
 	isHolding = false;
 }
 
-void UWeaponComponent::QuickInputStart() {}
+void UWeaponComponent::QuickInputStart() {
+	isCommandInput[0] = false;
+	FCommandInput[0] = 0;
+}
 
-void UWeaponComponent::QuickInputHolding(FInputActionValue ActionValue, float ElapsedTime, float TriggeredTime, const UInputAction* SourceAction) {
-	isHolding = true;
+void UWeaponComponent::QuickInputHolding()
+{
+	FCommandInput[0] += GetWorld()->DeltaTimeSeconds;
+	//PRINT_LOG(TEXT("%f"),FCommandInput[0]);
 	isCommandInput[0] = true;
-	PRINT_LOG(TEXT("%f"), ElapsedTime);
-
 }
 
 void UWeaponComponent::QuickInputEnd() {
 	isCommandInput[0] = false;
-	isHolding = false;
 	FCommandInput[0] = 0;
-
 }
 
-void UWeaponComponent::HeavyInputStart(){}
+void UWeaponComponent::HeavyInputStart(){
+}
 
-void UWeaponComponent::HeavyInputHolding(const FInputActionValue& Value){
-	isCommandInput[0] = true;
-
+void UWeaponComponent::HeavyInputHolding() {
+	FCommandInput[1] += GetWorld()->DeltaTimeSeconds;
+	isCommandInput[1] = true;
 }
 
 void UWeaponComponent::HeavyInputEnd() {
 	FCommandInput[1] = 0;
-
 	isCommandInput[1] = false;
-
 }
 
-void UWeaponComponent::UniqueInputStart() {}
+void UWeaponComponent::UniqueInputStart() {
+}
 
-void UWeaponComponent::UniqueInputHolding(const FInputActionValue& Value){
-	float V = Value.Get<float>();
-	isCommandInput[0] = true;
+void UWeaponComponent::UniqueInputHolding() {
+	FCommandInput[2] += GetWorld()->DeltaTimeSeconds;
+	isCommandInput[2] = true;
 }
 
 void UWeaponComponent::UniqueInputEnd(){
 	FCommandInput[2] = 0;
-
 	isCommandInput[2] = false;
 }
 
 void UWeaponComponent::checkCommand(float DeltaTime) {}
 
 void UWeaponComponent::QuickStrikeNext(){}
+
+void UWeaponComponent::HeavyStrikeNext(){}
 
 void UWeaponComponent::JumpToNextCombo(){}
 
@@ -117,12 +112,15 @@ void UWeaponComponent::CancelHandler(){}
 void UWeaponComponent::SetupInputBinding(class UEnhancedInputComponent* InputComponent)
 {
 	Super::SetupInputBinding(InputComponent);
+
 	if (InputComponent)
 	{
-		InputComponent->BindAction(IA_Dash, ETriggerEvent::Started, this, &UWeaponComponent::Dash);
+
+		// 입력 액션에 델리게이트 연결
+		InputComponent->BindAction(IA_Dash, ETriggerEvent::Triggered, this, &UWeaponComponent::Dash);
 		InputComponent->BindAction(IA_Dash, ETriggerEvent::Completed, this, &UWeaponComponent::DashEnd);
 		InputComponent->BindAction(IA_QuickStrike, ETriggerEvent::Started, this, &UWeaponComponent::QuickInputStart);
-		InputComponent->BindActionValue(IA_QuickStrike);
+		InputComponent->BindAction(IA_QuickStrike, ETriggerEvent::Triggered, this, &UWeaponComponent::QuickInputHolding);
 		InputComponent->BindAction(IA_QuickStrike, ETriggerEvent::Completed, this, &UWeaponComponent::QuickInputEnd);
 		InputComponent->BindAction(IA_HeavyStrike, ETriggerEvent::Started, this, &UWeaponComponent::HeavyInputStart);
 		InputComponent->BindAction(IA_HeavyStrike, ETriggerEvent::Triggered, this, &UWeaponComponent::HeavyInputHolding);
@@ -131,6 +129,8 @@ void UWeaponComponent::SetupInputBinding(class UEnhancedInputComponent* InputCom
 		InputComponent->BindAction(IA_UniqueStrike, ETriggerEvent::Triggered, this, &UWeaponComponent::UniqueInputHolding);
 		InputComponent->BindAction(IA_UniqueStrike, ETriggerEvent::Completed, this, &UWeaponComponent::UniqueInputEnd);
 		InputComponent->BindAction(IA_Roll, ETriggerEvent::Started, this, &UWeaponComponent::Roll);
+
+		// 입력 액션에 델리게이트 연결
 	}
 }
 

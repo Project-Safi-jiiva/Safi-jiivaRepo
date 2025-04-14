@@ -24,17 +24,16 @@ class PROJECT_SAFI_JIIVA_API IWeaponInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-
 	virtual void QuickInputStart() {};
-	virtual void QuickInputHolding(FInputActionValue ActionValue, float ElapsedTime, float TriggeredTime, const UInputAction* SourceAction) {};
+	virtual void QuickInputHolding(){};
 	virtual void QuickInputEnd() {};
 
 	virtual void HeavyInputStart() {};
-	virtual void HeavyInputHolding(const FInputActionValue& Value) {};
+	virtual void HeavyInputHolding(){};
 	virtual void HeavyInputEnd() {};
 
 	virtual void UniqueInputStart() {};
-	virtual void UniqueInputHolding(const FInputActionValue& Value) {};
+	virtual void UniqueInputHolding(){};
 	virtual void UniqueInputEnd() {};
 
 	virtual void checkCommand(float DeltaTime) = 0;

@@ -20,18 +20,16 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
-
 public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-
 protected:
-	virtual void QuickInputHolding(FInputActionValue ActionValue, float ElapsedTime, float TriggeredTime, const UInputAction* SourceAction) override;
+	virtual void QuickInputHolding() override;
 	virtual void QuickInputEnd() override;
-	virtual void HeavyInputHolding(const FInputActionValue& Value) override;
+	virtual void HeavyInputHolding() override;
+	virtual void HeavyStrikeNext() override;
 	virtual void HeavyInputEnd() override;
-	virtual void UniqueInputHolding(const FInputActionValue& Value) override;
+	virtual void UniqueInputHolding() override;
 	virtual void UniqueInputEnd() override;
 	virtual void checkCommand(float DeltaTime) override;
 	virtual void QuickStrikeNext() override;
@@ -39,7 +37,6 @@ protected:
 	virtual void ResetCombo() override;
 	virtual void Dash() override;
 	virtual void ModifyWeaponMoveSpeed() override;
-
 
 	virtual void CancelHandler() override;
 	virtual void Roll() override;
@@ -50,9 +47,9 @@ private:
 	void QuickAttack();
 	void HeavyAttack();
 	void UniqueAttack();
+	void ChargeAttack();
 
 private:
-	//void QuickStrikeStart();
 	void JumpToNextCombo();
 
 

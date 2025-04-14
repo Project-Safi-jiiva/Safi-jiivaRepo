@@ -9,6 +9,7 @@
 #include "WeaponDataTable.h"
 #include "WeaponDataAsset.h"
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/InputActionValue.h"
+#include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h"
 #include "WeaponComponent.generated.h"
 
 
@@ -40,19 +41,22 @@ protected:
 	//인터페이스 구현
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	virtual void QuickInputStart() override;
-	virtual void QuickInputHolding(FInputActionValue ActionValue, float ElapsedTime, float TriggeredTime, const UInputAction* SourceAction) override;
+	UFUNCTION()
+	virtual void QuickInputHolding() override;
+
 
 	virtual void HeavyInputStart() override;
-	virtual void HeavyInputHolding(const FInputActionValue& Value) override;
+	virtual void HeavyInputHolding() override;
 	virtual void HeavyInputEnd() override;
 
 	virtual void UniqueInputStart() override;
-	virtual void UniqueInputHolding(const FInputActionValue& Value)override;
+	virtual void UniqueInputHolding()override;
 	virtual void UniqueInputEnd() override;
 
 	virtual void checkCommand(float DeltaTime) override;
 public:
 	virtual void QuickStrikeNext() override;
+	virtual void HeavyStrikeNext();
 	virtual void JumpToNextCombo() override;
 	virtual void CancelHandler() override;
 	//부모 상속
@@ -80,6 +84,7 @@ public:
 	bool isJumpDelay = false;
 	bool iscancel = false;
 	bool IsQuickAttack =false;
+	bool ArrowRoll = false;
 protected:
 	bool isHolding = false;
 
@@ -114,7 +119,7 @@ private:
 
 	EWeaponType WeaponType;
 
-private:
+protected:
 	int32 QuickStrikeComboIndex = 0;
 	int32 HeavyStrikeComboIndex = 0;
 	int32 UniqueStrikeComboIndex = 0;

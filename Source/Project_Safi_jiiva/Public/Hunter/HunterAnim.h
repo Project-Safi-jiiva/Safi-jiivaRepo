@@ -46,8 +46,6 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Movement")
 	bool isWeaponEquipped;
 
-
-
 	class AHunter* Owner;
 	UAnimMontage* GetCurrentMontage(AHunter* Character);
 private:
