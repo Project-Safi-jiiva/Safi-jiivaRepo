@@ -48,12 +48,15 @@ void UHunterAnim::NativeUpdateAnimation(float DeltaTime)
 void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload)
 {
     Owner->WeaponComp->isJumpDelay = true;
+    Owner->WeaponComp->IsAttacking = true;
     //노티파이 공통 부분
     if (NotifyName == FName(TEXT("AttackStart"))) {Owner->WeaponComp->IsAttacking = true;}
     if (NotifyName == FName(TEXT("AttackEnd"))) {Owner->WeaponComp->IsAttacking = false;}
     if (NotifyName == FName(TEXT("ComboEnd"))) { Owner->WeaponComp->ResetCombo(); PRINT_LOG(TEXT("Reset")); }
     //약공격 노티파이
     if (NotifyName == FName(TEXT("QuickAttackAddIndex"))) { Owner->WeaponComp->SetQuickStrikeComboIndex(Owner->WeaponComp->GetQuickStrikeComboIndex()+1);}
+    if (NotifyName == FName(TEXT("QuickAttackStart"))) { Owner->WeaponComp->IsQuickAttack = true; }
+    if (NotifyName == FName(TEXT("QuickAttackEnd"))) { Owner->WeaponComp->IsQuickAttack = false; }
     if (NotifyName == FName(TEXT("QuickAttackPass"))) {Owner->WeaponComp->QuickStrikeNext();} //선입력 처리 부분
 
     //강공격 노티파이
@@ -74,7 +77,9 @@ void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNo
     if (NotifyName == FName(TEXT("Detach"))) {Owner->WeaponComp->AttachWeaponToOwner();}
 }
 
-void UHunterAnim::OnMontageNotifyEnd(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload){}
+void UHunterAnim::OnMontageNotifyEnd(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload){
+    Owner->WeaponComp->IsQuickAttack = false;
+}
 
 void UHunterAnim::SetBluePrintValues()
 {

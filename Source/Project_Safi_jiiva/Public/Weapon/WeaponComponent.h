@@ -8,6 +8,7 @@
 #include "EWeaponType.h"
 #include "WeaponDataTable.h"
 #include "WeaponDataAsset.h"
+#include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/InputActionValue.h"
 #include "WeaponComponent.generated.h"
 
 
@@ -39,14 +40,14 @@ protected:
 	//인터페이스 구현
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	virtual void QuickInputStart() override;
-	virtual void QuickInputHolding() override;
+	virtual void QuickInputHolding(FInputActionValue ActionValue, float ElapsedTime, float TriggeredTime, const UInputAction* SourceAction) override;
 
 	virtual void HeavyInputStart() override;
-	virtual void HeavyInputHolding() override;
+	virtual void HeavyInputHolding(const FInputActionValue& Value) override;
 	virtual void HeavyInputEnd() override;
 
 	virtual void UniqueInputStart() override;
-	virtual void UniqueInputHolding() override;
+	virtual void UniqueInputHolding(const FInputActionValue& Value)override;
 	virtual void UniqueInputEnd() override;
 
 	virtual void checkCommand(float DeltaTime) override;
@@ -78,6 +79,7 @@ public:
 	bool IsAttacking =false;
 	bool isJumpDelay = false;
 	bool iscancel = false;
+	bool IsQuickAttack =false;
 protected:
 	bool isHolding = false;
 
@@ -137,6 +139,7 @@ public:
 		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 		float CommandInputTime=0.0f;
 		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+		TArray<float> FCommandInput = {0,0,0};
 		TArray<bool> isCommandInput = {false,false,false};
 
 		void IsCommandInputReset();

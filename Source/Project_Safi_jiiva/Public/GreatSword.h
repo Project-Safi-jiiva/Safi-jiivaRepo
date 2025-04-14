@@ -27,11 +27,11 @@ public:
 
 
 protected:
-	virtual void QuickInputHolding() override;
+	virtual void QuickInputHolding(FInputActionValue ActionValue, float ElapsedTime, float TriggeredTime, const UInputAction* SourceAction) override;
 	virtual void QuickInputEnd() override;
-	virtual void HeavyInputHolding() override;
+	virtual void HeavyInputHolding(const FInputActionValue& Value) override;
 	virtual void HeavyInputEnd() override;
-	virtual void UniqueInputHolding() override;
+	virtual void UniqueInputHolding(const FInputActionValue& Value) override;
 	virtual void UniqueInputEnd() override;
 	virtual void checkCommand(float DeltaTime) override;
 	virtual void QuickStrikeNext() override;

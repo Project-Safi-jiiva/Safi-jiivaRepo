@@ -34,9 +34,9 @@ void UGreatSword::QuickStrikeNext()
 		QuickAttack();
 }
 
-void UGreatSword::QuickInputHolding()
+void UGreatSword::QuickInputHolding(FInputActionValue ActionValue, float ElapsedTime, float TriggeredTime, const UInputAction* SourceAction)
 {
-	Super::QuickInputHolding();
+	Super::QuickInputHolding(ActionValue, ElapsedTime, TriggeredTime, SourceAction);
 }
 
 void UGreatSword::QuickInputEnd()
@@ -47,9 +47,9 @@ void UGreatSword::QuickInputEnd()
 	JumpToNextCombo();
 }
 
-void UGreatSword::HeavyInputHolding()
+void UGreatSword::HeavyInputHolding(const FInputActionValue& Value)
 {
-	Super::HeavyInputHolding();
+	Super::HeavyInputHolding(Value);
 }
 
 void UGreatSword::HeavyInputEnd()
@@ -58,9 +58,9 @@ void UGreatSword::HeavyInputEnd()
 	//isHolding = false;
 }
 
-void UGreatSword::UniqueInputHolding()
+void UGreatSword::UniqueInputHolding(const FInputActionValue& Value)
 {
-	Super::UniqueInputHolding();
+	Super::UniqueInputHolding(Value);
 }
 
 void UGreatSword::UniqueInputEnd()
@@ -71,16 +71,24 @@ void UGreatSword::UniqueInputEnd()
 void UGreatSword::checkCommand(float DeltaTime)
 {
 	Super::checkCommand(DeltaTime);
-	if (Anim->IsAnyMontagePlaying()) return;
-	if (isCommandInput[0] == true || isCommandInput[1] == true || isCommandInput[2] == true)
+	if (FCommandInput[0] >0 || FCommandInput[1] >0 || FCommandInput[2] >0)
 		CommandInputTime += DeltaTime;
 	if (CommandInputTime >= 0.1) {
-		if (isCommandInput[0]&&!isCommandInput[1]&&!isCommandInput[2])QuickAttack();
-		else if (!isCommandInput[0] && isCommandInput[1] && !isCommandInput[2]) {HeavyAttack();}
-		else if (isCommandInput[0] && isCommandInput[1] && !isCommandInput[2]){
-				CancelHandler();
-				UniqueAttack();
-		}
+		//if (isCommandInput[0] && !isCommandInput[1] && !isCommandInput[2]) {
+		//	QuickAttack();
+		//}
+		//if (!isCommandInput[0] && isCommandInput[1] && !isCommandInput[2]){
+		//	HeavyAttack();
+		//	}
+		//if (isCommandInput[0] && isCommandInput[1] && !isCommandInput[2]){
+		//	if (IsQuickAttack)
+		//		HeavyAttack();
+		//	else {
+
+		//		CancelHandler();
+		//		UniqueAttack();
+		//	}
+		//}
 		IsCommandInputReset();
 	}
 }
@@ -154,6 +162,7 @@ void UGreatSword::PlayMontage(UAnimMontage* Montage)
 
 void UGreatSword::QuickAttack()
 {
+	if (IsQuickAttack) return;
 	if (iscancel)return; if (IsAttacking)return;
 	FWeaponDataTable CurrentData = GetCurrentWeaponData();
 	if (CurrentData.QuickStrikeMontages.Num() > 0 && Owner) {
@@ -176,14 +185,12 @@ void UGreatSword::QuickAttack()
 void UGreatSword::HeavyAttack()
 {
 	if (!isWeaponEquipped) return;
-	if (!IsAttacking) {
 		FWeaponDataTable CurrentData = GetCurrentWeaponData();
 		if (CurrentData.HeavyStrikeMontages.Num() > 0 && Owner)
 		{
 			PlayMontage(CurrentData.HeavyStrikeMontages[GetHeavyStrikeComboIndex()]);
 		}
 		return;
-	}
 }
 
 void UGreatSword::UniqueAttack()

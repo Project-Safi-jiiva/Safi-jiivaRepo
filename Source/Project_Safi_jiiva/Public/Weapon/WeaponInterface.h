@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/InputActionValue.h"
+#include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/InputAction.h"
 #include "WeaponInterface.generated.h"
 
 // This class does not need to be modified.
@@ -24,15 +26,15 @@ class PROJECT_SAFI_JIIVA_API IWeaponInterface
 public:
 
 	virtual void QuickInputStart() {};
-	virtual void QuickInputHolding() {};
+	virtual void QuickInputHolding(FInputActionValue ActionValue, float ElapsedTime, float TriggeredTime, const UInputAction* SourceAction) {};
 	virtual void QuickInputEnd() {};
 
 	virtual void HeavyInputStart() {};
-	virtual void HeavyInputHolding() {};
+	virtual void HeavyInputHolding(const FInputActionValue& Value) {};
 	virtual void HeavyInputEnd() {};
 
 	virtual void UniqueInputStart() {};
-	virtual void UniqueInputHolding() {};
+	virtual void UniqueInputHolding(const FInputActionValue& Value) {};
 	virtual void UniqueInputEnd() {};
 
 	virtual void checkCommand(float DeltaTime) = 0;
