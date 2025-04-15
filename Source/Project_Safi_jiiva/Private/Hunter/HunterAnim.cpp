@@ -7,6 +7,7 @@
 #include "Hunter/MoveComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Weapon/WeaponComponent.h"
+#include "Components/CapsuleComponent.h"
 
 void UHunterAnim::NativeBeginPlay()
 {
@@ -61,13 +62,12 @@ void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNo
 
     //강공격 노티파이
     if (NotifyName == FName(TEXT("HeavyAttackAddIndex"))) {Owner->WeaponComp->SetHeavyStrikeComboIndex(Owner->WeaponComp->GetHeavyStrikeComboIndex() + 1);}
-    if (NotifyName == FName(TEXT("HeavyAttackNext"))) { Owner->WeaponComp->HeavyStrikeNext(); }
+    if (NotifyName == FName(TEXT("HeavyAttackNext"))) { Owner->WeaponComp->HeavyStrikeNext();}
 
     //특수공격 노티파이
 
     //구르기, 캔슬 노티파이
-    if (NotifyName == FName(TEXT("Roll"))) { Owner->WeaponComp->ArrowRoll = true; PRINT_LOG(TEXT("test"));
-    }
+    if (NotifyName == FName(TEXT("Roll"))) { Owner->WeaponComp->ArrowRoll = true;}
     if (NotifyName == FName(TEXT("iscancelEnd"))) { Owner->WeaponComp->iscancel = false;}
 
 
@@ -77,10 +77,25 @@ void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNo
     //무기 붙이고 때기
     if (NotifyName == FName(TEXT("Attach"))) {Owner->WeaponComp->AttachWeaponToHand();}
     if (NotifyName == FName(TEXT("Detach"))) {Owner->WeaponComp->AttachWeaponToOwner();}
+
+    if (NotifyName == FName(TEXT("OffCollision")))
+        Owner->GetCapsuleComponent()->SetCollisionProfileName(FName("Pawn"));
+    if (NotifyName == FName(TEXT("OnCollision")))
+        Owner->GetCapsuleComponent()->SetCollisionProfileName(FName("Pawn2"));
+    if (NotifyName == FName(TEXT("isTacle")))
+        Owner->WeaponComp->isTacle = true;
+    if (NotifyName == FName(TEXT("WeaponCollitionOn")))
+        Owner->WeaponComp->WeaponCollitionOn();
+    if (NotifyName == FName(TEXT("WeaponCollitionOff")))
+        Owner->WeaponComp->WeaponCollitionOff();
+
+
 }
 
 void UHunterAnim::OnMontageNotifyEnd(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload){
     Owner->WeaponComp->IsQuickAttack = false;
+    Owner->WeaponComp->isTacle = false;
+
 }
 
 void UHunterAnim::SetBluePrintValues()

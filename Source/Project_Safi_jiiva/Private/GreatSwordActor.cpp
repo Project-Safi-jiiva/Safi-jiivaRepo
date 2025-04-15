@@ -7,6 +7,7 @@
 #include "Engine/StaticMesh.h"
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "SafiJiiva/CSafiJiiva.h"
 
 // Sets default values
 AGreatSwordActor::AGreatSwordActor()
@@ -28,6 +29,7 @@ AGreatSwordActor::AGreatSwordActor()
 void AGreatSwordActor::BeginPlay()
 {
 	Super::BeginPlay();
+	SwordMesh->SetCollisionProfileName(FName("Attack"));
 	SwordMesh->OnComponentBeginOverlap.AddDynamic(this, &AGreatSwordActor::OnBeginOverlap);
 }
 
@@ -40,7 +42,10 @@ void AGreatSwordActor::Tick(float DeltaTime)
 
 void AGreatSwordActor::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UGameplayStatics::ApplyDamage(OtherActor, 100, nullptr, this, nullptr);
+	ACSafiJiiva* Ch = Cast<ACSafiJiiva>(OtherActor);
+	if(HitPawn.Num()<=0)
+		UGameplayStatics::ApplyDamage(OtherActor, 100, nullptr, this, nullptr);
+	HitPawn.AddUnique(Ch);
 }
 
 void AGreatSwordActor::ApplyDamage_Implementation(AActor* HitActor, float DamageMultiplier)

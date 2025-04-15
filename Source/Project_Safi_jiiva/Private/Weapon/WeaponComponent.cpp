@@ -264,4 +264,13 @@ void UWeaponComponent::IsCommandInputReset()
 	CommandInputTime = 0.0f;
 }
 
+void UWeaponComponent::WeaponCollitionOn()
+{
+
+}
+
+void UWeaponComponent::WeaponCollitionOff()
+{
+
+}
 

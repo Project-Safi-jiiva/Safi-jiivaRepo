@@ -6,6 +6,8 @@
 #include "Project_Safi_jiiva.h"
 #include "Hunter/Hunter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Hunter/MoveComponent.h"
+#include "GreatSwordActor.h"
 
 // Sets default values for this component's properties
 UGreatSword::UGreatSword()
@@ -173,6 +175,20 @@ void UGreatSword::Roll()
 
 	}
 
+}
+
+void UGreatSword::WeaponCollitionOn()
+{
+	AGreatSwordActor* Weapon = Cast<AGreatSwordActor>(EquippedWeapon);
+	Weapon->SwordMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+
+}
+
+void UGreatSword::WeaponCollitionOff()
+{
+	AGreatSwordActor* Weapon = Cast<AGreatSwordActor>(EquippedWeapon);
+	Weapon->SwordMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Weapon->HitPawn.Empty();
 }
 
 void UGreatSword::PlayMontage(UAnimMontage* Montage)

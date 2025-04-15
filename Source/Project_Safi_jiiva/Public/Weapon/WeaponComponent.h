@@ -85,12 +85,12 @@ public:
 	bool iscancel = false;
 	bool IsQuickAttack =false;
 	bool ArrowRoll = false;
+	bool isTacle = false;
+
 protected:
 	bool isHolding = false;
 
 	bool bNextAttackQueued;
-
-	//EAttackType NextAttackType;
 
 	class UAnimMontage* CurrentMontage;
 
@@ -148,4 +148,7 @@ public:
 		TArray<bool> isCommandInput = {false,false,false};
 
 		void IsCommandInputReset();
+		public:
+		virtual void WeaponCollitionOn();
+		virtual void WeaponCollitionOff();
 };

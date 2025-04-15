@@ -64,4 +64,6 @@ public:
 	void InputOff();
 	void InputOn();
 	void KnockBack();
+	void EnableControllerRotaion();
+	void DisableControllerRotaion();
 };

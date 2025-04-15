@@ -41,6 +41,9 @@ protected:
 	virtual void CancelHandler() override;
 	virtual void Roll() override;
 
+	virtual void WeaponCollitionOn() override;
+	virtual void WeaponCollitionOff() override;
+
 private:
 	void PlayMontage(UAnimMontage* Montage);
 

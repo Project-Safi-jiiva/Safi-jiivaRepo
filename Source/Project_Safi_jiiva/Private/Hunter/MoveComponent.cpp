@@ -122,3 +122,16 @@ void UMoveComponent::KnockBack()
 	Owner->LaunchCharacter(LaunchVector, true, true);
 }
 
+void UMoveComponent::EnableControllerRotaion()
+{
+	Owner->bUseControllerRotationYaw = false;
+	Owner->GetCharacterMovement()->bOrientRotationToMovement = false;
+
+}
+
+void UMoveComponent::DisableControllerRotaion()
+{
+	Owner->bUseControllerRotationYaw = false;
+	Owner->GetCharacterMovement()->bOrientRotationToMovement = true;
+}
+
