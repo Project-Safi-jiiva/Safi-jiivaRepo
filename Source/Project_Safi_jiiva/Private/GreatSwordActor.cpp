@@ -6,6 +6,7 @@
 #include "AssetPath.h"
 #include "Engine/StaticMesh.h"
 #include "Components/StaticMeshComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AGreatSwordActor::AGreatSwordActor()
@@ -27,7 +28,7 @@ AGreatSwordActor::AGreatSwordActor()
 void AGreatSwordActor::BeginPlay()
 {
 	Super::BeginPlay();
-
+	SwordMesh->OnComponentBeginOverlap.AddDynamic(this, &AGreatSwordActor::OnBeginOverlap);
 }
 
 // Called every frame
@@ -35,6 +36,11 @@ void AGreatSwordActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void AGreatSwordActor::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	UGameplayStatics::ApplyDamage(OtherActor, 100, nullptr, this, nullptr);
 }
 
 void AGreatSwordActor::ApplyDamage_Implementation(AActor* HitActor, float DamageMultiplier)

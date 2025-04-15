@@ -86,15 +86,7 @@ void UMoveComponent::Turn(const FInputActionValue& Value)
 }
 void UMoveComponent::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	MoveState = EMoveState::HIT;
-	if (Anim->Montage_IsPlaying(nullptr))
-		Anim->Montage_Stop(0.1f);
-	InputOff();
-	KnockBack();
-	Owner->WeaponComp->ResetCombo();
-	FTimerHandle Handler;
-	auto OnInput = [this]() {InputOn(); MoveState = EMoveState::IDLE; };
-	GetWorld()->GetTimerManager().SetTimer(Handler, OnInput, 2.5,false);
+
 
 }
 

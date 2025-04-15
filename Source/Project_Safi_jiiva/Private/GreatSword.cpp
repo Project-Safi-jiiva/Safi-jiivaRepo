@@ -79,7 +79,7 @@ void UGreatSword::checkCommand(float DeltaTime)
 	FWeaponDataTable CurrentData = GetCurrentWeaponData();
 	if (isCommandInput[0] || isCommandInput[1] || isCommandInput[2])
 		CommandInputTime += DeltaTime;
-	if (CommandInputTime >= 0.2) {
+	if (CommandInputTime >= 0.15) {
 		if (isCommandInput[0] && !isCommandInput[1] && !isCommandInput[2]) {
 			QuickAttack();
 		}
