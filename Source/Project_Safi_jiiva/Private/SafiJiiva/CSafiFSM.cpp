@@ -303,7 +303,7 @@ void UCSafiFSM::AttRoar()
 	// ㄴ> 여기서 하지 말고 노티파이로 할 것
 
 	// 노티파이 종료시 EndAttackProcess 호출	- 수행완료
-	// 노티파이 종료시 이뮨 해제				- 수행완료
+
 }
 
 void UCSafiFSM::AttMelee()

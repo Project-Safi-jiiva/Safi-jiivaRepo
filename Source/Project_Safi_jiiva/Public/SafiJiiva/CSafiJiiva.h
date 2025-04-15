@@ -9,6 +9,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Hunter/Hunter.h"
 #include "CSafiJiiva.generated.h"
 
 
@@ -94,8 +95,8 @@ public:	// 체력 등 스탯 계수
 	int MAXRepellCount = 5;
 
 public:	// 사거리, 속도 등
-	float MeleeAttRange = 1000.f;
-	float SearchRange = 3000.f;
+	float MeleeAttRange = 2000.f;
+	float SearchRange = 5000.f;
 	float MaxBreathRange = 5000.f;
 
 	float RunSpeed = 400.f;
@@ -136,11 +137,18 @@ public:
 
 public:
 	void SetSpeed(float _value);
-	void OnDamageSafi(float _value);
+	//void OnDamageSafi(float _value);
 	void KillSafi_Test();
 
 public:	// 충돌처리
+
+	TArray<AHunter*> HitPawn;
+
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+
 	UFUNCTION()	
 	void OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+
 
 };

@@ -9,7 +9,6 @@ void UCSafiAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 
 // 고장날 때 쓰는 용도
-
 #pragma region LogMSG
 	// FString logMsgState = UEnum::GetValueAsString(aState);
 	// GEngine->AddOnScreenDebugMessage(0, 1, FColor::Yellow, logMsgState);

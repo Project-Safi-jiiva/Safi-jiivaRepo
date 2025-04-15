@@ -11,6 +11,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/BoxComponent.h"
 #include "SafiJiiva/CSafiAnimInstance.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ACSafiJiiva::ACSafiJiiva()
@@ -148,7 +149,10 @@ ACSafiJiiva::ACSafiJiiva()
 
 #pragma endregion Location&Extent
 
-	// ========================= 콜리전 충돌 체크
+
+//콜리전 충돌 파트
+#pragma region BeginOverlap
+
 	AttCollisionBite->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
 
 	AttCollisionLF->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
@@ -162,6 +166,8 @@ ACSafiJiiva::ACSafiJiiva()
 	AttPosRB->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
 
 	SkeletalMeshComp->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+
+#pragma endregion BeginOverlap
 }
 
 // Called when the game starts or when spawned
@@ -175,7 +181,7 @@ void ACSafiJiiva::BeginPlay()
 void ACSafiJiiva::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
 
 // ============================= 테스트용 Tick 데미지 =============================
 //
@@ -184,7 +190,8 @@ void ACSafiJiiva::Tick(float DeltaTime)
 //	{
 //		UE_LOG(LogTemp, Warning, TEXT("DamageCount : %d"), RepellCount);
 //
-//		OnDamageSafi(105.f);
+//		UGameplayStatics::ApplyDamage(this, 100.f, nullptr, this, nullptr);
+//		//OnDamageSafi(105.f);
 //		currentTime = 0.f;
 //	}
 //
@@ -203,7 +210,7 @@ void ACSafiJiiva::Tick(float DeltaTime)
 
 
 	// 콜리전 활성화, 비활성화 파트
-
+#pragma region CollisionEnable
 // 머리공격 콜리전 활성화 / 비활성화
 	if (isOnAttBite == true) { AttCollisionBite->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics); }
 	else { AttCollisionBite->SetCollisionEnabled(ECollisionEnabled::NoCollision); }
@@ -237,6 +244,8 @@ void ACSafiJiiva::Tick(float DeltaTime)
 		AttCollisionRF->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		AttCollisionLB->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		AttCollisionRB->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		HitPawn.Empty();
 	}
 
 // 색적 콜리전 활성화/비활성화
@@ -255,10 +264,8 @@ void ACSafiJiiva::Tick(float DeltaTime)
 		AttPosLB->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		AttPosRB->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
+#pragma endregion CollisionDisable
 
-
-	// 원거리 공격범위 체크
-	//DrawDebugSphere(GetWorld(), this->GetActorLocation(), SearchRange, 12, FColor::Blue, true, -1, 0, 0);
 }
 
 /*
@@ -314,7 +321,7 @@ void ACSafiJiiva::SetSpeed(float _value)
 {
 	this->GetCharacterMovement()->MaxWalkSpeed = _value;
 }
-
+/*
 void ACSafiJiiva::OnDamageSafi(float _value)
 {
 	hp -= _value;
@@ -341,16 +348,50 @@ void ACSafiJiiva::OnDamageSafi(float _value)
 	isDead = true;
 	FSM->OnDisturbedProcess();
 }
+*/
+
+float ACSafiJiiva::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
+{
+	hp -= DamageAmount;
+	RepellCount += 1;
+
+	if (hp > 0)
+	{
+		if (RepellCount >= MAXRepellCount)
+		{
+			isKnockBack = true;
+
+			// Disturbed 상태가 걸림
+			SetNormal();
+			isDisturbed = true;		// AnimInstance 에서 연동되는중
+
+			RepellCount = 0;
+		}
+		return DamageAmount;
+	}
+
+
+	hp = 0;
+	//뭔가 사망처리 해주기
+	isDead = true;
+	FSM->OnDisturbedProcess();
+
+	return DamageAmount;
+}
+
 
 void ACSafiJiiva::KillSafi_Test()
 {
-	this->OnDamageSafi(MAXHP);
+	//this->OnDamageSafi(MAXHP);
+	UGameplayStatics::ApplyDamage(this, MAXHP, nullptr, this, nullptr);
 }
+
 
 void ACSafiJiiva::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Bite_Test"));
 
+#pragma region Hand
 
 	AHunter* target = Cast<AHunter>(OtherActor);
 	if (!target) { return; }
@@ -384,22 +425,23 @@ void ACSafiJiiva::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, clas
 		attackPos = AttMELEE_RB;
 		UE_LOG(LogTemp, Warning, TEXT("Hit RB"));
 	}
+#pragma endregion Hand
 
-	if (isOnBodyPress == true)
+	// 공격 콜리전 켜주는 녀석들이 켜져 있을 경우엔
+	if (isOnAttBite == true || isFootAttack == true || isOnBreath ==true || isOnBodyPress == true)
 	{
 		//헌터에 데미지 주기
+		AHunter* Ch = Cast<AHunter>(OtherActor);
+		if (HitPawn.Num() <= 0)
+		{
+			// 임시 데미지 MeleeBiteDMG
+			UGameplayStatics::ApplyDamage(OtherActor, MeleeBiteDMG, nullptr, this, nullptr);
+			HitPawn.AddUnique(Ch);
+		}
 	}
-
-
-	/* 헌터쪽에서 처리하는게 맞을듯?
-	if (target->태클상태)
-	{
-		this->OnDamageSafi(태클데미지)
-	}
-	*/
-
 
 	// Tick에서 스테이터스 체크해서 isDisturbed 체크		- AnimInstance쪽 isDisturbedA와 연동 완료
 
 }
+
 
