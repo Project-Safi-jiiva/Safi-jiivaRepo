@@ -32,11 +32,11 @@ ACSafiJiiva::ACSafiJiiva()
 		//SafiComponent->SetRelativeScale3D(FVector(0.45f));
 
 		SafiComponent->SetCollisionObjectType(ECC_GameTraceChannel1);
-		
+
 		// 훈타 몇채널인지 보기
 		// SafiComponent->SetCollisionResponseToChannel(ECC_GameTraceChannel2, ECR_Overlap);
 	}
-	
+
 	FireArrowComp = CreateDefaultSubobject<UArrowComponent>(TEXT("FireArrowComp"));
 	FireArrowComp->SetupAttachment(SafiComponent,TEXT("Socket_FirePos") /*TEXT("Socket_BiteDMGBox")*/);
 	FireArrowComp->SetRelativeLocation(FVector(0.f, 75.f, 220.f));
@@ -46,7 +46,7 @@ ACSafiJiiva::ACSafiJiiva()
 	LineArrowComp->SetupAttachment(SafiComponent /*, TEXT("Socket_Nose")*/);
 	LineArrowComp->SetRelativeLocation(FVector(0.f, 1600.f, 250.f));
 	LineArrowComp->SetRelativeRotation(FRotator(0.f, 90.f, 0.f));
-	
+
 
 	FSM = CreateDefaultSubobject<UCSafiFSM>(TEXT("FSM"));
 	Anim = Cast<UCSafiAnimInstance>(GetMesh()->GetAnimInstance());
@@ -63,7 +63,7 @@ ACSafiJiiva::ACSafiJiiva()
 //========================= 콜리전 세팅 파트
 
 #pragma  region Collision
-// =================== 공격용 콜리전 ===================	
+// =================== 공격용 콜리전 ===================
 
 	AttCollisionBite = CreateDefaultSubobject<UBoxComponent>(TEXT("AttCollisionBite"));	// 머리
 	AttCollisionBite->SetupAttachment(SafiComponent, TEXT("Socket_BiteDMGBox"));
@@ -155,7 +155,7 @@ ACSafiJiiva::ACSafiJiiva()
 	AttCollisionRF->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
 	AttCollisionLB->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
 	AttCollisionRB->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
-	
+
 	AttPosLF->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
 	AttPosRF->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
 	AttPosLB->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
@@ -168,13 +168,28 @@ ACSafiJiiva::ACSafiJiiva()
 void ACSafiJiiva::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 }
 
 // Called every frame
 void ACSafiJiiva::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+
+// ============================= 테스트용 Tick 데미지 =============================
+//
+//	currentTime += DeltaTime;
+//	if (currentTime > 1.f)
+//	{
+//		UE_LOG(LogTemp, Warning, TEXT("DamageCount : %d"), RepellCount);
+//
+//		OnDamageSafi(105.f);
+//		currentTime = 0.f;
+//	}
+//
+//==================================================================================
+
 
 	// 노티파이 제어시 생길 문제들 없애는 용도 :D...
 	if (isDisturbed == true)
@@ -188,7 +203,7 @@ void ACSafiJiiva::Tick(float DeltaTime)
 
 
 	// 콜리전 활성화, 비활성화 파트
-	
+
 // 머리공격 콜리전 활성화 / 비활성화
 	if (isOnAttBite == true) { AttCollisionBite->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics); }
 	else { AttCollisionBite->SetCollisionEnabled(ECollisionEnabled::NoCollision); }
@@ -198,7 +213,7 @@ void ACSafiJiiva::Tick(float DeltaTime)
 	{
 		switch (attackPos)
 		{
-		case AttMELEE_LF: 
+		case AttMELEE_LF:
 			AttCollisionLF->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 			break;
 
@@ -314,16 +329,17 @@ void ACSafiJiiva::OnDamageSafi(float _value)
 			// Disturbed 상태가 걸림
 			SetNormal();
 			isDisturbed = true;		// AnimInstance 에서 연동되는중
-			
+
 			RepellCount = 0;
 		}
-
 		return;
 	}
 
 
 	hp = 0;
 	//뭔가 사망처리 해주기
+	isDead = true;
+	FSM->OnDisturbedProcess();
 }
 
 void ACSafiJiiva::KillSafi_Test()

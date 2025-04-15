@@ -82,17 +82,6 @@ void UCSafiFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	FString logMsgInBattle = FString::Printf(TEXT("isInBattle: %s"), me->isInBattle ? TEXT("True") : TEXT("False"));
 	GEngine->AddOnScreenDebugMessage(5, 1, inBattleColor, logMsgInBattle);
 
-	// // isFly 상태 출력 (True일 때 빨간색)
-	// FColor flyColor = me->isFly ? FColor::Red : FColor::White;
-	// FString logMsgFly = FString::Printf(TEXT("isFly: %s"), me->isFly ? TEXT("True") : TEXT("False"));
-	// GEngine->AddOnScreenDebugMessage(6, 1, flyColor, logMsgFly);
-
-	// isImmune 상태 출력 (True일 때 빨간색)
-	/*
-	FColor immuneColor = me->isImmune ? FColor::Red : FColor::White;
-	FString logMsgImmune = FString::Printf(TEXT("isImmune: %s"), me->isImmune ? TEXT("True") : TEXT("False"));
-	GEngine->AddOnScreenDebugMessage(7, 1, immuneColor, logMsgImmune);
-	*/
 	// isDisturbed 상태 출력 (True일 때 빨간색)
 	FColor disturbedColor = me->isDisturbed ? FColor::Red : FColor::White;
 	FString logMsgDisturbed = FString::Printf(TEXT("isDisturbed: %s"), me->isDisturbed ? TEXT("True") : TEXT("False"));
@@ -103,12 +92,11 @@ void UCSafiFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	FString logMsgBreath = FString::Printf(TEXT("isBreath: %s"), me->isOnBreath ? TEXT("True") : TEXT("False"));
 	GEngine->AddOnScreenDebugMessage(9, 1, breathColor, logMsgBreath);
 
-	/*
-	// isRepelled 상태 출력 (True일 때 빨간색)
-	FColor repelledColor = me->isRepelled ? FColor::Red : FColor::White;
-	FString logMsgRepelled = FString::Printf(TEXT("isRepelled: %s"), me->isRepelled ? TEXT("True") : TEXT("False"));
+	// isKnockBack 상태 출력 (True일 때 빨간색)
+	FColor repelledColor = me->isKnockBack ? FColor::Red : FColor::White;
+	FString logMsgRepelled = FString::Printf(TEXT("isRepelled: %s"), me->isKnockBack ? TEXT("True") : TEXT("False"));
 	GEngine->AddOnScreenDebugMessage(10, 1, repelledColor, logMsgRepelled);
-	*/
+
 
 	// Collision_1 활성화 상태 출력 (True일 때 빨간색)
 	FColor collisionColor = me->AttCollisionBite->IsCollisionEnabled() ? FColor::Red : FColor::White;
@@ -124,7 +112,7 @@ void UCSafiFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 		//case ESafiState::Move		: {  }	break;
 		case ESafiState::Turn		: { CanMeleeAttack(); }	break;
 		case ESafiState::Attack		: {  }	break;
-		case ESafiState::Dead		: {  }	break;
+		case ESafiState::Disturbed	: {  }	break;
 	}
 	
 	switch(mAttState)
@@ -198,18 +186,7 @@ void UCSafiFSM::IdleState()
 
 	// 이 부분은 따로 떼서 서버처리 하는게 나을듯 (각 차이 나면 모션 다르게 나올 수 있음.)
 	// 돌아야 하는 값이 60도 미만이라면 TargetRotationByAnim으로 회전
-	if (targetYaw < 30.f)
-	{
 
-		TargetRotation();
-
-		if (targetYaw <= 3.f)
-		{
-			targetYaw = targetRot.Yaw;
-			CanMeleeAttack();
-			OnAttackProcess();
-		}
-	}
 
 	// currentTime += GetWorld()->DeltaTimeSeconds;
 	// if (currentTime <= me->idleTime) { return; }
@@ -218,11 +195,31 @@ void UCSafiFSM::IdleState()
 
 
 	// 돌아야 하는 값이 60도 이상이라면 TargetRotationByAnim으로 회전
-	if (targetYaw >= 60.0f)
+	if (isRot == false  && targetYaw >= 60.0f)
 	{
+		isRot = true;
 		TargetRotationByAnim();
 	}
 
+
+	else
+	{
+		TargetRotation();
+
+		if (targetYaw <= 10.f)
+		{
+			targetYaw = targetRot.Yaw;
+			
+			if (targetYaw <= 3.f)
+			{
+				me->SetActorRotation(targetRot);
+				CanMeleeAttack();
+				OnAttackProcess();
+			}
+
+		}
+	}
+	
 }
 
 void UCSafiFSM::CanMeleeAttack()	// SetAttackType으로 이름 바꾸고 근접공격 파트만 빼는것도 나쁘지 않을듯.
@@ -234,15 +231,10 @@ void UCSafiFSM::CanMeleeAttack()	// SetAttackType으로 이름 바꾸고 근접공격 파트�
 	if (me->attackPos == AttMELEE_LF || me->attackPos == AttMELEE_RF || me->attackPos == AttMELEE_LB || me->attackPos == AttMELEE_RB)
 	{
 		// 이전 공격타입이 동일한 경우엔 바디 프레스로 전환
-		if (BFattType == attType)
-		{
-			// int iMelee = FMath::RandRange(AttBITE, AttBITE + 1);
-			// attType = iMelee;
-			attType = AttBPRESS;
-
-		}
 
 		attType = me->attackPos;
+		if (BFattType == attType){ attType = AttBPRESS; }
+
 		mTurnState = ETurnState::None;
 		Anim->aTurnState = mTurnState;
 		OnAttackProcess();
@@ -328,7 +320,7 @@ void UCSafiFSM::AttBreath()
 	if (me->isOnBreath == false){ return; }
 
 	FVector Start = me->FireArrowComp->GetComponentLocation();
-	FVector Forward = GetOwner()->GetActorForwardVector();
+	FVector Forward = (SearchTarget() - Start).GetSafeNormal();
 	
 	// FVector Start = me->FireArrowComp->GetComponentLocation();
 	// FVector Forward = me->FireArrowComp->GetForwardVector();
@@ -379,6 +371,7 @@ void UCSafiFSM::AttBreath()
 // mState를 Attack으로 변경 / 공격스위치
 void UCSafiFSM::OnAttackProcess()
 {
+	isRot = false;
 	me->isOnSearch = false;
 	FVector dir = SearchTarget();
 
@@ -484,12 +477,21 @@ void UCSafiFSM::OnDisturbedProcess()
 	// 각도 측정 및 넉백()
 
 	// 조건에 따라 스위치
+	if (me->isDead == true)
+	{
+		mDisturbState = EDisturbState::Dead;
+		Anim->aDisturbState = mDisturbState;
+		return;								// Dead 일경우 하위 상황 판단할 필요가 없음
+	}
+
+
 	if (me->isKnockBack == true)
 	{ 
 		TargetKnockBackByAnim();
 	}
-	
+
 }
+
 
 void UCSafiFSM::TargetRotation()
 {
@@ -499,7 +501,7 @@ void UCSafiFSM::TargetRotation()
 	FRotator TargetRotation = dir.Rotation();
 	FRotator CurrentRotation = me->GetActorRotation();
 
-	FRotator NewRotation = FMath::RInterpTo(CurrentRotation , TargetRotation, DeltaTime, 10.f);
+	FRotator NewRotation = FMath::RInterpTo(CurrentRotation , TargetRotation, DeltaTime, 2.f);
 
 
 	me->SetActorRotation(NewRotation);

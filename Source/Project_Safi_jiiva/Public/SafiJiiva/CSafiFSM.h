@@ -50,8 +50,7 @@ enum class ESafiState : uint8
 	//Move		UMETA(DisplayName = "Move"),
 	Turn		UMETA(DisplayName = "Turn"),		// AnimState 제어용. 코드적 기능은 Idle에 전부 있음.
 	Attack		UMETA(DisplayName = "Attack"),
-	Disturbed	UMETA(DisplayName = "Disturbed"),	// AnimState 제어용2.
-	Dead		UMETA(DisplayName = "Dead")
+	Disturbed	UMETA(DisplayName = "Disturbed")	// AnimState 제어용2.
 	// Fly			UMETA(DisplayName = "Fly") / Fly는 그냥 IsFly로 상태 체크하는게 나을듯?
 };
 
@@ -88,7 +87,8 @@ enum class EDisturbState : uint8
 	KB_Left				UMETA(DisplayName = "KB_Left"),
 	KB_Right			UMETA(DisplayName = "KB_Right"),
 	KB_Forward			UMETA(DisplayName = "KB_Forward"),
-	KB_Backward			UMETA(DisplayName = "KB_Backward")
+	KB_Backward			UMETA(DisplayName = "KB_Backward"),
+	Dead				UMETA(DisplayName = "Dead")
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -150,7 +150,8 @@ private: // 기본 State 함수
 public:	// AttState 함수
 	void OnAttackProcess();		// 공격 스위치 시켜주기
 	void EndAttackProcess();	// AttState None 복귀, 다음 공격 판단
-	void OnDisturbedProcess();			// 상태이상 걸렸을 때 State 전부 정지, Disturbed로 전환.
+	// KnockBack, Dead
+	void OnDisturbedProcess();	// 상태이상 걸렸을 때 State 전부 정지, Disturbed로 전환.
 
 public: // 공격 관련 함수
 	void AttRoar();
@@ -165,5 +166,6 @@ public:
 	void TargetKnockBackByAnim();
 	FVector SearchTarget();
 
-
+public:
+	bool isRot = false;				// 좀 한 번만 돌자 :)....
 };

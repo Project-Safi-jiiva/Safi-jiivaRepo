@@ -51,6 +51,8 @@ void UCSafiAnimInstance::AnimNotify_Roar_END()
 	FSM->mState = ESafiState::Idle;
 	aState = FSM->mState;
 
+	me->isDisturbed = false;
+
 	// 노티파이 종료시 EndAttackProcess 호출
 	FSM->EndAttackProcess();
 
