@@ -1,6 +1,25 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+
 #pragma region AttDefine
+
+enum class EAttackNumber : uint8
+{
+	None = 0,
+	MeleeLF = 2,
+	MeleeRF = 3,
+	MeleeLB = 4,
+	MeleeRB = 5,
+
+	NMBreath = 6,
+	AIMBreath = 7,
+
+	Roar = 10,
+
+	Bite = 11,
+	BPress = 12
+};
+
 #define AttNONE 0
 #define AttROAR 1
 
@@ -31,6 +50,7 @@ enum class ESafiState : uint8
 	//Move		UMETA(DisplayName = "Move"),
 	Turn		UMETA(DisplayName = "Turn"),		// AnimState 제어용. 코드적 기능은 Idle에 전부 있음.
 	Attack		UMETA(DisplayName = "Attack"),
+	Disturbed	UMETA(DisplayName = "Disturbed"),	// AnimState 제어용2.
 	Dead		UMETA(DisplayName = "Dead")
 	// Fly			UMETA(DisplayName = "Fly") / Fly는 그냥 IsFly로 상태 체크하는게 나을듯?
 };
@@ -58,6 +78,17 @@ enum class ETurnState : uint8
 	TurnRight			UMETA(DisplayName = "Turn_Right"),
 	// 사실 왼회전 우회전 모션 다 있긴 한데 지금은 중요해보이진 않아서 제외.
 	TrunBack			UMETA(DisplayName = "Trun_Back")
+};
+
+UENUM()
+enum class EDisturbState : uint8
+{
+	None 				UMETA(DisplayName = "None"),
+	// 헷갈린다. 맞는 방향 기준이다.
+	KB_Left				UMETA(DisplayName = "KB_Left"),
+	KB_Right			UMETA(DisplayName = "KB_Right"),
+	KB_Forward			UMETA(DisplayName = "KB_Forward"),
+	KB_Backward			UMETA(DisplayName = "KB_Backward")
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -98,9 +129,17 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = FSM)
 	ETurnState mTurnState = ETurnState::None;
 
+	UPROPERTY(EditDefaultsOnly, Category = FSM)
+	EDisturbState mDisturbState = EDisturbState::None;
+
+
+// Define 이걸로 바꾸는게 낫나?
+	//EAttackNumber AttNum = EAttackNumber::None;
 public:
 	float currentTime = 0.f;
-	uint8 attType = 0;
+	int attType = AttNONE;
+	//EAttackNumber attType = EAttackNumber::None;
+
 
 private: // 기본 State 함수
 	void StartState();
@@ -111,6 +150,7 @@ private: // 기본 State 함수
 public:	// AttState 함수
 	void OnAttackProcess();		// 공격 스위치 시켜주기
 	void EndAttackProcess();	// AttState None 복귀, 다음 공격 판단
+	void OnDisturbedProcess();			// 상태이상 걸렸을 때 State 전부 정지, Disturbed로 전환.
 
 public: // 공격 관련 함수
 	void AttRoar();
@@ -118,9 +158,11 @@ public: // 공격 관련 함수
 	void AttBreath();
 
 	void CanMeleeAttack();				// 공격 가능 위치에 정확히 있는지 확인 , 브레스 종류 랜덤 결정.
+
 public:
 	void TargetRotation();
 	void TargetRotationByAnim();		// 애니메이션으로 회전
+	void TargetKnockBackByAnim();
 	FVector SearchTarget();
 
 
