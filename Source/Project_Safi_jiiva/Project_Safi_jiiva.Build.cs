@@ -11,8 +11,8 @@ public class Project_Safi_jiiva : ModuleRules
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" });
 
 
-        PublicIncludePaths.AddRange(new string[] { "Project_Safijiva/Public" });
+        PublicIncludePaths.AddRange(new string[] { "Project_Safi_jiiva/Public" });
 
-        PrivateIncludePaths.AddRange(new string[] { "Project_Safijiva/Private" });
+        PrivateIncludePaths.AddRange(new string[] { "Project_Safi_jiiva/Private" });
     }
 }
