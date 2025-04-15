@@ -54,9 +54,6 @@ void UCSafiAnimInstance::AnimNotify_Roar_END()
 	// 노티파이 종료시 EndAttackProcess 호출
 	FSM->EndAttackProcess();
 
-	// 노티파이 종료시 이뮨 해제
-	me->isImmune = false;
-
 }
 
 void UCSafiAnimInstance::AnimNotify_AttBite_Start()

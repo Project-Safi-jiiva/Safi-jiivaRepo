@@ -28,6 +28,9 @@ public:	//FSM State 관련
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = FSM)
 	ETurnState aTurnState = ETurnState::None;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = FSM)
+	EDisturbState aDisturbState = EDisturbState::None;
 	
 public:	// 수치값
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MoveValue")
