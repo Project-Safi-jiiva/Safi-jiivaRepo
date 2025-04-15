@@ -21,6 +21,7 @@
 #include "EnhancedInput/Public/InputMappingContext.h"
 #include "Weapon/WeaponComponent.h"
 #include "GreatSword.h"
+#include "Components/CapsuleComponent.h"
 
 // Sets default values
 AHunter::AHunter()
@@ -76,6 +77,7 @@ void AHunter::BeginPlay()
 {
 	Super::BeginPlay();
 	ChangeWeapon(EWeaponType::GREATSWORD);
+	Anim = Cast<UHunterAnim>(GetMesh()->GetAnimInstance());
 	APlayerController* PC = Cast<APlayerController>(GetController());
 	UEnhancedInputLocalPlayerSubsystem* subSys = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer());
 
@@ -99,6 +101,23 @@ void AHunter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	if(InputBindingDeleagate.IsBound())
 		InputBindingDeleagate.Broadcast(PlayerInput);
 
+}
+
+float AHunter::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	MoveComp->MoveState = EMoveState::HIT;
+	if (Anim->Montage_IsPlaying(nullptr))
+		Anim->Montage_Stop(0.1f);
+	MoveComp->InputOff();
+	MoveComp->KnockBack();
+	WeaponComp->ResetCombo();
+	FTimerHandle Handler;
+	auto OnInput = [this]()
+		{MoveComp->InputOn(); MoveComp->MoveState = EMoveState::IDLE;
+		};
+	GetWorld()->GetTimerManager().SetTimer(Handler, OnInput, 2.5, false);
+	PRINT_LOG(TEXT("%f"), Damage);
+	return Damage;
 }
 
 void AHunter::ChangeWeapon(EWeaponType NewWeaponType)
@@ -130,3 +149,5 @@ void AHunter::ChangeWeapon(EWeaponType NewWeaponType)
 		}
 	}
 }
+
+

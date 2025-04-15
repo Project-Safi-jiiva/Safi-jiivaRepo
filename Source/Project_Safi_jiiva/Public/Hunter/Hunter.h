@@ -13,6 +13,12 @@ UCLASS()
 class PROJECT_SAFI_JIIVA_API AHunter : public ACharacter
 {
 	GENERATED_BODY()
+private:
+	const float MaxHP=200;
+	const float MaxStamina=200;
+
+	float HP = MaxHP;
+	float Stamina = MaxStamina;
 
 public:
 	// Sets default values for this character's properties
@@ -30,6 +36,7 @@ protected:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual float TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 public:
 	UPROPERTY(EditDefaultsOnly, Category = "MoveComp")
@@ -50,7 +57,6 @@ protected:
 	class USpringArmComponent* SpringArmComponent;
 
 private:
-
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	class UInputMappingContext* IMC_Hunter;
 
