@@ -24,95 +24,86 @@ void UGreatSword::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 	// ...
 }
 
-void UGreatSword::QuickStrikeStart()
-{
-	Super::QuickStrikeStart();
-
-	if (iscancel)return;if (IsAttacking)return;
-	FWeaponDataTable CurrentData = GetCurrentWeaponData();
-
-	if (CurrentData.QuickStrikeMontages.Num() > 0 && Owner) {
-		if (!isWeaponEquipped&&Owner->GetVelocity().Size2D()<=0) {
-			PlayMontage(CurrentData.SheatheMontage);
-			isWeaponEquipped = true;
-			return;
-		}
-		if (!isWeaponEquipped && Owner->GetVelocity().Size2D() > 0) {
-			PlayMontage(CurrentData.UniqueStrikeMontages[1]);
-			isWeaponEquipped = true;
-			return;
-		}
-		else {
-		PlayMontage(CurrentData.QuickStrikeMontages[GetQuickStrikeComboIndex()]);
-		}
-	}
-}
-
-void UGreatSword::QuickStrikeHolding()
-{
-	Super::QuickStrikeHolding();
-}
-
-void UGreatSword::QuickStrikeEnd()
-{
-	isHolding = false;
-	Super::QuickStrikeEnd();
-	if (isJumpDelay) return;
-	if (isHolding) return;
-	JumpToNextCombo();
-}
-
 void UGreatSword::QuickStrikeNext()
 {
 	Super::QuickStrikeNext();
-	if(!iscancel)
-		SetQuickStrikeComboIndex(Owner->WeaponComp->GetQuickStrikeComboIndex() + 1);
-	IsAttacking = false;
-	if (isHolding)
-		QuickStrikeStart();
+	if (FCommandInput[0]<=0.1)return;
+	ChargeAttack();
 }
 
-void UGreatSword::HeavyStrikeStart()
+void UGreatSword::QuickInputHolding()
 {
-	Super::HeavyStrikeStart();
-	if (!isWeaponEquipped) return;
-	if (!IsAttacking){
-		FWeaponDataTable CurrentData = GetCurrentWeaponData();
-		if (CurrentData.HeavyStrikeMontages.Num() > 0 && Owner)
-		{
-			PlayMontage(CurrentData.HeavyStrikeMontages[GetHeavyStrikeComboIndex()]);
-		}
-		return;
-	}
-	else{
-		if (iscancel)return;
-
-		CancelHandler();
-		return;
-	}
+	Super::QuickInputHolding();
 }
 
-void UGreatSword::HeavyStrikeEnd()
+void UGreatSword::QuickInputEnd()
 {
-	//isHolding = false;
+	Super::QuickInputEnd();
+	if (isJumpDelay) return;
+	JumpToNextCombo();
 }
 
-void UGreatSword::UniqueStrikeStart()
+void UGreatSword::HeavyInputHolding()
 {
-	Super::UniqueStrikeStart();
-	if (!isWeaponEquipped) return;
+	Super::HeavyInputHolding();
+}
 
+void UGreatSword::HeavyStrikeNext()
+{
+	if (IsQuickAttack) return;
+	if (FCommandInput[1] <= 0)return;
+	Super::HeavyStrikeNext();
 	FWeaponDataTable CurrentData = GetCurrentWeaponData();
-	if (CurrentData.UniqueStrikeMontages.Num() > 0 && Owner)
-	{
-		// 첫 번째 QuickStrike 몽타주 재생 (필요하면 인덱스 조정 가능)
-		PlayMontage(CurrentData.UniqueStrikeMontages[0]);
-	}
+	if (CurrentData.HeavyStrikeMontages.Num() > 0 && Owner) { PlayMontage(CurrentData.HeavyStrikeMontages[GetHeavyStrikeComboIndex()]); }
+	return;
 }
 
-void UGreatSword::UniqueStrikeEnd()
+void UGreatSword::HeavyInputEnd()
 {
+	Super::HeavyInputEnd();
+}
 
+void UGreatSword::UniqueInputHolding()
+{
+	Super::UniqueInputHolding();
+}
+
+void UGreatSword::UniqueInputEnd()
+{
+	Super::UniqueInputEnd();
+}
+
+void UGreatSword::checkCommand(float DeltaTime)
+{
+	Super::checkCommand(DeltaTime);
+	FWeaponDataTable CurrentData = GetCurrentWeaponData();
+	if (isCommandInput[0] || isCommandInput[1] || isCommandInput[2])
+		CommandInputTime += DeltaTime;
+	if (CommandInputTime >= 0.15) {
+		if (isCommandInput[0] && !isCommandInput[1] && !isCommandInput[2]) {
+			QuickAttack();
+		}
+		if (!isCommandInput[0] && isCommandInput[1] && !isCommandInput[2]){
+			HeavyAttack();
+			}
+		if (isCommandInput[0] && isCommandInput[1] && !isCommandInput[2]){
+			PRINT_LOG(TEXT("tacle %f"),FCommandInput[0]);
+			if (FCommandInput[0] >= 0.2){
+				PlayMontage(CurrentData.HeavyStrikeMontages[1]);
+				SetHeavyStrikeComboIndex(0);
+				if(GetQuickStrikeComboIndex()<2)
+					SetQuickStrikeComboIndex(GetQuickStrikeComboIndex() + 1);
+				FCommandInput[0] = 0;
+				IsCommandInputReset();
+			}
+			else {
+				//CancelHandler();
+				UniqueAttack();
+			}
+		}
+		IsCommandInputReset();
+
+	}
 }
 
 void UGreatSword::ResetCombo()
@@ -125,6 +116,7 @@ void UGreatSword::Dash()
 {
 	Super::Dash();
 
+	if (!isWeaponEquipped)return;
 	if(!IsAttacking){
 	FWeaponDataTable CurrentData = GetCurrentWeaponData();
 	if (CurrentData.QuickStrikeMontages.Num() > 0 && Owner){
@@ -148,7 +140,7 @@ void UGreatSword::ModifyWeaponMoveSpeed()
 
 void UGreatSword::JumpToNextCombo()
 {
-	if (isHolding)return;
+	if (isCommandInput[0])return;
 	CurrentMontage = Anim->GetCurrentMontage(Owner);
 	if (Anim->Montage_IsPlaying(CurrentMontage)) {
 		Anim->Montage_JumpToSection(FName("Attack"), CurrentMontage);
@@ -170,8 +162,17 @@ void UGreatSword::CancelHandler()
 void UGreatSword::Roll()
 {
 	FWeaponDataTable CurrentData = GetCurrentWeaponData();
+	if (IsAttacking) {
+		if (ArrowRoll) {
+			PlayMontage(CurrentData.DodgeMontage);
+			ArrowRoll = false;
+		}
+	}
+	else {
+		PlayMontage(CurrentData.DodgeMontage);
 
-	PlayMontage(CurrentData.DodgeMontage);
+	}
+
 }
 
 void UGreatSword::PlayMontage(UAnimMontage* Montage)
@@ -180,5 +181,51 @@ void UGreatSword::PlayMontage(UAnimMontage* Montage)
 	{
 		Anim->Montage_Play(Montage);
 	}
+}
+
+void UGreatSword::QuickAttack()
+{
+	//if (IsAttacking)return;
+	FWeaponDataTable CurrentData = GetCurrentWeaponData();
+	if (CurrentData.QuickStrikeMontages.Num() > 0 && Owner) {
+		 if (!isWeaponEquipped && Owner->GetVelocity().Size2D() <= 0) {
+			PlayMontage(CurrentData.SheatheMontage);
+			isWeaponEquipped = true;
+			return;
+		}
+		 if (!isWeaponEquipped && Owner->GetVelocity().Size2D() > 0) {
+			PlayMontage(CurrentData.UniqueStrikeMontages[1]);
+			isWeaponEquipped = true;
+			return;
+		}
+		 if (isWeaponEquipped) {
+			 if (IsAttacking) return;
+			 ChargeAttack();
+		 }
+
+	}
+}
+
+void UGreatSword::HeavyAttack()
+{
+	if (!isWeaponEquipped) return;
+	if (IsAttacking) return;
+		FWeaponDataTable CurrentData = GetCurrentWeaponData();
+		if (CurrentData.HeavyStrikeMontages.Num() > 0 && Owner){PlayMontage(CurrentData.HeavyStrikeMontages[GetHeavyStrikeComboIndex()]);}
+		return;
+}
+
+void UGreatSword::UniqueAttack()
+{
+	if (IsAttacking) return;
+
+	FWeaponDataTable CurrentData = GetCurrentWeaponData();
+	PlayMontage(CurrentData.UniqueStrikeMontages[GetUniqueStrikeComboIndex()]);
+}
+
+void UGreatSword::ChargeAttack()
+{
+	FWeaponDataTable CurrentData = GetCurrentWeaponData();
+	PlayMontage(CurrentData.QuickStrikeMontages[GetQuickStrikeComboIndex()]);
 }
 

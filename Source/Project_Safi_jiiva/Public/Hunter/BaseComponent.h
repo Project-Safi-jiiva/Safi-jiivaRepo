@@ -25,6 +25,8 @@ protected:
 
 	virtual void SetupInputBinding(class UEnhancedInputComponent* InputComponent);
 
+
+
 protected:
 	UPROPERTY()
 	class AHunter* Owner;

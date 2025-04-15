@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/InputActionValue.h"
+#include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/InputAction.h"
 #include "WeaponInterface.generated.h"
 
 // This class does not need to be modified.
@@ -22,19 +24,23 @@ class PROJECT_SAFI_JIIVA_API IWeaponInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
+	virtual void QuickInputStart() {};
+	virtual void QuickInputHolding(){};
+	virtual void QuickInputEnd() {};
 
-	virtual void QuickStrikeStart()=0;
-	virtual void QuickStrikeHolding()=0;
-	virtual void QuickStrikeEnd()=0;
-	virtual void QuickStrikeNext()=0;
+	virtual void HeavyInputStart() {};
+	virtual void HeavyInputHolding(){};
+	virtual void HeavyInputEnd() {};
 
-	virtual void HeavyStrikeStart() = 0;
-	virtual void HeavyStrikeEnd() = 0;
+	virtual void UniqueInputStart() {};
+	virtual void UniqueInputHolding(){};
+	virtual void UniqueInputEnd() {};
 
-	virtual void UniqueStrikeStart() = 0;
-	virtual void UniqueStrikeEnd() = 0;
+	virtual void checkCommand(float DeltaTime) = 0;
+	virtual void QuickStrikeNext() {};
+	virtual void JumpToNextCombo() {}
 
-	virtual void JumpToNextCombo() = 0;
+
 	virtual void ResetCombo() = 0;
 
 	virtual void CancelHandler() {};
