@@ -10,6 +10,7 @@
 #include "Hunter/Hunter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/BoxComponent.h"
+#include "SafiJiiva/CSafiAnimInstance.h"
 
 // Sets default values
 ACSafiJiiva::ACSafiJiiva()
@@ -28,7 +29,12 @@ ACSafiJiiva::ACSafiJiiva()
 		SafiComponent->SetRelativeLocation(FVector(0.f, 0.f, -90.f));
 		SafiComponent->SetRelativeRotation(FRotator( 0.f, -90.f, 0.f));
 
-		SafiComponent->SetRelativeScale3D(FVector(0.45f));
+		//SafiComponent->SetRelativeScale3D(FVector(0.45f));
+
+		SafiComponent->SetCollisionObjectType(ECC_GameTraceChannel1);
+		
+		// 훈타 몇채널인지 보기
+		// SafiComponent->SetCollisionResponseToChannel(ECC_GameTraceChannel2, ECR_Overlap);
 	}
 	
 	FireArrowComp = CreateDefaultSubobject<UArrowComponent>(TEXT("FireArrowComp"));
@@ -43,6 +49,7 @@ ACSafiJiiva::ACSafiJiiva()
 	
 
 	FSM = CreateDefaultSubobject<UCSafiFSM>(TEXT("FSM"));
+	Anim = Cast<UCSafiAnimInstance>(GetMesh()->GetAnimInstance());
 	USkeletalMeshComponent* SkeletalMeshComp = GetMesh();
 	if (SkeletalMeshComp)
 	{
@@ -50,6 +57,7 @@ ACSafiJiiva::ACSafiJiiva()
 		SkeletalMeshComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		SkeletalMeshComp->SetCollisionResponseToAllChannels(ECR_Overlap);
 	}
+
 #pragma endregion Components
 
 //========================= 콜리전 세팅 파트
@@ -171,7 +179,7 @@ void ACSafiJiiva::Tick(float DeltaTime)
 	// 노티파이 제어시 생길 문제들 없애는 용도 :D...
 	if (isDisturbed == true)
 	{
-		SetNormal();
+		FSM->OnDisturbedProcess();
 	}
 
 	DrawLineTrace();
@@ -281,14 +289,11 @@ void ACSafiJiiva::SetNormal()
 	isOnAttBite= false;
 	isFootAttack = false;
 
-	isRepelled = false;
-	isOnAttBite = false;
-
+	//isRepelled = false;
 	isDisturbed = false;
 
 	isOnSearch = false;
 }
-
 
 void ACSafiJiiva::SetSpeed(float _value)
 {
@@ -297,12 +302,28 @@ void ACSafiJiiva::SetSpeed(float _value)
 
 void ACSafiJiiva::OnDamageSafi(float _value)
 {
-	this->hp -= _value;
-	if (hp <= 0)
+	hp -= _value;
+	RepellCount += 1;
+
+	if(hp > 0)
 	{
-		hp = 0;
-		//뭔가 사망처리 해주기
+		if (RepellCount >= MAXRepellCount)
+		{
+			isKnockBack = true;
+
+			// Disturbed 상태가 걸림
+			SetNormal();
+			isDisturbed = true;		// AnimInstance 에서 연동되는중
+			
+			RepellCount = 0;
+		}
+
+		return;
 	}
+
+
+	hp = 0;
+	//뭔가 사망처리 해주기
 }
 
 void ACSafiJiiva::KillSafi_Test()
@@ -354,15 +375,15 @@ void ACSafiJiiva::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, clas
 	}
 
 
-	/*
+	/* 헌터쪽에서 처리하는게 맞을듯?
 	if (target->태클상태)
 	{
 		this->OnDamageSafi(태클데미지)
 	}
 	*/
 
-	// 데미지 처리는 FSM ,or AnimInstance 쪽에서 처리
+
 	// Tick에서 스테이터스 체크해서 isDisturbed 체크		- AnimInstance쪽 isDisturbedA와 연동 완료
-	// 스턴 / 경직 등이 들어왔다면 다른 bool형 변수들 false로 해주는 처리 필요 - SetNormal() 로 처리
+
 }
 
