@@ -21,6 +21,7 @@
 #include "EnhancedInput/Public/InputMappingContext.h"
 #include "Weapon/WeaponComponent.h"
 #include "GreatSword.h"
+#include "Components/CapsuleComponent.h"
 
 // Sets default values
 AHunter::AHunter()
@@ -130,3 +131,5 @@ void AHunter::ChangeWeapon(EWeaponType NewWeaponType)
 		}
 	}
 }
+
+

@@ -6,8 +6,8 @@
 namespace AssetPaths
 {
     //캐릭터 기본 세팅
-    constexpr const TCHAR* HUNTER_MESH = TEXT("/Script/Engine.SkeletalMesh'/Game/LHW/Anim/ActorCore_Gemma_T.ActorCore_Gemma_T'");
-    constexpr const TCHAR* HUNTER_ANIM = TEXT("/Script/Engine.AnimBlueprint'/Game/LHW/Anim/ABP_Gemma.ABP_Gemma_C'");
+    constexpr const TCHAR* HUNTER_MESH = TEXT("/Script/Engine.SkeletalMesh'/Game/LHW/Gemma/Gemma_RE_ColorSkin.Gemma_RE_ColorSkin'");
+    constexpr const TCHAR* HUNTER_ANIM = TEXT("/Script/Engine.AnimBlueprint'/Game/LHW/Gemma/ABP_Gemma.ABP_Gemma_C'");
     constexpr const TCHAR* HUNTER_IMC = TEXT("/Script/EnhancedInput.InputMappingContext'/Game/LHW/Input/IMC_Hunter.IMC_Hunter'");
 
     //무브 컴포넌트

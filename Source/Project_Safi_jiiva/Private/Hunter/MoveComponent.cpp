@@ -8,6 +8,9 @@
 #include "Hunter/Hunter.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Hunter/HunterAnim.h"
+#include "Weapon/WeaponComponent.h"
 
 // Sets default values for this component's properties
 UMoveComponent::UMoveComponent()
@@ -27,6 +30,7 @@ UMoveComponent::UMoveComponent()
 void UMoveComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	Owner->GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this,&UMoveComponent::BeginOverlap);
 	Owner->GetCharacterMovement()->MaxAcceleration = 600.0f;
 }
 
@@ -79,5 +83,50 @@ void UMoveComponent::Turn(const FInputActionValue& Value)
 	FVector2d Scale = Value.Get<FVector2d>();
 	Owner->AddControllerPitchInput(Scale.Y);
 	Owner->AddControllerYawInput(Scale.X);
+}
+void UMoveComponent::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	MoveState = EMoveState::HIT;
+	if (Anim->Montage_IsPlaying(nullptr))
+		Anim->Montage_Stop(0.1f);
+	InputOff();
+	KnockBack();
+	Owner->WeaponComp->ResetCombo();
+	FTimerHandle Handler;
+	auto OnInput = [this]() {InputOn(); MoveState = EMoveState::IDLE; };
+	GetWorld()->GetTimerManager().SetTimer(Handler, OnInput, 2.5,false);
+
+}
+
+void UMoveComponent::InputOff()
+{
+	Owner->DisableInput(Cast<APlayerController>(PC));
+
+}
+
+void UMoveComponent::InputOn()
+{
+	Owner->EnableInput(Cast<APlayerController>(PC));
+
+}
+
+void UMoveComponent::KnockBack()
+{
+	FVector CurrentVelocity = Owner->GetVelocity();
+
+	// 넉백 방향 설정 (예: 반대로 튕겨나가는 방향)
+	FVector KnockbackDir = -Owner->GetActorForwardVector(); // 반대방향으로 튕기게 예시
+	KnockbackDir = KnockbackDir.GetSafeNormal();
+
+	// 원하는 넉백 세기
+	float KnockbackPower = 1500.f;
+
+	// 넉백 벡터 = 넉백 방향 * 파워
+	FVector KnockbackForce = KnockbackDir * KnockbackPower;
+
+	// 기존 속도 반영 (예: 상쇄하거나 중립화하고 싶다면)
+	FVector LaunchVector = KnockbackForce - CurrentVelocity;
+
+	Owner->LaunchCharacter(LaunchVector, true, true);
 }
 
