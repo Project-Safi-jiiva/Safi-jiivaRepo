@@ -86,12 +86,12 @@ private:	// 함수용 변수들
 	float currentTime = 0.f;
 
 public:	// 체력 등 스탯 계수
-	float MAXHP = 3000.f;
+	float MAXHP = 1500.f;
 	float hp = MAXHP;
-	float MeleeBiteDMG = 10.f;	// 물기 데미지
+	float MeleeBiteDMG = 30.f;	// 물기 데미지
 
 	int RepellCount = 0;
-	int MAXRepellCount = 10;
+	int MAXRepellCount = 5;
 
 public:	// 사거리, 속도 등
 	float MeleeAttRange = 1000.f;
@@ -108,7 +108,7 @@ public: // 공격 위치
 	int attackPos =	0;	
 
 public: // 상태 체크
-	bool isInBattle = false;		// 전투상태인가
+	bool isInBattle = false;			// 전투상태인가
 	// bool isFly = false;				// 비행 상태인가
 	// bool isImmune = false;			// 특정 상황에서는 상태이상 면역.
 
@@ -116,6 +116,7 @@ public: // 상태 체크
 	bool isDisturbed = false;		// 상태이상에 걸렸는지 - 애니메이션 끊길 때 노티파이 삭제 대체용
 									// 
 	bool isKnockBack = false;		// 넉백당했는지
+	bool isDead = false;
 
 public:// 공격 관련 노티파이 제어
 	bool isOnAttBite = false;		// 물기 공격중인지
@@ -123,6 +124,7 @@ public:// 공격 관련 노티파이 제어
 	bool isOnBreath = false;		// 브레스 사용중인지
 	bool isOnSearch = false;		// 탐색 중인지 (탐색용 콜리전 활성화)
 	bool isOnBodyPress = false;		// 바디프레스 사용중인지
+
 
 public: // 라인 트레이스
 	UFUNCTION()

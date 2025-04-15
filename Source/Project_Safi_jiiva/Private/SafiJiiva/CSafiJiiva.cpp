@@ -176,6 +176,21 @@ void ACSafiJiiva::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+
+// ============================= 테스트용 Tick 데미지 =============================
+//
+//	currentTime += DeltaTime;
+//	if (currentTime > 1.f)
+//	{
+//		UE_LOG(LogTemp, Warning, TEXT("DamageCount : %d"), RepellCount);
+//
+//		OnDamageSafi(105.f);
+//		currentTime = 0.f;
+//	}
+//
+//==================================================================================
+
+
 	// 노티파이 제어시 생길 문제들 없애는 용도 :D...
 	if (isDisturbed == true)
 	{
@@ -317,13 +332,14 @@ void ACSafiJiiva::OnDamageSafi(float _value)
 			
 			RepellCount = 0;
 		}
-
 		return;
 	}
 
 
 	hp = 0;
 	//뭔가 사망처리 해주기
+	isDead = true;
+	FSM->OnDisturbedProcess();
 }
 
 void ACSafiJiiva::KillSafi_Test()
