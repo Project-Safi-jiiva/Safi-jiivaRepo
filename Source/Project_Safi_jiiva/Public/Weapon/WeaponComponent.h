@@ -8,6 +8,8 @@
 #include "EWeaponType.h"
 #include "WeaponDataTable.h"
 #include "WeaponDataAsset.h"
+#include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/InputActionValue.h"
+#include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h"
 #include "WeaponComponent.generated.h"
 
 
@@ -30,32 +32,33 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-
 	virtual void ResetCombo() override;
 
-	virtual void QuickStrikeNext() override;
-
-	virtual void QuickStrikeEnd() override;
+	virtual void QuickInputEnd() override;
 protected:
 	// 기본 생성자
 
 	//인터페이스 구현
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	virtual void QuickStrikeStart() override;
-	virtual void QuickStrikeHolding() override;
+	virtual void QuickInputStart() override;
+	UFUNCTION()
+	virtual void QuickInputHolding() override;
 
-	virtual void HeavyStrikeStart() override;
-	virtual void HeavyStrikeEnd() override;
 
-	virtual void UniqueStrikeStart() override;
-	virtual void UniqueStrikeEnd() override;
+	virtual void HeavyInputStart() override;
+	virtual void HeavyInputHolding() override;
+	virtual void HeavyInputEnd() override;
+
+	virtual void UniqueInputStart() override;
+	virtual void UniqueInputHolding()override;
+	virtual void UniqueInputEnd() override;
+
+	virtual void checkCommand(float DeltaTime) override;
 public:
+	virtual void QuickStrikeNext() override;
+	virtual void HeavyStrikeNext();
 	virtual void JumpToNextCombo() override;
 	virtual void CancelHandler() override;
-
-
-
-
 	//부모 상속
 
 	virtual void SetupInputBinding(class UEnhancedInputComponent* InputComponent) override;
@@ -80,6 +83,8 @@ public:
 	bool IsAttacking =false;
 	bool isJumpDelay = false;
 	bool iscancel = false;
+	bool IsQuickAttack =false;
+	bool ArrowRoll = false;
 protected:
 	bool isHolding = false;
 
@@ -114,7 +119,7 @@ private:
 
 	EWeaponType WeaponType;
 
-private:
+protected:
 	int32 QuickStrikeComboIndex = 0;
 	int32 HeavyStrikeComboIndex = 0;
 	int32 UniqueStrikeComboIndex = 0;
@@ -134,5 +139,13 @@ public:
 
 	bool GetisWeaponEquipped() { return isWeaponEquipped; }
 
+	//커맨드 판단 변수 선언
+	protected:
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+		float CommandInputTime=0.0f;
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+		TArray<float> FCommandInput = {0,0,0};
+		TArray<bool> isCommandInput = {false,false,false};
 
+		void IsCommandInputReset();
 };

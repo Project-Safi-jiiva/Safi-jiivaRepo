@@ -54,8 +54,14 @@ private:
 
 	FVector2D Direction;
 
+private:
+
 public:
 	EMoveState MoveState = EMoveState::IDLE;
 
-	float CalculateDirection(const FVector& Velocity, const FRotator& BaseRotation) const;
+	UFUNCTION()
+	void BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	void InputOff();
+	void InputOn();
+	void KnockBack();
 };
