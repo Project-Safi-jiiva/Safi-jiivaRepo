@@ -90,7 +90,6 @@ void UGreatSword::checkCommand(float DeltaTime)
 			HeavyAttack();
 			}
 		if (isCommandInput[0] && isCommandInput[1] && !isCommandInput[2]){
-			PRINT_LOG(TEXT("tacle %f"),FCommandInput[0]);
 			if (FCommandInput[0] >= 0.2){
 				PlayMontage(CurrentData.HeavyStrikeMontages[1]);
 				SetHeavyStrikeComboIndex(0);
@@ -100,7 +99,6 @@ void UGreatSword::checkCommand(float DeltaTime)
 				IsCommandInputReset();
 			}
 			else {
-				//CancelHandler();
 				UniqueAttack();
 			}
 		}
@@ -233,6 +231,7 @@ void UGreatSword::HeavyAttack()
 
 void UGreatSword::UniqueAttack()
 {
+	if (!isWeaponEquipped) return;
 	if (IsAttacking) return;
 
 	FWeaponDataTable CurrentData = GetCurrentWeaponData();
