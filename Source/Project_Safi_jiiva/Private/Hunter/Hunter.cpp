@@ -72,6 +72,7 @@ AHunter::AHunter()
 	CameraComponent->bUsePawnControlRotation = false;
 	GetCapsuleComponent()->SetCollisionProfileName(FName("Pawn2"));
 
+
 }
 
 void AHunter::BeginPlay()
@@ -84,12 +85,13 @@ void AHunter::BeginPlay()
 
 	if (subSys)
 		subSys->AddMappingContext(IMC_Hunter, 0);
-
 }
 
 void AHunter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	if (Anim->Montage_IsPlaying(nullptr)&&isHit)
+		Anim->Montage_Stop(0.1f);
 
 }
 
@@ -108,18 +110,18 @@ float AHunter::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, 
 {
 	if (WeaponComp->isTacle) return 0;
 	MoveComp->MoveState = EMoveState::HIT;
+	isHit = true;
 	MoveComp->InputOff();
 	GetCapsuleComponent()->SetCollisionProfileName(FName("Pawn"));
-	if (Anim->Montage_IsPlaying(nullptr))
-		Anim->Montage_Stop(0.1f);
+
 	MoveComp->KnockBack();
 	WeaponComp->ResetCombo();
 	FTimerHandle Handler;
 	auto OnInput = [this]()
 		{
+			isHit = false;
 			MoveComp->InputOn(); MoveComp->MoveState = EMoveState::IDLE;
 			GetCapsuleComponent()->SetCollisionProfileName(FName("Pawn2"));
-
 		};
 	GetWorld()->GetTimerManager().SetTimer(Handler, OnInput, 2.5, false);
 	return Damage;

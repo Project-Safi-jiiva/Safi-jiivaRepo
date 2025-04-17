@@ -64,6 +64,7 @@ private:
 
 public:
 	bool isRun = false;
+	bool isHit = false;
 
 
 

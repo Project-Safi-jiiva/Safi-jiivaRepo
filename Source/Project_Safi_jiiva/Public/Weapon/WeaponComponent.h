@@ -84,7 +84,7 @@ public:
 	bool isJumpDelay = false;
 	bool iscancel = false;
 	bool IsQuickAttack =false;
-	bool ArrowRoll = false;
+	bool AllowRoll = false;
 	bool isTacle = false;
 
 protected:

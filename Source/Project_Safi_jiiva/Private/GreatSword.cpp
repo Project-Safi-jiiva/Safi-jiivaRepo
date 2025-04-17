@@ -29,7 +29,8 @@ void UGreatSword::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 void UGreatSword::QuickStrikeNext()
 {
 	Super::QuickStrikeNext();
-	if (FCommandInput[0]<=0.1)return;
+	if (IsQuickAttack)return;
+	if (FCommandInput[0]<=0.2)return;
 	ChargeAttack();
 }
 
@@ -165,9 +166,9 @@ void UGreatSword::Roll()
 {
 	FWeaponDataTable CurrentData = GetCurrentWeaponData();
 	if (IsAttacking) {
-		if (ArrowRoll) {
+		if (AllowRoll) {
 			PlayMontage(CurrentData.DodgeMontage);
-			ArrowRoll = false;
+			AllowRoll = false;
 		}
 	}
 	else {
@@ -201,7 +202,6 @@ void UGreatSword::PlayMontage(UAnimMontage* Montage)
 
 void UGreatSword::QuickAttack()
 {
-	//if (IsAttacking)return;
 	FWeaponDataTable CurrentData = GetCurrentWeaponData();
 	if (CurrentData.QuickStrikeMontages.Num() > 0 && Owner) {
 		 if (!isWeaponEquipped && Owner->GetVelocity().Size2D() <= 0) {
