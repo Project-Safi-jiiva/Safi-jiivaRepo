@@ -90,6 +90,7 @@ void AHunter::BeginPlay()
 void AHunter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
 	if (Anim->Montage_IsPlaying(nullptr)&&isHit)
 		Anim->Montage_Stop(0.1f);
 
@@ -108,6 +109,7 @@ void AHunter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 float AHunter::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	PRINT_LOG(TEXT("TE"));
 	if (WeaponComp->isTacle) return 0;
 	MoveComp->MoveState = EMoveState::HIT;
 	isHit = true;

@@ -13,7 +13,6 @@
 void UHunterAnimNotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration)
 {
 	Super::NotifyBegin(MeshComp, Animation, TotalDuration);
-	PRINT_LOG(TEXT("%f"), TotalDuration);
 }
 
 void UHunterAnimNotifyState::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime)
@@ -33,9 +32,7 @@ void UHunterAnimNotifyState::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimS
 			Owner->WeaponComp->QuickStrikeNext();
 			Owner->WeaponComp->HeavyStrikeNext();
 		}
-		if (CurrentSection.ToString().Contains(TEXT("TacleOn"))) {
-			Owner->WeaponComp->isTacle = true;
-		}
+
 		if (CurrentSection.ToString().Contains(TEXT("WeaponCollitionOn"))) {
 			Owner->WeaponComp->WeaponCollitionOn();
 		}
@@ -43,6 +40,7 @@ void UHunterAnimNotifyState::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimS
 			Owner->WeaponComp->WeaponCollitionOff();
 		}
 	}
+
 }
 
 void UHunterAnimNotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)

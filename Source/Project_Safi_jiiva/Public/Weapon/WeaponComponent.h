@@ -24,6 +24,7 @@ public:
 	// Sets default values for this component's properties
 	UWeaponComponent();
 
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -84,6 +85,8 @@ public:
 	bool isJumpDelay = false;
 	bool iscancel = false;
 	bool IsQuickAttack =false;
+	bool IsHeavyAttack =false;
+	bool IsUniqueAttack =false;
 	bool AllowRoll = false;
 	bool isTacle = false;
 
@@ -151,4 +154,7 @@ public:
 		public:
 		virtual void WeaponCollitionOn();
 		virtual void WeaponCollitionOff();
+		UFUNCTION()
+		float SetDamage();
+		float Damage=0.0f;
 };

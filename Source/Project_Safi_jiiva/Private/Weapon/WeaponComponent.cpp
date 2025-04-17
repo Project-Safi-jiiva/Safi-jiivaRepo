@@ -217,10 +217,9 @@ void UWeaponComponent::AttachWeaponToHand()
 void UWeaponComponent::InitializeWeaponActor(AActor* NewWeapon, const FWeaponDataTable& WeaponData)
 {
 	if (!NewWeapon) return;
-
 	if (NewWeapon->Implements<UIWeaponActor>())
 	{
-		IIWeaponActor::Execute_SetBaseDamage(NewWeapon, WeaponData.BaseDamage);
+		IIWeaponActor::Execute_SetOwnerComponent(NewWeapon,this);
 	}
 }
 
@@ -272,5 +271,19 @@ void UWeaponComponent::WeaponCollitionOn()
 void UWeaponComponent::WeaponCollitionOff()
 {
 
+}
+
+float UWeaponComponent::SetDamage()
+{
+
+	FWeaponDataTable WeaponData = GetCurrentWeaponData();
+	//if (IsQuickAttack) {
+	Damage = (WeaponData.BaseDamage)*(WeaponData.QuickStrikeDamageMultipliers[GetQuickStrikeComboIndex()]);
+	if (IsHeavyAttack) {
+		Damage =(WeaponData.BaseDamage) * (WeaponData.HeavyStrikeDamageMultipliers[GetHeavyStrikeComboIndex()]);
+	}if (IsUniqueAttack) {
+		Damage = (WeaponData.BaseDamage) * (WeaponData.HeavyStrikeDamageMultipliers[GetUniqueStrikeComboIndex()]);
+	}
+	return Damage;
 }
 

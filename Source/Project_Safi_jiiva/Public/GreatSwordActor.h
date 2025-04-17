@@ -28,10 +28,15 @@ public:
 	virtual float GetBaseDamage_Implementation() const override;
 	virtual void SetBaseDamage_Implementation(float NewDamage) override;
 	virtual void ApplyDamage_Implementation(AActor* HitActor, float DamageMultiplier) override;
+	virtual void SetOwnerComponent_Implementation(UActorComponent* Component) override;
 	UFUNCTION()
     void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	TArray<ACSafiJiiva*> HitPawn;
 	UPROPERTY(VisibleAnywhere, Category = "Mesh")
 	class UStaticMeshComponent* SwordMesh;
+
+private:
+	float Damage=0.0f;
+	class UWeaponComponent* OwnerWeaponComp;
 
 };

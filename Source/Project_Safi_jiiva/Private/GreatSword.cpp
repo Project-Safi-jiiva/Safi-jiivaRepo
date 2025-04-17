@@ -169,10 +169,10 @@ void UGreatSword::Roll()
 			AllowRoll = false;
 		}
 	}
-	else {
+	/*else {
 		PlayMontage(CurrentData.DodgeMontage);
 
-	}
+	}*/
 
 }
 
