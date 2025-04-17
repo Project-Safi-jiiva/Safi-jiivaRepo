@@ -8,6 +8,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "SafiJiiva/CSafiJiiva.h"
+#include "Project_Safi_jiiva.h"
 
 // Sets default values
 AGreatSwordActor::AGreatSwordActor()
@@ -43,8 +44,10 @@ void AGreatSwordActor::Tick(float DeltaTime)
 void AGreatSwordActor::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	ACSafiJiiva* Ch = Cast<ACSafiJiiva>(OtherActor);
-	if(HitPawn.Num()<=0)
+	if(HitPawn.Num()<=0){
 		UGameplayStatics::ApplyDamage(OtherActor, 100, nullptr, this, nullptr);
+	PRINT_LOG(TEXT("hit"));
+	}
 	HitPawn.AddUnique(Ch);
 }
 

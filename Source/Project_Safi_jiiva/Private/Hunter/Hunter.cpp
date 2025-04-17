@@ -106,22 +106,22 @@ void AHunter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 float AHunter::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	if (WeaponComp->isTacle) return 0;
-	MoveComp->MoveState = EMoveState::HIT;
-	MoveComp->InputOff();
-	GetCapsuleComponent()->SetCollisionProfileName(FName("Pawn"));
-	if (Anim->Montage_IsPlaying(nullptr))
-		Anim->Montage_Stop(0.1f);
-	MoveComp->KnockBack();
-	WeaponComp->ResetCombo();
-	FTimerHandle Handler;
-	auto OnInput = [this]()
-		{
-			MoveComp->InputOn(); MoveComp->MoveState = EMoveState::IDLE;
-			GetCapsuleComponent()->SetCollisionProfileName(FName("Pawn2"));
+	//if (WeaponComp->isTacle) return 0;
+	//MoveComp->MoveState = EMoveState::HIT;
+	//MoveComp->InputOff();
+	//GetCapsuleComponent()->SetCollisionProfileName(FName("Pawn"));
+	//if (Anim->Montage_IsPlaying(nullptr))
+	//	Anim->Montage_Stop(0.1f);
+	//MoveComp->KnockBack();
+	//WeaponComp->ResetCombo();
+	//FTimerHandle Handler;
+	//auto OnInput = [this]()
+	//	{
+	//		MoveComp->InputOn(); MoveComp->MoveState = EMoveState::IDLE;
+	//		GetCapsuleComponent()->SetCollisionProfileName(FName("Pawn2"));
 
-		};
-	GetWorld()->GetTimerManager().SetTimer(Handler, OnInput, 2.5, false);
+	//	};
+	//GetWorld()->GetTimerManager().SetTimer(Handler, OnInput, 2.5, false);
 	return Damage;
 }
 

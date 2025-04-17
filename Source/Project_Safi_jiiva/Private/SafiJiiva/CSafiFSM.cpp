@@ -85,23 +85,44 @@ void UCSafiFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	// isDisturbed 상태 출력 (True일 때 빨간색)
 	FColor disturbedColor = me->isDisturbed ? FColor::Red : FColor::White;
 	FString logMsgDisturbed = FString::Printf(TEXT("isDisturbed: %s"), me->isDisturbed ? TEXT("True") : TEXT("False"));
-	GEngine->AddOnScreenDebugMessage(8, 1, disturbedColor, logMsgDisturbed);
+	GEngine->AddOnScreenDebugMessage(6, 1, disturbedColor, logMsgDisturbed);
 
 	// isBreath 상태 출력 (True일 때 빨간색)
 	FColor breathColor = me->isOnBreath ? FColor::Red : FColor::White;
 	FString logMsgBreath = FString::Printf(TEXT("isBreath: %s"), me->isOnBreath ? TEXT("True") : TEXT("False"));
-	GEngine->AddOnScreenDebugMessage(9, 1, breathColor, logMsgBreath);
+	GEngine->AddOnScreenDebugMessage(7, 1, breathColor, logMsgBreath);
 
 	// isKnockBack 상태 출력 (True일 때 빨간색)
 	FColor repelledColor = me->isKnockBack ? FColor::Red : FColor::White;
 	FString logMsgRepelled = FString::Printf(TEXT("isRepelled: %s"), me->isKnockBack ? TEXT("True") : TEXT("False"));
-	GEngine->AddOnScreenDebugMessage(10, 1, repelledColor, logMsgRepelled);
+	GEngine->AddOnScreenDebugMessage(8, 1, repelledColor, logMsgRepelled);
 
 
 	// Collision_1 활성화 상태 출력 (True일 때 빨간색)
-	FColor collisionColor = me->AttCollisionBite->IsCollisionEnabled() ? FColor::Red : FColor::White;
-	FString logMsgCollision = FString::Printf(TEXT("Collision_1 is enabled: %s"), me->AttCollisionBite->IsCollisionEnabled() ? TEXT("True") : TEXT("False"));
-	GEngine->AddOnScreenDebugMessage(11, 1, collisionColor, logMsgCollision);
+	FColor collisionColor1 = me->AttCollisionBite->IsCollisionEnabled() ? FColor::Red : FColor::White;
+	FString logMsgCollision1 = FString::Printf(TEXT("AttCollisionBite is enabled: %s"), me->AttCollisionBite->IsCollisionEnabled() ? TEXT("True") : TEXT("False"));
+	GEngine->AddOnScreenDebugMessage(10, 1, collisionColor1, logMsgCollision1);
+
+	// =================================================================
+	FColor collisionColor2 = me->AttCollisionLF->IsCollisionEnabled() ? FColor::Red : FColor::White;
+	FString logMsgCollision2 = FString::Printf(TEXT("AttCollisionLF is enabled: %s"), me->AttCollisionLF->IsCollisionEnabled() ? TEXT("True") : TEXT("False"));
+	GEngine->AddOnScreenDebugMessage(11, 1, collisionColor2, logMsgCollision2);
+
+	// =================================================================
+	FColor collisionColor3 = me->AttCollisionRF->IsCollisionEnabled() ? FColor::Red : FColor::White;
+	FString logMsgCollision3 = FString::Printf(TEXT("AttCollisionRF is enabled: %s"), me->AttCollisionRF->IsCollisionEnabled() ? TEXT("True") : TEXT("False"));
+	GEngine->AddOnScreenDebugMessage(12, 1, collisionColor3, logMsgCollision3);
+
+	// =================================================================
+	FColor collisionColor4 = me->AttCollisionRF->IsCollisionEnabled() ? FColor::Red : FColor::White;
+	FString logMsgCollision4 = FString::Printf(TEXT("AttCollisionLB is enabled: %s"), me->AttCollisionLB->IsCollisionEnabled() ? TEXT("True") : TEXT("False"));
+	GEngine->AddOnScreenDebugMessage(13, 1, collisionColor4, logMsgCollision4);
+
+	// =================================================================
+	FColor collisionColor5 = me->AttCollisionRB->IsCollisionEnabled() ? FColor::Red : FColor::White;
+	FString logMsgCollision5 = FString::Printf(TEXT("AttCollisionRB is enabled: %s"), me->AttCollisionRB->IsCollisionEnabled() ? TEXT("True") : TEXT("False"));
+	GEngine->AddOnScreenDebugMessage(14, 1, collisionColor5, logMsgCollision5);
+
 
 #pragma endregion
 
@@ -194,11 +215,24 @@ void UCSafiFSM::IdleState()
 	// 돌아야 한다면 플레이어 방향으로 회전, 아닐시 return; - TargetRotationByAnim 에서 return;
 
 
+	currentTime += GetWorld()->DeltaTimeSeconds;			// 야매 조건 추가
+															// 야매 2
+	if (isRot == true)
+	{
+		CanMeleeAttack();
+		OnAttackProcess();
+
+		isRot = false;
+	}
+
+
 	// 돌아야 하는 값이 60도 이상이라면 TargetRotationByAnim으로 회전
-	if (isRot == false  && targetYaw >= 60.0f)
+	if (isRot == false  && targetYaw >= 60.0f || currentTime >= 3.f)
 	{
 		isRot = true;
 		TargetRotationByAnim();
+
+		currentTime = 0.f;
 	}
 
 
@@ -210,9 +244,10 @@ void UCSafiFSM::IdleState()
 		{
 			targetYaw = targetRot.Yaw;
 			
-			if (targetYaw <= 3.f)
-			{
-				me->SetActorRotation(targetRot);
+			if (targetYaw <= 1.f)
+			{	
+				// 급함 2
+				// me->SetActorRotation(targetRot);
 				CanMeleeAttack();
 				OnAttackProcess();
 			}
@@ -225,7 +260,7 @@ void UCSafiFSM::IdleState()
 void UCSafiFSM::CanMeleeAttack()	// SetAttackType으로 이름 바꾸고 근접공격 파트만 빼는것도 나쁘지 않을듯.
 {
 	FVector dir = SearchTarget();
-	int BFattType = attType;
+	
 
 	// 여기랑 섞어서 if문 돌리는것도 해보기.
 	if (me->attackPos == AttMELEE_LF || me->attackPos == AttMELEE_RF || me->attackPos == AttMELEE_LB || me->attackPos == AttMELEE_RB)
@@ -233,8 +268,8 @@ void UCSafiFSM::CanMeleeAttack()	// SetAttackType으로 이름 바꾸고 근접공격 파트�
 		// 이전 공격타입이 동일한 경우엔 바디 프레스로 전환
 
 		attType = me->attackPos;
-		if (BFattType == attType){ attType = AttBPRESS; }
-
+		if (BFattType == attType){ attType = AttBITE; }		// 임시 물기
+		
 		mTurnState = ETurnState::None;
 		Anim->aTurnState = mTurnState;
 		OnAttackProcess();
@@ -243,22 +278,34 @@ void UCSafiFSM::CanMeleeAttack()	// SetAttackType으로 이름 바꾸고 근접공격 파트�
 	// 우선 공격 사거리 체크, 사거리보다 멀리 있다면 브레스
 	else if (dir.Size() < me->MeleeAttRange )
 	{
-		int iMelee = FMath::RandRange(AttBITE, AttBITE + 1);
-		while (BFattType == iMelee)
-		{
-			iMelee = FMath::RandRange(AttBITE, AttBITE + 1);
-		}
-		attType = iMelee;
+		
+
+		// 효원아 미안하다 급했다. 고칠 시간이 없다
+	//	if (BFattType == AttBITE){ attType = AttBPRESS; }
+	//	else if (BFattType == AttBPRESS) { attType = AttBITE;}
+
+		attType = AttBITE;
+	//	attType = FMath::RandRange(AttBITE, AttBITE + 1);
+	//	while (BFattType == attType)
+	//	{
+	//		attType = FMath::RandRange(AttBITE, AttBITE + 1);
+	//	}
+
 	}
 
 	else
 	{
-		int iBreathType = FMath::RandRange(AttNMBREATH, AttNMBREATH + 1);
-		while (BFattType == iBreathType)
+
+	// 급했다 4
+	//	if (BFattType == AttNMBREATH) { attType = AttAIMBREATH; }
+	//	else if (BFattType == AttAIMBREATH) { attType = AttNMBREATH; }
+	//
+
+		attType = FMath::RandRange(AttNMBREATH, AttNMBREATH + 1);
+		while (BFattType == attType)
 		{
-			iBreathType = FMath::RandRange(AttNMBREATH, AttNMBREATH + 1);
+			attType = FMath::RandRange(AttNMBREATH, AttNMBREATH + 1);
 		}
-		attType = iBreathType;
 	}
 
 	// 해당 위치에 적이 없는 경우는 노티파이로 EndAttackProcess	- 수행 완료
@@ -353,13 +400,16 @@ void UCSafiFSM::AttBreath()
 	// 충돌한 대상이 있는지 체크
 	if (!bHit){ return; }
 
+
+
+
 	AActor* HitActor = Hit.GetActor();
 	if (!HitActor)
 	{ 
 		AHunter* hunter = Cast<AHunter>(HitActor);
 		if (hunter)
 		{
-			//Hunter->SetDamage(_value);
+			UGameplayStatics::ApplyDamage(hunter, 100.f, nullptr, hunter, nullptr);
 		}
 		return; 
 	}
@@ -444,22 +494,8 @@ void UCSafiFSM::EndAttackProcess()
 	mState = ESafiState::Idle;
 	Anim->aState = mState;
 	
-
-	//어떤 공격을 할 지 판별 	// 공격 타입 번호만 정해주기	
-
-	// 근접 공격 사거리 안쪽에 있다면 위치에 따라 공격
-	// 범위 내에 없다면 브레스 패턴으로	*우선은 정면 브레스만
-
 	me->isOnSearch = true;	// 공격할 때 꺼주기	- OnAttackProcess에 false 해줌
-
-
-
-	//CanMeleeAttack();		// 공격 가능 대상 있다면 바로 공격
-
-	//if 돌아야 한다면 플레이어 방향으로 회전, 아닐시 return;		- 수행완료
-	// ㄴ> 회전 적게해야할지 많이해야할지를 판단때려줌.				- 수행완료
-	// ㄴ> Idle에서 수행.											- 수행완료
-
+	BFattType = attType;
 }
 
 void UCSafiFSM::OnDisturbedProcess()
@@ -474,8 +510,6 @@ void UCSafiFSM::OnDisturbedProcess()
 	mTurnState = ETurnState::None;
 	Anim->aTurnState = mTurnState;
 
-	// 각도 측정 및 넉백()
-
 	// 조건에 따라 스위치
 	if (me->isDead == true)
 	{
@@ -484,10 +518,9 @@ void UCSafiFSM::OnDisturbedProcess()
 		return;								// Dead 일경우 하위 상황 판단할 필요가 없음
 	}
 
-
 	if (me->isKnockBack == true)
 	{ 
-		TargetKnockBackByAnim();
+		TargetKnockBackByAnim();		// 각도 측정 및 넉백			- 테스트 못함
 	}
 
 }
@@ -495,20 +528,21 @@ void UCSafiFSM::OnDisturbedProcess()
 
 void UCSafiFSM::TargetRotation()
 {
-	float DeltaTime = GetWorld()->DeltaTimeSeconds;
-	FVector dir = SearchTarget();
-
-	FRotator TargetRotation = dir.Rotation();
-	FRotator CurrentRotation = me->GetActorRotation();
-
-	FRotator NewRotation = FMath::RInterpTo(CurrentRotation , TargetRotation, DeltaTime, 2.f);
-
-
-	me->SetActorRotation(NewRotation);
+		float DeltaTime = GetWorld()->DeltaTimeSeconds;
+		FVector dir = SearchTarget();
+	
+		FRotator TargetRotation = dir.Rotation();
+		FRotator CurrentRotation = me->GetActorRotation();
+	
+		FRotator NewRotation = FMath::RInterpTo(CurrentRotation , TargetRotation, DeltaTime, 2.f);
+	
+	
+		me->SetActorRotation(NewRotation);
 }
 
 void UCSafiFSM::TargetRotationByAnim()
 {
+
 	FVector dir = SearchTarget();
 	FVector dirLocal = me->GetActorTransform().InverseTransformVectorNoScale(dir);	// 로컬 방향 계산
 
@@ -550,10 +584,12 @@ void UCSafiFSM::TargetRotationByAnim()
 
 	// 노티파이로 isOnSearch 꺼주기			- 수행완료
 	//	ㄴ OnAttackProcess도 같이			- 수행완료
+	
 }
 
 void UCSafiFSM::TargetKnockBackByAnim()
 {
+
 	FVector dir = SearchTarget();
 	FVector dirLocal = me->GetActorTransform().InverseTransformVectorNoScale(dir);
 
@@ -579,7 +615,7 @@ void UCSafiFSM::TargetKnockBackByAnim()
 
 	else if (dirLocal.Y < 0 && dirLocal.X > 0)	// 캐릭터가 좌측이지만 뒤는 아님
 	{
-		// 회전 좌측으로
+		// 왼쪽에서 오른쪽으로 밀려남
 		mDisturbState = EDisturbState::KB_Left;
 		Anim->aDisturbState = mDisturbState;
 	}
@@ -587,7 +623,7 @@ void UCSafiFSM::TargetKnockBackByAnim()
 
 	else if (dirLocal.Y > 0 && dirLocal.X > 0)	// 캐릭터가 우측이지만 뒤는 아님
 	{
-		// 회전 우측으로
+		// 오른쪽에서 왼쪽으로			-- 애니메이션 아직 없음... 
 		mDisturbState = EDisturbState::KB_Right;
 		Anim->aDisturbState = mDisturbState;
 	}

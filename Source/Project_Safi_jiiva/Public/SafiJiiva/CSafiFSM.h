@@ -168,4 +168,5 @@ public:
 
 public:
 	bool isRot = false;				// 좀 한 번만 돌자 :)....
+	int BFattType = 0;
 };

@@ -51,6 +51,21 @@ public: //기본 세팅 파트
 
 public:	// 소켓 추가 파트
 #pragma region CollisionSocketPart
+// =================== 피격용 콜리전 ===================
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DMG)
+	class UBoxComponent* DMGCollision_LF;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DMG)
+	class UBoxComponent* DMGCollision_LB;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DMG)
+	class UBoxComponent* DMGCollision_RF;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DMG)
+	class UBoxComponent* DMGCollision_RB;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = DMG)
+	class UBoxComponent* DMGCollision_Head;
 
 // =================== 공격용 콜리전 ===================
 	UPROPERTY(EditDefaultsOnly)
@@ -87,16 +102,16 @@ private:	// 함수용 변수들
 	float currentTime = 0.f;
 
 public:	// 체력 등 스탯 계수
-	float MAXHP = 1500.f;
+	float MAXHP = 1200.f;
 	float hp = MAXHP;
 	float MeleeBiteDMG = 30.f;	// 물기 데미지
 
 	int RepellCount = 0;
-	int MAXRepellCount = 5;
+	int MAXRepellCount = 3;
 
 public:	// 사거리, 속도 등
 	float MeleeAttRange = 2000.f;
-	float SearchRange = 5000.f;
+	float SearchRange = 8000.f;
 	float MaxBreathRange = 5000.f;
 
 	float RunSpeed = 400.f;

@@ -92,6 +92,18 @@ void UCSafiAnimInstance::AnimNotify_AttBreath_End()
 	me->isOnBreath = false;
 }
 
+void UCSafiAnimInstance::AnimNotify_AttLeg_Start()
+{
+	if (!me || !FSM) { return; }
+	me->isFootAttack = true;
+}
+
+void UCSafiAnimInstance::AnimNotify_AttLeg_End()
+{
+	if (!me || !FSM) { return; }
+	me->isFootAttack = false;
+}
+
 void UCSafiAnimInstance::AnimNotify_Attack_End()
 {
 	if (!me || !FSM) { return; }
