@@ -4,6 +4,7 @@
 // 무페토지바 각도가 빠르게 회전한다면 Idle 회전값 조건이 잘못 걸려있는 것임. 조정하면 돌아옴.
 // Idle에 있는 각도별 모션판정은 Server 기준으로 판정하게 하기.	- 잘못하면 유저별로 몹 모션 다르게 나옴
 
+
 #include "SafiJiiva/CSafiFSM.h"
 #include "Kismet/GameplayStatics.h"
 #include "Hunter/Hunter.h"

@@ -1,6 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 // 애가 월보를 한다... Location z -90 / 비행상태는 isFly로 체크
 
+// GameTarceChannel 1 -> Safi
+// GameTarceChannel 2 -> Test
+// GameTarceChannel 3 -> Attack
+// GameTarceChannel 4 -> SafiAttack
 
 #include "SafiJiiva/CSafiJiiva.h"
 #include "Engine/SkeletalMesh.h"
@@ -63,7 +67,133 @@ ACSafiJiiva::ACSafiJiiva()
 
 //========================= 콜리전 세팅 파트
 
-#pragma  region Collision
+// =================== 피격용 콜리전 ===================
+#pragma region BodyCollision
+
+	// 머리
+	BodyColHead = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyColHead"));
+	BodyColHead->SetupAttachment(SafiComponent, TEXT("Socket_BiteDMGBox"));
+	BodyColHead->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	BodyColHead->SetCollisionResponseToAllChannels(ECR_Overlap);
+
+	BodyColNeck_1 = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyColNeck_1"));
+	BodyColNeck_1->SetupAttachment(SafiComponent, TEXT("Socket_Neck_1"));
+	BodyColNeck_1->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	BodyColNeck_1->SetCollisionResponseToAllChannels(ECR_Overlap);
+	BodyColNeck_2 = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyColNeck_2"));
+	BodyColNeck_2->SetupAttachment(SafiComponent, TEXT("Socket_Neck_2"));
+	BodyColNeck_2->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	BodyColNeck_2->SetCollisionResponseToAllChannels(ECR_Overlap);
+
+	BodyCol_1 = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyCol_1"));
+	BodyCol_1->SetupAttachment(SafiComponent, TEXT("Socket_Body_1"));
+	BodyCol_1->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	BodyCol_1->SetCollisionResponseToAllChannels(ECR_Overlap);
+
+	// 꼬리 콜리전
+	for (int32 i = 1; i <= 3; ++i)
+	{
+		FString CompName = FString::Printf(TEXT("BodyColTail_%d"), i);
+		UBoxComponent* TailBox = CreateDefaultSubobject<UBoxComponent>(*CompName);
+
+		FString SocketName = FString::Printf(TEXT("Socket_Tail_%d"), i);
+		TailBox->SetupAttachment(SafiComponent, FName(*SocketName));
+
+		TailBox->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		TailBox->SetCollisionResponseToAllChannels(ECR_Overlap);
+
+		TailBox->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
+		TailBox->SetBoxExtent(FVector(150.f, 150.f, 400.f));
+
+		TailCollisionBoxes.Add(TailBox);
+
+		// 태그 붙이기 (데미지 분기용)
+		TailBox->ComponentTags.Add(FName("Tail"));
+	}
+
+
+
+#pragma endregion BodyCollision
+
+#pragma region LegCollision
+	// 왼쪽 앞다리 (Left Front)
+	BodyColLF_1 = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyColLF_1"));
+	BodyColLF_1->SetupAttachment(SafiComponent, TEXT("Socket_LegLF_1"));
+	BodyColLF_1->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	BodyColLF_1->SetCollisionResponseToAllChannels(ECR_Overlap);
+
+	BodyColLF_2 = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyColLF_2"));
+	BodyColLF_2->SetupAttachment(SafiComponent, TEXT("Socket_LegLF_2"));
+	BodyColLF_2->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	BodyColLF_2->SetCollisionResponseToAllChannels(ECR_Overlap);
+
+	BodyColLF_3 = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyColLF_3"));
+	BodyColLF_3->SetupAttachment(SafiComponent, TEXT("Socket_LegLF_3"));
+	BodyColLF_3->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	BodyColLF_3->SetCollisionResponseToAllChannels(ECR_Overlap);
+
+	// 오른쪽 앞다리 (Right Front)
+	BodyColRF_1 = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyColRF_1"));
+	BodyColRF_1->SetupAttachment(SafiComponent, TEXT("Socket_LegRF_1"));
+	BodyColRF_1->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	BodyColRF_1->SetCollisionResponseToAllChannels(ECR_Overlap);
+
+	BodyColRF_2 = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyColRF_2"));
+	BodyColRF_2->SetupAttachment(SafiComponent, TEXT("Socket_LegRF_2"));
+	BodyColRF_2->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	BodyColRF_2->SetCollisionResponseToAllChannels(ECR_Overlap);
+
+	BodyColRF_3 = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyColRF_3"));
+	BodyColRF_3->SetupAttachment(SafiComponent, TEXT("Socket_LegRF_3"));
+	BodyColRF_3->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	BodyColRF_3->SetCollisionResponseToAllChannels(ECR_Overlap);
+
+	// 왼쪽 뒷다리 (Left Back)
+	BodyColLB_1 = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyColLB_1"));
+	BodyColLB_1->SetupAttachment(SafiComponent, TEXT("Socket_LegLB_1"));
+	BodyColLB_1->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	BodyColLB_1->SetCollisionResponseToAllChannels(ECR_Overlap);
+
+	BodyColLB_2 = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyColLB_2"));
+	BodyColLB_2->SetupAttachment(SafiComponent, TEXT("Socket_LegLB_2"));
+	BodyColLB_2->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	BodyColLB_2->SetCollisionResponseToAllChannels(ECR_Overlap);
+
+	BodyColLB_3 = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyColLB_3"));
+	BodyColLB_3->SetupAttachment(SafiComponent, TEXT("Socket_LegLB_3"));
+	BodyColLB_3->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	BodyColLB_3->SetCollisionResponseToAllChannels(ECR_Overlap);
+
+	BodyColLB_4 = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyColLB_4"));
+	BodyColLB_4->SetupAttachment(SafiComponent, TEXT("Socket_LegLB_4"));
+	BodyColLB_4->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	BodyColLB_4->SetCollisionResponseToAllChannels(ECR_Overlap);
+
+	// 오른쪽 뒷다리 (Right Back)
+	BodyColRB_1 = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyColRB_1"));
+	BodyColRB_1->SetupAttachment(SafiComponent, TEXT("Socket_LegRB_1"));
+	BodyColRB_1->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	BodyColRB_1->SetCollisionResponseToAllChannels(ECR_Overlap);
+
+	BodyColRB_2 = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyColRB_2"));
+	BodyColRB_2->SetupAttachment(SafiComponent, TEXT("Socket_LegRB_2"));
+	BodyColRB_2->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	BodyColRB_2->SetCollisionResponseToAllChannels(ECR_Overlap);
+
+	BodyColRB_3 = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyColRB_3"));
+	BodyColRB_3->SetupAttachment(SafiComponent, TEXT("Socket_LegRB_3"));
+	BodyColRB_3->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	BodyColRB_3->SetCollisionResponseToAllChannels(ECR_Overlap);
+
+	BodyColRB_4 = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyColRB_4"));
+	BodyColRB_4->SetupAttachment(SafiComponent, TEXT("Socket_LegRB_4"));
+	BodyColRB_4->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	BodyColRB_4->SetCollisionResponseToAllChannels(ECR_Overlap);
+
+#pragma endregion LegCollision
+
+// 공격 콜리전 위치/사이즈
+#pragma region AttCollision
 // =================== 공격용 콜리전 ===================
 
 	AttCollisionBite = CreateDefaultSubobject<UBoxComponent>(TEXT("AttCollisionBite"));	// 머리
@@ -72,22 +202,22 @@ ACSafiJiiva::ACSafiJiiva()
 	AttCollisionBite->SetCollisionResponseToAllChannels(ECR_Overlap);
 
 	AttCollisionLF = CreateDefaultSubobject<UBoxComponent>(TEXT("AttCollisionLF"));		// 왼손
-	AttCollisionLF->SetupAttachment(SafiComponent, TEXT("Socket_LF"));
+	AttCollisionLF->SetupAttachment(SafiComponent, TEXT("Socket_LegLF_3"));
 	AttCollisionLF->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	AttCollisionLF->SetCollisionResponseToAllChannels(ECR_Overlap);
 
 	AttCollisionRF = CreateDefaultSubobject<UBoxComponent>(TEXT("AttCollisionRF"));		// 오른손
-	AttCollisionRF->SetupAttachment(SafiComponent, TEXT("Socket_RF"));
+	AttCollisionRF->SetupAttachment(SafiComponent, TEXT("Socket_LegRF_3"));
 	AttCollisionRF->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	AttCollisionRF->SetCollisionResponseToAllChannels(ECR_Overlap);
 
 	AttCollisionLB = CreateDefaultSubobject<UBoxComponent>(TEXT("AttCollisionLB"));		// 왼발
-	AttCollisionLB->SetupAttachment(SafiComponent, TEXT("Socket_LB"));
+	AttCollisionLB->SetupAttachment(SafiComponent, TEXT("Socket_LegLB_4"));
 	AttCollisionLB->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	AttCollisionLB->SetCollisionResponseToAllChannels(ECR_Overlap);
 
 	AttCollisionRB = CreateDefaultSubobject<UBoxComponent>(TEXT("AttCollisionRB"));		// 오른발
-	AttCollisionRB->SetupAttachment(SafiComponent, TEXT("Socket_RB"));
+	AttCollisionRB->SetupAttachment(SafiComponent, TEXT("Socket_LegRB_4"));
 	AttCollisionRB->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	AttCollisionRB->SetCollisionResponseToAllChannels(ECR_Overlap);
 
@@ -116,11 +246,12 @@ ACSafiJiiva::ACSafiJiiva()
 	AttPosRB->SetupAttachment(SafiComponent);
 	AttPosRB->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	AttPosRB->SetCollisionResponseToAllChannels(ECR_Overlap);
-#pragma  endregion Collision
+#pragma endregion AttCollision
 
+// 데미지 콜리전 위치/사이즈
+#pragma region Location&Extent_DMG
 
-#pragma region Location&Extent
-// ========================= 박스 위치 설정 파트
+	// =================== 공격용 위치===================
 
 	AttCollisionLF->SetRelativeLocation(FVector(5.f, 0.f, 110.f));
 	AttCollisionRF->SetRelativeLocation(FVector(5.f, 0.f, 110.f));
@@ -132,10 +263,10 @@ ACSafiJiiva::ACSafiJiiva()
 	AttPosLB->SetRelativeLocation(FVector(650.f, -350.f, 160.f));
 	AttPosRB->SetRelativeLocation(FVector(-650.f, -350.f, 160.f));
 
-// ========================= 박스 크기 설정 파트
 
+
+	// =================== 공격용 박스 사이즈===================
 	AttCollisionBite->SetBoxExtent(FVector(70.f, 80.f, 150.f));
-
 	AttCollisionLF->SetBoxExtent(FVector(180.f, 70.f, 170.f));
 	AttCollisionRF->SetBoxExtent(FVector(180.f, 70.f, 170.f));
 	AttCollisionLB->SetBoxExtent(FVector(140.f, 70.f, 180.f));
@@ -146,15 +277,76 @@ ACSafiJiiva::ACSafiJiiva()
 	AttPosLB->SetBoxExtent(FVector(200.f));
 	AttPosRB->SetBoxExtent(FVector(200.f));
 
+#pragma endregion Location&Extent_DMG
 
-#pragma endregion Location&Extent
+// 몸 콜리전 위치/사이즈
+#pragma region Location&Extent_Body
+// ========================= 박스 크기& 위치 설정 파트
+	BodyColHead->SetRelativeLocation(FVector(0.f, -50.f, -60.f));
+	BodyColHead->SetBoxExtent(FVector(130.f, 130.f, 210.f));
 
+	BodyColNeck_1->SetRelativeLocation(FVector(0.f, -50.f, 0.f));
+	BodyColNeck_1->SetBoxExtent(FVector(150.f, 140.f, 190.f));
+	BodyColNeck_2->SetRelativeLocation(FVector(0.f, -30.f, 0.f));
+	BodyColNeck_2->SetBoxExtent(FVector(130.f, 120.f, 190.f));
+
+	BodyCol_1->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
+	BodyCol_1->SetBoxExtent(FVector(300.f, 300.f, 400.f));
+
+
+#pragma endregion Location&Extent_Body
+
+
+// 다리 콜리전 위치/사이즈
+#pragma region Location&Extent_LEG
+// ========================= 박스 크기& 위치 설정 파트 (Body)
+	BodyColLF_1->SetRelativeLocation(FVector(0.f, 100.f, 00.f));
+	BodyColLF_1->SetBoxExtent(FVector(150.f, 250.f, 150.f));
+	BodyColLF_2->SetRelativeLocation(FVector(0.f, 160.f, 0.f));
+	BodyColLF_2->SetBoxExtent(FVector(100.f, 250.f, 100.f));
+	BodyColLF_3->SetRelativeLocation(FVector(5.f, 0.f, 110.f));
+	BodyColLF_3->SetBoxExtent(FVector(180.f, 70.f, 170.f));
+
+	BodyColRF_1->SetRelativeLocation(FVector(0.f, 100.f, 00.f));
+	BodyColRF_1->SetBoxExtent(FVector(150.f, 250.f, 150.f));
+	BodyColRF_2->SetRelativeLocation(FVector(0.f, 160.f, 0.f));
+	BodyColRF_2->SetBoxExtent(FVector(100.f, 250.f, 100.f));
+	BodyColRF_3->SetRelativeLocation(FVector(5.f, 0.f, 110.f));
+	BodyColRF_3->SetBoxExtent(FVector(180.f, 70.f, 170.f));
+
+	BodyColLB_1->SetRelativeLocation(FVector(0.f, 150.f, 30.f));
+	BodyColLB_1->SetBoxExtent(FVector(150.f, 250.f, 150.f));
+	BodyColLB_2->SetRelativeLocation(FVector(0.f, 100.f, 0.f));
+	BodyColLB_2->SetBoxExtent(FVector(130.f, 180.f, 100.f));
+	BodyColLB_3->SetRelativeLocation(FVector(0.f, 100.f, 0.f));
+	BodyColLB_3->SetBoxExtent(FVector(80.f, 190.f, 80.f));
+	BodyColLB_4->SetRelativeLocation(FVector(25.f, 0.f, 130.f));
+	BodyColLB_4->SetBoxExtent(FVector(140.f, 70.f, 180.f));
+
+	BodyColRB_1->SetRelativeLocation(FVector(0.f, 150.f, -40.f));
+	BodyColRB_1->SetBoxExtent(FVector(150.f, 250.f, 150.f));
+	BodyColRB_2->SetRelativeLocation(FVector(0.f, 100.f, 0.f));
+	BodyColRB_2->SetBoxExtent(FVector(130.f, 180.f, 100.f));
+	BodyColRB_3->SetRelativeLocation(FVector(0.f, 100.f, 0.f));
+	BodyColRB_3->SetBoxExtent(FVector(80.f, 190.f, 80.f));
+	BodyColRB_4->SetRelativeLocation(FVector(-40.f, 0.f, 130.f));
+	BodyColRB_4->SetBoxExtent(FVector(140.f, 70.f, 180.f));
+
+#pragma endregion Location&Extent_LEG
+// =====================================================================
 
 //콜리전 충돌 파트
 #pragma region BeginOverlap
 
-	AttCollisionBite->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+/*
+	BodyColHead->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+	BodyColLF_3->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+	BodyColRF_3->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+	BodyColLB_4->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+	BodyColRB_4->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+*/
 
+	AttCollisionBite->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
 	AttCollisionLF->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
 	AttCollisionRF->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
 	AttCollisionLB->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
@@ -443,5 +635,4 @@ void ACSafiJiiva::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, clas
 	// Tick에서 스테이터스 체크해서 isDisturbed 체크		- AnimInstance쪽 isDisturbedA와 연동 완료
 
 }
-
 

@@ -52,7 +52,65 @@ public: //기본 세팅 파트
 public:	// 소켓 추가 파트
 #pragma region CollisionSocketPart
 
+// =================== 피격용 콜리전 ===================
+#pragma region Collision_Body
+
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* BodyColHead;
+
+
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* BodyColNeck_1;
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* BodyColNeck_2;
+
+
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* BodyCol_1;
+
+
+	UPROPERTY()
+	TArray<UBoxComponent*> TailCollisionBoxes;
+
+
+#pragma endregion Collision_Body
+
+#pragma region Collision_Leg
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* BodyColLF_1;
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* BodyColLF_2;
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* BodyColLF_3;
+
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* BodyColRF_1;
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* BodyColRF_2;
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* BodyColRF_3;
+
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* BodyColLB_1;
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* BodyColLB_2;
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* BodyColLB_3;
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* BodyColLB_4;
+
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* BodyColRB_1;
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* BodyColRB_2;
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* BodyColRB_3;
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* BodyColRB_4;
+#pragma endregion Collision_Leg
+
 // =================== 공격용 콜리전 ===================
+#pragma region Collision_Att
 	UPROPERTY(EditDefaultsOnly)
 	class UBoxComponent* AttCollisionBite;
 
@@ -80,8 +138,8 @@ public:	// 소켓 추가 파트
 
 	UPROPERTY(EditDefaultsOnly)
 	class UBoxComponent* AttPosRB;
+#pragma endregion Collision_Att
 
-#pragma endregion
 
 private:	// 함수용 변수들
 	float currentTime = 0.f;
