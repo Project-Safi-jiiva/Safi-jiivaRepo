@@ -34,9 +34,9 @@ ACSafiJiiva::ACSafiJiiva()
 		SafiComponent->SetRelativeLocation(FVector(0.f, 0.f, -90.f));
 		SafiComponent->SetRelativeRotation(FRotator( 0.f, -90.f, 0.f));
 
-		//SafiComponent->SetRelativeScale3D(FVector(0.45f));
-
-		SafiComponent->SetCollisionObjectType(ECC_GameTraceChannel1);
+		SafiComponent->SetRelativeScale3D(FVector(1.f));
+		//SafiComponent->SetCollisionObjectType(ECC_GameTraceChannel1);
+		SafiComponent->SetCollisionProfileName(TEXT("SafiBody"));
 
 		// 훈타 몇채널인지 보기
 		// SafiComponent->SetCollisionResponseToChannel(ECC_GameTraceChannel2, ECR_Overlap);
@@ -61,6 +61,7 @@ ACSafiJiiva::ACSafiJiiva()
 		SkeletalMeshComp->bEnablePerPolyCollision = true;
 		SkeletalMeshComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		SkeletalMeshComp->SetCollisionResponseToAllChannels(ECR_Overlap);
+		SkeletalMeshComp->SetCollisionProfileName(TEXT("SafiBody"));
 	}
 
 #pragma endregion Components
@@ -73,22 +74,19 @@ ACSafiJiiva::ACSafiJiiva()
 	// 머리
 	BodyColHead = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyColHead"));
 	BodyColHead->SetupAttachment(SafiComponent, TEXT("Socket_BiteDMGBox"));
-	BodyColHead->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	BodyColHead->SetCollisionResponseToAllChannels(ECR_Overlap);
+	BodyColHead->SetCollisionProfileName(TEXT("SafiBody"));
 
 	BodyColNeck_1 = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyColNeck_1"));
 	BodyColNeck_1->SetupAttachment(SafiComponent, TEXT("Socket_Neck_1"));
-	BodyColNeck_1->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	BodyColNeck_1->SetCollisionResponseToAllChannels(ECR_Overlap);
+	BodyColNeck_1->SetCollisionProfileName(TEXT("SafiBody"));
+
 	BodyColNeck_2 = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyColNeck_2"));
 	BodyColNeck_2->SetupAttachment(SafiComponent, TEXT("Socket_Neck_2"));
-	BodyColNeck_2->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	BodyColNeck_2->SetCollisionResponseToAllChannels(ECR_Overlap);
+	BodyColNeck_2->SetCollisionProfileName(TEXT("SafiBody"));
 
 	BodyCol_1 = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyCol_1"));
 	BodyCol_1->SetupAttachment(SafiComponent, TEXT("Socket_Body_1"));
-	BodyCol_1->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	BodyCol_1->SetCollisionResponseToAllChannels(ECR_Overlap);
+	BodyCol_1->SetCollisionProfileName(TEXT("SafiBody"));
 
 	// 꼬리 콜리전
 	for (int32 i = 1; i <= 3; ++i)
@@ -99,8 +97,7 @@ ACSafiJiiva::ACSafiJiiva()
 		FString SocketName = FString::Printf(TEXT("Socket_Tail_%d"), i);
 		TailBox->SetupAttachment(SafiComponent, FName(*SocketName));
 
-		TailBox->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		TailBox->SetCollisionResponseToAllChannels(ECR_Overlap);
+		TailBox->SetCollisionProfileName(TEXT("SafiBody"));
 
 		TailBox->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
 		TailBox->SetBoxExtent(FVector(150.f, 150.f, 400.f));
@@ -119,76 +116,64 @@ ACSafiJiiva::ACSafiJiiva()
 	// 왼쪽 앞다리 (Left Front)
 	BodyColLF_1 = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyColLF_1"));
 	BodyColLF_1->SetupAttachment(SafiComponent, TEXT("Socket_LegLF_1"));
-	BodyColLF_1->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	BodyColLF_1->SetCollisionResponseToAllChannels(ECR_Overlap);
+	BodyColLF_1->SetCollisionProfileName(TEXT("SafiBody"));
 
 	BodyColLF_2 = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyColLF_2"));
 	BodyColLF_2->SetupAttachment(SafiComponent, TEXT("Socket_LegLF_2"));
-	BodyColLF_2->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	BodyColLF_2->SetCollisionResponseToAllChannels(ECR_Overlap);
+	BodyColLF_2->SetCollisionProfileName(TEXT("SafiBody"));
 
 	BodyColLF_3 = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyColLF_3"));
 	BodyColLF_3->SetupAttachment(SafiComponent, TEXT("Socket_LegLF_3"));
-	BodyColLF_3->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	BodyColLF_3->SetCollisionResponseToAllChannels(ECR_Overlap);
+	BodyColLF_3->SetCollisionProfileName(TEXT("SafiBody"));
+
 
 	// 오른쪽 앞다리 (Right Front)
 	BodyColRF_1 = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyColRF_1"));
 	BodyColRF_1->SetupAttachment(SafiComponent, TEXT("Socket_LegRF_1"));
-	BodyColRF_1->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	BodyColRF_1->SetCollisionResponseToAllChannels(ECR_Overlap);
+	BodyColRF_1->SetCollisionProfileName(TEXT("SafiBody"));
+
 
 	BodyColRF_2 = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyColRF_2"));
 	BodyColRF_2->SetupAttachment(SafiComponent, TEXT("Socket_LegRF_2"));
-	BodyColRF_2->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	BodyColRF_2->SetCollisionResponseToAllChannels(ECR_Overlap);
+	BodyColRF_2->SetCollisionProfileName(TEXT("SafiBody"));
 
 	BodyColRF_3 = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyColRF_3"));
 	BodyColRF_3->SetupAttachment(SafiComponent, TEXT("Socket_LegRF_3"));
-	BodyColRF_3->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	BodyColRF_3->SetCollisionResponseToAllChannels(ECR_Overlap);
+	BodyColRF_3->SetCollisionProfileName(TEXT("SafiBody"));
 
 	// 왼쪽 뒷다리 (Left Back)
 	BodyColLB_1 = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyColLB_1"));
 	BodyColLB_1->SetupAttachment(SafiComponent, TEXT("Socket_LegLB_1"));
-	BodyColLB_1->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	BodyColLB_1->SetCollisionResponseToAllChannels(ECR_Overlap);
+	BodyColLB_1->SetCollisionProfileName(TEXT("SafiBody"));
 
 	BodyColLB_2 = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyColLB_2"));
 	BodyColLB_2->SetupAttachment(SafiComponent, TEXT("Socket_LegLB_2"));
-	BodyColLB_2->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	BodyColLB_2->SetCollisionResponseToAllChannels(ECR_Overlap);
+	BodyColLB_2->SetCollisionProfileName(TEXT("SafiBody"));
 
 	BodyColLB_3 = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyColLB_3"));
 	BodyColLB_3->SetupAttachment(SafiComponent, TEXT("Socket_LegLB_3"));
-	BodyColLB_3->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	BodyColLB_3->SetCollisionResponseToAllChannels(ECR_Overlap);
+	BodyColLB_3->SetCollisionProfileName(TEXT("SafiBody"));
 
 	BodyColLB_4 = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyColLB_4"));
 	BodyColLB_4->SetupAttachment(SafiComponent, TEXT("Socket_LegLB_4"));
-	BodyColLB_4->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	BodyColLB_4->SetCollisionResponseToAllChannels(ECR_Overlap);
+	BodyColLB_4->SetCollisionProfileName(TEXT("SafiBody"));
 
 	// 오른쪽 뒷다리 (Right Back)
 	BodyColRB_1 = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyColRB_1"));
 	BodyColRB_1->SetupAttachment(SafiComponent, TEXT("Socket_LegRB_1"));
-	BodyColRB_1->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	BodyColRB_1->SetCollisionResponseToAllChannels(ECR_Overlap);
+	BodyColRB_1->SetCollisionProfileName(TEXT("SafiBody"));
 
 	BodyColRB_2 = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyColRB_2"));
 	BodyColRB_2->SetupAttachment(SafiComponent, TEXT("Socket_LegRB_2"));
-	BodyColRB_2->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	BodyColRB_2->SetCollisionResponseToAllChannels(ECR_Overlap);
+	BodyColRB_2->SetCollisionProfileName(TEXT("SafiBody"));
 
 	BodyColRB_3 = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyColRB_3"));
 	BodyColRB_3->SetupAttachment(SafiComponent, TEXT("Socket_LegRB_3"));
-	BodyColRB_3->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	BodyColRB_3->SetCollisionResponseToAllChannels(ECR_Overlap);
+	BodyColRB_3->SetCollisionProfileName(TEXT("SafiBody"));
 
 	BodyColRB_4 = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyColRB_4"));
 	BodyColRB_4->SetupAttachment(SafiComponent, TEXT("Socket_LegRB_4"));
-	BodyColRB_4->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	BodyColRB_4->SetCollisionResponseToAllChannels(ECR_Overlap);
+	BodyColRB_4->SetCollisionProfileName(TEXT("SafiBody"));
 
 #pragma endregion LegCollision
 
@@ -200,26 +185,44 @@ ACSafiJiiva::ACSafiJiiva()
 	AttCollisionBite->SetupAttachment(SafiComponent, TEXT("Socket_BiteDMGBox"));
 	AttCollisionBite->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	AttCollisionBite->SetCollisionResponseToAllChannels(ECR_Overlap);
+	AttCollisionBite->SetCollisionProfileName(TEXT("SafiAttack"));
+	AttCollisionBite->SetCollisionObjectType(ECC_Pawn);
 
 	AttCollisionLF = CreateDefaultSubobject<UBoxComponent>(TEXT("AttCollisionLF"));		// 왼손
 	AttCollisionLF->SetupAttachment(SafiComponent, TEXT("Socket_LegLF_3"));
 	AttCollisionLF->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	AttCollisionLF->SetCollisionResponseToAllChannels(ECR_Overlap);
+	AttCollisionLF->SetCollisionProfileName(TEXT("SafiAttack"));
+	AttCollisionLF->SetCollisionObjectType(ECC_Pawn);
 
 	AttCollisionRF = CreateDefaultSubobject<UBoxComponent>(TEXT("AttCollisionRF"));		// 오른손
 	AttCollisionRF->SetupAttachment(SafiComponent, TEXT("Socket_LegRF_3"));
 	AttCollisionRF->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	AttCollisionRF->SetCollisionResponseToAllChannels(ECR_Overlap);
+	AttCollisionRF->SetCollisionProfileName(TEXT("SafiAttack"));
+	AttCollisionRF->SetCollisionObjectType(ECC_Pawn);
 
 	AttCollisionLB = CreateDefaultSubobject<UBoxComponent>(TEXT("AttCollisionLB"));		// 왼발
 	AttCollisionLB->SetupAttachment(SafiComponent, TEXT("Socket_LegLB_4"));
 	AttCollisionLB->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	AttCollisionLB->SetCollisionResponseToAllChannels(ECR_Overlap);
+	AttCollisionLB->SetCollisionProfileName(TEXT("SafiAttack"));
+	AttCollisionLB->SetCollisionObjectType(ECC_Pawn);
 
 	AttCollisionRB = CreateDefaultSubobject<UBoxComponent>(TEXT("AttCollisionRB"));		// 오른발
 	AttCollisionRB->SetupAttachment(SafiComponent, TEXT("Socket_LegRB_4"));
 	AttCollisionRB->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	AttCollisionRB->SetCollisionResponseToAllChannels(ECR_Overlap);
+	AttCollisionRB->SetCollisionProfileName(TEXT("SafiAttack"));
+	AttCollisionRB->SetCollisionObjectType(ECC_Pawn);
+
+
+	BodyCol_2 = CreateDefaultSubobject<UBoxComponent>(TEXT("BodyCol_2"));
+	BodyCol_2->SetupAttachment(SafiComponent, TEXT("Socket_Body_1"));
+	BodyCol_2->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	BodyCol_2->SetCollisionResponseToAllChannels(ECR_Overlap);
+	BodyCol_2->SetCollisionProfileName(TEXT("SafiBody"));
+	BodyCol_2->SetCollisionObjectType(ECC_Pawn);
 
 
 
@@ -227,8 +230,9 @@ ACSafiJiiva::ACSafiJiiva()
 
 	AttPosLF = CreateDefaultSubobject<UBoxComponent>(TEXT("AttPosLF"));
 	AttPosLF->SetupAttachment(SafiComponent);
-	AttPosLF->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	AttPosLF->SetCollisionResponseToAllChannels(ECR_Overlap);
+	AttPosLF->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 
 
 	AttPosRF = CreateDefaultSubobject<UBoxComponent>(TEXT("AttPosRF"));
@@ -263,14 +267,17 @@ ACSafiJiiva::ACSafiJiiva()
 	AttPosLB->SetRelativeLocation(FVector(650.f, -350.f, 160.f));
 	AttPosRB->SetRelativeLocation(FVector(-650.f, -350.f, 160.f));
 
+	BodyCol_2->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
+	BodyCol_2->SetBoxExtent(FVector(350.f, 350.f, 500.f));
 
 
 	// =================== 공격용 박스 사이즈===================
 	AttCollisionBite->SetBoxExtent(FVector(70.f, 80.f, 150.f));
-	AttCollisionLF->SetBoxExtent(FVector(180.f, 70.f, 170.f));
-	AttCollisionRF->SetBoxExtent(FVector(180.f, 70.f, 170.f));
-	AttCollisionLB->SetBoxExtent(FVector(140.f, 70.f, 180.f));
-	AttCollisionRB->SetBoxExtent(FVector(140.f, 70.f, 180.f));
+	AttCollisionLF->SetBoxExtent(FVector(180.f));
+	AttCollisionRF->SetBoxExtent(FVector(180.f));
+	AttCollisionLB->SetBoxExtent(FVector(180.f));
+	AttCollisionRB->SetBoxExtent(FVector(180.f));
+
 
 	AttPosLF->SetBoxExtent(FVector(200.f));
 	AttPosRF->SetBoxExtent(FVector(200.f));
@@ -346,16 +353,45 @@ ACSafiJiiva::ACSafiJiiva()
 	BodyColRB_4->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
 */
 
-	AttCollisionBite->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
-	AttCollisionLF->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
-	AttCollisionRF->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
-	AttCollisionLB->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
-	AttCollisionRB->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+	AttCollisionBite->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnAttackOverlapBegin);
+	AttCollisionLF->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnAttackOverlapBegin);
+	AttCollisionRF->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnAttackOverlapBegin);
+	AttCollisionLB->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnAttackOverlapBegin);
+	AttCollisionRB->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnAttackOverlapBegin);
+	BodyCol_2->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnAttackOverlapBegin);
+
+
+
+//==============================================================================
+
+	BodyColHead->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+	BodyColNeck_1->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+	BodyColNeck_2->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
 
 	AttPosLF->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
 	AttPosRF->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
 	AttPosLB->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
 	AttPosRB->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+	BodyCol_1->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+
+	BodyColLF_1->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+	BodyColLF_2->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+	BodyColLF_3->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+
+	BodyColRF_1->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+	BodyColRF_2->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+	BodyColRF_3->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+
+	BodyColLB_1->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+	BodyColLB_2->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+	BodyColLB_3->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+	BodyColLB_4->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+
+	BodyColRB_1->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+	BodyColRB_2->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+	BodyColRB_3->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+	BodyColRB_4->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
+
 
 	SkeletalMeshComp->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
 
@@ -373,8 +409,6 @@ void ACSafiJiiva::BeginPlay()
 void ACSafiJiiva::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
-
 // ============================= 테스트용 Tick 데미지 =============================
 //
 //	currentTime += DeltaTime;
@@ -388,8 +422,7 @@ void ACSafiJiiva::Tick(float DeltaTime)
 //	}
 //
 //==================================================================================
-
-
+// 
 	// 노티파이 제어시 생길 문제들 없애는 용도 :D...
 	if (isDisturbed == true)
 	{
@@ -403,13 +436,31 @@ void ACSafiJiiva::Tick(float DeltaTime)
 
 	// 콜리전 활성화, 비활성화 파트
 #pragma region CollisionEnable
+
+// 몸통공격 콜리전 활성화 / 비활성화
+	if (isOnBodyPress == true) { BodyCol_2->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics); }
+	else
+	{
+		BodyCol_2->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+
+
 // 머리공격 콜리전 활성화 / 비활성화
-	if (isOnAttBite == true) { AttCollisionBite->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics); }
-	else { AttCollisionBite->SetCollisionEnabled(ECollisionEnabled::NoCollision); }
+	if (isOnBodyPress == true || isOnAttBite == true) 
+	{ AttCollisionBite->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics); }
+	else 
+	{ 
+		AttCollisionBite->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
 
 // 다리공격 콜리전 활성화 / 비활성화
-	if (isFootAttack == true)
+	if (isOnBodyPress == true || isFootAttack == true)
 	{
+		AttCollisionLF->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		AttCollisionRF->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		AttCollisionLB->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		AttCollisionRB->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		/*
 		switch (attackPos)
 		{
 		case AttMELEE_LF:
@@ -428,16 +479,14 @@ void ACSafiJiiva::Tick(float DeltaTime)
 			AttCollisionRB->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 			break;
 		}
+		*/
 	}
-
 	else
 	{
 		AttCollisionLF->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		AttCollisionRF->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		AttCollisionLB->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		AttCollisionRB->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-		HitPawn.Empty();
 	}
 
 // 색적 콜리전 활성화/비활성화
@@ -448,7 +497,6 @@ void ACSafiJiiva::Tick(float DeltaTime)
 		AttPosLB->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		AttPosRB->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	}
-
 	else
 	{
 		AttPosLF->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -456,7 +504,7 @@ void ACSafiJiiva::Tick(float DeltaTime)
 		AttPosLB->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		AttPosRB->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
-#pragma endregion CollisionDisable
+#pragma endregion CollisionEnable
 
 }
 
@@ -581,7 +629,6 @@ void ACSafiJiiva::KillSafi_Test()
 
 void ACSafiJiiva::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Bite_Test"));
 
 #pragma region Hand
 
@@ -594,45 +641,51 @@ void ACSafiJiiva::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, clas
 		UE_LOG(LogTemp,Warning,TEXT("Bite_Test"));
 	}
 
-	if (OverlappedComp == AttPosLF)		// 왼쪽
+	else if (OverlappedComp == AttPosLF)		// 왼쪽
 	{
 		attackPos = AttMELEE_LF;
 		UE_LOG(LogTemp, Warning, TEXT("Hit LF"));
 	}
 
-	if (OverlappedComp == AttPosRF)		// 오른쪽
+	else if (OverlappedComp == AttPosRF)		// 오른쪽
 	{
 		attackPos = AttMELEE_RF;
 		UE_LOG(LogTemp, Warning, TEXT("Hit RF"));
 	}
 
-	if (OverlappedComp == AttPosLB)		// 왼쪽 뒤
+	else if (OverlappedComp == AttPosLB)		// 왼쪽 뒤
 	{
 		attackPos = AttMELEE_LB;
 		UE_LOG(LogTemp, Warning, TEXT("Hit LB"));
 	}
 
-	if (OverlappedComp == AttPosRB)		// 오른쪽 뒤
+	else if (OverlappedComp == AttPosRB)		// 오른쪽 뒤
 	{
 		attackPos = AttMELEE_RB;
 		UE_LOG(LogTemp, Warning, TEXT("Hit RB"));
 	}
 #pragma endregion Hand
 
-	// 공격 콜리전 켜주는 녀석들이 켜져 있을 경우엔
-	if (isOnAttBite == true || isFootAttack == true || isOnBreath ==true || isOnBodyPress == true)
-	{
-		//헌터에 데미지 주기
-		AHunter* Ch = Cast<AHunter>(OtherActor);
-		if (HitPawn.Num() <= 0)
-		{
-			// 임시 데미지 MeleeBiteDMG
-			UGameplayStatics::ApplyDamage(OtherActor, MeleeBiteDMG, nullptr, this, nullptr);
-			HitPawn.AddUnique(Ch);
-		}
-	}
-
-	// Tick에서 스테이터스 체크해서 isDisturbed 체크		- AnimInstance쪽 isDisturbedA와 연동 완료
 
 }
 
+
+void ACSafiJiiva::OnAttackOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	AHunter* target = Cast<AHunter>(OtherActor);
+	if (!target || HitPawn.Contains(target)) { return; }
+
+	// 공격 콜리전 켜주는 녀석들이 켜져 있을 경우엔
+	if (isOnAttBite == true || isFootAttack == true || isOnBreath == true || isOnBodyPress == true)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("DMG_Tes1t"));
+		if (HitPawn.Num() <= 0)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("DMG_Test"));
+			// 임시 데미지 MeleeBiteDMG
+			UGameplayStatics::ApplyDamage(OtherActor, MeleeBiteDMG, nullptr, this, nullptr);
+			HitPawn.AddUnique(target);
+		}
+	}
+
+}

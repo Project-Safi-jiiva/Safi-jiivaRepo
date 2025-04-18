@@ -56,6 +56,12 @@ public:	// AnimNotify 관련 -------- UFUNCTION() 잊지말것!!!
 	UFUNCTION()
 	void AnimNotify_AttBite_End();
 
+	// 물기 노티파이
+	UFUNCTION()
+	void AnimNotify_AttHandAttack_Start();
+	UFUNCTION()
+	void AnimNotify_AttHandAttack_End();
+
 
 	// 바디프레스 노티파이
 	UFUNCTION()

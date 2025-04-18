@@ -126,6 +126,10 @@ public:	// 소켓 추가 파트
 	UPROPERTY(EditDefaultsOnly)
 	class UBoxComponent* AttCollisionRB;
 
+	
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* BodyCol_2;
+
 // =================== 공격 위치 판정용 콜리전===================
 	UPROPERTY(EditDefaultsOnly)
 	class UBoxComponent* AttPosLF;
@@ -207,6 +211,7 @@ public:	// 충돌처리
 	UFUNCTION()	
 	void OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-
+	UFUNCTION()	
+	void OnAttackOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 };
