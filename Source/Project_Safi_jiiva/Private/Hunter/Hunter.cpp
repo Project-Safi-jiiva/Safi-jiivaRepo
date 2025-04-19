@@ -111,6 +111,7 @@ void AHunter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 float AHunter::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	if (WeaponComp->isTacle) return 0;
+	PRINT_LOG(TEXT("%f"),Damage);
 	MoveComp->MoveState = EMoveState::HIT;
 	isHit = true;
 	MoveComp->InputOff();

@@ -9,6 +9,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "SafiJiiva/CSafiJiiva.h"
 #include "Weapon/WeaponComponent.h"
+#include "Project_Safi_jiiva.h"
 
 // Sets default values
 AGreatSwordActor::AGreatSwordActor()
@@ -53,6 +54,8 @@ void AGreatSwordActor::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActo
 	if(HitPawn.Num()<=0)
 		UGameplayStatics::ApplyDamage(OtherActor, Damage, nullptr, this, nullptr);
 	HitPawn.AddUnique(Ch);
+	PRINT_LOG(TEXT("%f"), Damage);
+
 }
 
 void AGreatSwordActor::ApplyDamage_Implementation(AActor* HitActor, float DamageMultiplier)
