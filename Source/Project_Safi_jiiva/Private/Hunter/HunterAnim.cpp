@@ -48,27 +48,26 @@ void UHunterAnim::NativeUpdateAnimation(float DeltaTime)
 
 void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload)
 {
-    Owner->WeaponComp->isJumpDelay = true;
-    Owner->WeaponComp->IsAttacking = true;
+    if (!Owner->HasAuthority())return;
+    Owner->ServerRPC_SetIsJumpDelay(true);
+    Owner->ServerRPC_SetIsAttacking(true);
     //노티파이 공통 부분
-    if (NotifyName == FName(TEXT("AttackEnd"))) {Owner->WeaponComp->IsAttacking = false;}
+    if (NotifyName == FName(TEXT("AttackEnd"))) { Owner->ServerRPC_SetIsAttacking(false); }
     if (NotifyName == FName(TEXT("ComboEnd"))) { Owner->WeaponComp->ResetCombo();}
     //약공격 노티파이
-    if (NotifyName == FName(TEXT("QuickAttackStart"))) { Owner->WeaponComp->IsQuickAttack = true;}
+    if (NotifyName == FName(TEXT("QuickAttackStart"))) { Owner->ServerRPC_SetIsQuickAttack(true); }
     if (NotifyName == FName(TEXT("QuickAttackAddIndex"))) { Owner->WeaponComp->SetQuickStrikeComboIndex(Owner->WeaponComp->GetQuickStrikeComboIndex() + 1); }
-    if (NotifyName == FName(TEXT("QuickAttackEnd"))) { Owner->WeaponComp->IsQuickAttack = false; }
-
+    if (NotifyName == FName(TEXT("QuickAttackEnd"))) { Owner->ServerRPC_SetIsQuickAttack(false); }
 
     ////강공격 노티파이
     if (NotifyName == FName(TEXT("HeavyAttackAddIndex"))) {Owner->WeaponComp->SetHeavyStrikeComboIndex(Owner->WeaponComp->GetHeavyStrikeComboIndex() + 1);}
-    if (NotifyName == FName(TEXT("HeavyAttackStart"))) { Owner->WeaponComp->IsHeavyAttack = true; }
-
+    if (NotifyName == FName(TEXT("HeavyAttackStart"))) { Owner->ServerRPC_SetIsHeavyAttack(true); }
 
     //특수공격 노티파이
-    if (NotifyName == FName(TEXT("UniqueAttackStart"))) { Owner->WeaponComp->IsUniqueAttack = true; }
+    if (NotifyName == FName(TEXT("UniqueAttackStart"))) { Owner->ServerRPC_SetIsUniqueAttack(true); }
 
     //구르기, 캔슬 노티파이
-    if (NotifyName == FName(TEXT("Roll"))) { Owner->WeaponComp->AllowRoll = true;}
+    if (NotifyName == FName(TEXT("Roll"))) { Owner->ServerRPC_SetAllowRoll(true); }
     if (NotifyName == FName(TEXT("iscancelEnd"))) { Owner->WeaponComp->iscancel = false;}
 
 
@@ -76,11 +75,11 @@ void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNo
     if (NotifyName == FName(TEXT("DelayEnd"))) { Owner->WeaponComp->isJumpDelay = false; Owner->WeaponComp->JumpToNextCombo();
     }
     //무기 붙이고 때기
-    if (NotifyName == FName(TEXT("Attach"))) {Owner->WeaponComp->AttachWeaponToHand();}
-    if (NotifyName == FName(TEXT("Detach"))) {Owner->WeaponComp->AttachWeaponToOwner();}
+    if (NotifyName == FName(TEXT("Attach"))) { Owner->ServerRPC_AttachWeaponToHand();}
+    if (NotifyName == FName(TEXT("Detach"))) {Owner->ServerRPC_AttachWeaponToOwner();}
     if (NotifyName == FName(TEXT("WeaponCollitionOn"))) {Owner->WeaponComp->WeaponCollitionOn();}
     if (NotifyName == FName(TEXT("WeaponCollitionOff"))) {Owner->WeaponComp->WeaponCollitionOff(); }
-    if (NotifyName == FName(TEXT("TacleOn"))) { Owner->WeaponComp->isTacle = true; }
+    if (NotifyName == FName(TEXT("TacleOn"))) { Owner->ServerRPC_SetIsTacle(true); }
 
 
 	if (NotifyName == FName(TEXT("OffCollision"))) {
@@ -95,11 +94,11 @@ void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNo
 }
 
 void UHunterAnim::OnMontageNotifyEnd(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload){
-    Owner->WeaponComp->IsQuickAttack = false;
-    Owner->WeaponComp->isTacle = false;
-    Owner->WeaponComp->IsHeavyAttack = false;
-    Owner->WeaponComp->IsUniqueAttack = false;
-    Owner->WeaponComp->AllowRoll = false;
+    Owner->ServerRPC_SetIsQuickAttack(false);
+    Owner->ServerRPC_SetIsHeavyAttack(false);
+    Owner->ServerRPC_SetIsUniqueAttack(false);
+    Owner->ServerRPC_SetIsTacle(false);
+    Owner->ServerRPC_SetAllowRoll(false);
 }
 
 void UHunterAnim::SetBluePrintValues()

@@ -40,8 +40,6 @@ AHunter::AHunter()
 
 	ConstructorHelpers::FObjectFinder<UInputMappingContext> IMC_HunterTool(AssetPaths::HUNTER_IMC);
 
-
-
 	if (AB_Hunter.Succeeded()) {
 		GetMesh()->SetAnimInstanceClass(AB_Hunter.Class);
 		GetMesh()->SetRelativeLocationAndRotation(FVector(0,0,-200), FRotator(0,-90,0));
@@ -161,14 +159,6 @@ void AHunter::ChangeWeapon(EWeaponType NewWeaponType)
 	}
 }
 
-void AHunter::OnRep_IsRun()
-{
-	if (isRun)
-		GetCharacterMovement()->MaxWalkSpeed = 500;
-	else
-		GetCharacterMovement()->MaxWalkSpeed = 300;
-}
-
 void AHunter::NetLog()
 {
 	const FString conStr = GetNetConnection() != nullptr ? TEXT("Valid Connection") : TEXT("Invalid Connection");
@@ -184,4 +174,127 @@ void AHunter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AHunter, isRun);
 }
+//대쉬 함수
+void AHunter::ServerRPC_Dash_Implementation()
+{
+	WeaponComp->Dash();
+	WeaponComp->ModifyWeaponMoveSpeed();
+}
 
+void AHunter::ServerRPC_DashEnd_Implementation()
+{
+	WeaponComp->DashEnd();
+	WeaponComp->ModifyWeaponMoveSpeed();
+}
+//약공격 함수
+void AHunter::ServerRPC_QuickStart_Implementation()
+{
+	WeaponComp->QuickInputStart();
+}
+
+void AHunter::ServerRPC_QuickHolding_Implementation()
+{
+	WeaponComp->QuickInputHolding();
+
+}
+
+void AHunter::ServerRPC_QuickEnd_Implementation()
+{
+	WeaponComp->QuickInputEnd();
+}
+
+void AHunter::ServerRPC_QuickAttack_Implementation()
+{
+	MulticasrRPC_QuickAttack();
+}
+
+void AHunter::MulticasrRPC_QuickAttack_Implementation()
+{
+	WeaponComp->QuickAttack();
+}
+
+void AHunter::ServerRPC_HeavyStart_Implementation()
+{
+	WeaponComp->HeavyInputStart();
+}
+
+void AHunter::ServerRPC_HeavyHolding_Implementation()
+{
+	WeaponComp->HeavyInputHolding();
+}
+
+void AHunter::ServerRPC_HeavyEnd_Implementation()
+{
+	WeaponComp->HeavyInputEnd();
+}
+
+//강공격 함수
+void AHunter::ServerRPC_HeavyAttack_Implementation()
+{
+	MulticasrRPC_HeavyAttack();
+}
+
+void AHunter::MulticasrRPC_HeavyAttack_Implementation()
+{
+	WeaponComp->HeavyAttack();
+}
+//특수공격 함수
+void AHunter::ServerRPC_UniqueAttack_Implementation()
+{
+	MulticasrRPC_UniqueAttack();
+}
+
+void AHunter::MulticasrRPC_UniqueAttack_Implementation()
+{
+	WeaponComp->UniqueAttack();
+}
+
+void AHunter::ServerRPC_ChargeAttack_Implementation()
+{
+	MulticasrRPC_ChargeAttack();
+}
+
+void AHunter::MulticasrRPC_ChargeAttack_Implementation()
+{
+	WeaponComp->ChargeAttack();
+}
+
+//void AHunter::ServerRPC_CommandInputReset_Implementation() { WeaponComp->IsCommandInputReset(); }
+
+//void AHunter::MulticastRPC_CommandInputReset_Implementation(){WeaponComp->IsCommandInputReset();}
+
+void AHunter::ServerRPC_SetIsAttacking_Implementation(bool IsAttack) { WeaponComp->SetIsAttacking(IsAttack); }
+
+void AHunter::ServerRPC_SetIsQuickAttack_Implementation(bool IsQuick) { WeaponComp->SetIsQuickAttack(IsQuick); }
+
+void AHunter::ServerRPC_SetIsHeavyAttack_Implementation(bool IsHeavy) { WeaponComp->SetIsHeavyAttack(IsHeavy); }
+
+void AHunter::ServerRPC_SetIsUniqueAttack_Implementation(bool IsUnique) { WeaponComp->SetIsUniqueAttack(IsUnique); }
+
+void AHunter::ServerRPC_SetIsTacle_Implementation(bool IsTacle) { WeaponComp->SetIsTacle(IsTacle); }
+
+void AHunter::ServerRPC_SetIsHolding_Implementation(bool IsHolding) { WeaponComp->SetIsHolding(IsHolding); }
+
+void AHunter::ServerRPC_SetIsJumpDelay_Implementation(bool IsJumpDelay){WeaponComp->SetIsJumpDelay(IsJumpDelay);}
+
+void AHunter::ServerRPC_SetAllowRoll_Implementation(bool AllowRoll) { WeaponComp->SetAllowRoll(AllowRoll); }
+
+void AHunter::ServerRPC_AttachWeaponToHand_Implementation()
+{
+	MulticastRPC_AttachWeaponToHand();
+}
+
+void AHunter::MulticastRPC_AttachWeaponToHand_Implementation()
+{
+	WeaponComp->AttachWeaponToHand();
+}
+
+void AHunter::ServerRPC_AttachWeaponToOwner_Implementation()
+{
+	MulticastRPC_AttachWeaponToOwner();
+}
+
+void AHunter::MulticastRPC_AttachWeaponToOwner_Implementation()
+{
+	WeaponComp->AttachWeaponToOwner();
+}

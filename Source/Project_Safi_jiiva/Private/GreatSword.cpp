@@ -13,6 +13,8 @@
 UGreatSword::UGreatSword()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	SetIsReplicatedByDefault(true);
+
 }
 // Called when the game starts
 void UGreatSword::BeginPlay()
@@ -31,7 +33,7 @@ void UGreatSword::QuickStrikeNext()
 	Super::QuickStrikeNext();
 	if (IsQuickAttack)return;
 	if (FCommandInput[0]<=0.2)return;
-	ChargeAttack();
+	Owner->ServerRPC_ChargeAttack();
 }
 
 void UGreatSword::QuickInputHolding()
@@ -79,15 +81,16 @@ void UGreatSword::UniqueInputEnd()
 void UGreatSword::checkCommand(float DeltaTime)
 {
 	Super::checkCommand(DeltaTime);
+	if (!Owner->IsLocallyControlled())return;
 	FWeaponDataTable CurrentData = GetCurrentWeaponData();
 	if (isCommandInput[0] || isCommandInput[1] || isCommandInput[2])
 		CommandInputTime += DeltaTime;
 	if (CommandInputTime >= 0.15) {
 		if (isCommandInput[0] && !isCommandInput[1] && !isCommandInput[2]) {
-			QuickAttack();
+			Owner->ServerRPC_QuickAttack();
 		}
 		if (!isCommandInput[0] && isCommandInput[1] && !isCommandInput[2]){
-			HeavyAttack();
+			Owner->ServerRPC_HeavyAttack();
 			}
 		if (isCommandInput[0] && isCommandInput[1] && !isCommandInput[2]){
 			if (FCommandInput[0] >= 0.2){
@@ -99,11 +102,11 @@ void UGreatSword::checkCommand(float DeltaTime)
 				IsCommandInputReset();
 			}
 			else {
-				UniqueAttack();
+				IsCommandInputReset();
+
 			}
 		}
 		IsCommandInputReset();
-
 	}
 }
 
@@ -116,15 +119,6 @@ void UGreatSword::ResetCombo()
 void UGreatSword::Dash()
 {
 	Super::Dash();
-	PRINTLOG_NET(TEXT("Child ServerRPC Dash"));
-
-}
-
-
-void UGreatSword::ServerRPC_Dash()
-{
-	Super::ServerRPC_Dash_Implementation();
-	PRINTLOG_NET(TEXT("UGreatSword ServerRPC Dash"));
 	if (!isWeaponEquipped)return;
 	if (!IsAttacking) {
 		FWeaponDataTable CurrentData = GetCurrentWeaponData();
@@ -215,10 +209,10 @@ void UGreatSword::QuickAttack()
 			return;
 		}
 		 if (isWeaponEquipped) {
+			 PRINT_LOG(TEXT("QuickAttack : %d"), IsAttacking);
 			 if (IsAttacking) return;
-			 ChargeAttack();
+			 Owner->ServerRPC_ChargeAttack();
 		 }
-
 	}
 }
 

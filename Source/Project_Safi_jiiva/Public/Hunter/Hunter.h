@@ -66,14 +66,91 @@ public:
 	UPROPERTY(Replicated)
 	bool isRun = false;
 
-	UFUNCTION()
-	void OnRep_IsRun();
-
+	UPROPERTY(Replicated)
 	bool isHit = false;
+	//서버 설정 함수
 
 	void NetLog();
 
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
+
+	///////////////////////////서버 함수//////////////////////////
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_Dash();
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_DashEnd();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_QuickStart();
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_QuickHolding();
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_QuickEnd();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_QuickAttack();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticasrRPC_QuickAttack();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_HeavyStart();
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_HeavyHolding();
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_HeavyEnd();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_HeavyAttack();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticasrRPC_HeavyAttack();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_UniqueAttack();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticasrRPC_UniqueAttack();
+
+	UFUNCTION(Server,Reliable)
+	void ServerRPC_ChargeAttack();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticasrRPC_ChargeAttack();
+
+
+	//UFUNCTION(Server, Reliable)
+	//void ServerRPC_CommandInputReset();
+
+	//UFUNCTION(NetMulticast, Reliable)
+	//void MulticastRPC_CommandInputReset();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void ServerRPC_SetIsAttacking(bool IsAttack);
+	UFUNCTION(NetMulticast, Reliable)
+	void ServerRPC_SetIsQuickAttack(bool IsQuick);
+	UFUNCTION(NetMulticast, Reliable)
+	void ServerRPC_SetIsHeavyAttack(bool IsHeavy);
+	UFUNCTION(NetMulticast, Reliable)
+	void ServerRPC_SetIsUniqueAttack(bool IsUnique);
+	UFUNCTION(NetMulticast, Reliable)
+	void ServerRPC_SetIsTacle(bool IsTacle);
+	UFUNCTION(NetMulticast, Reliable)
+	void ServerRPC_SetIsHolding(bool IsHolding);
+	UFUNCTION(NetMulticast, Reliable)
+	void ServerRPC_SetIsJumpDelay(bool IsJumpDelay);
+	UFUNCTION(NetMulticast, Reliable)
+	void ServerRPC_SetAllowRoll(bool AllowRoll);
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_AttachWeaponToHand();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_AttachWeaponToHand();
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_AttachWeaponToOwner();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_AttachWeaponToOwner();
+
+
+
+
+
 
 
 

@@ -22,8 +22,8 @@ void UHunterAnimNotifyState::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimS
 	if (UHunterAnim* Anim = Cast<UHunterAnim>(MeshComp->GetAnimInstance())) {
 		UAnimMontage* CurrentMontage = Anim->GetCurrentActiveMontage();
 		FName CurrentSection = Anim->Montage_GetCurrentSection(CurrentMontage);
+
 		if (CurrentSection.ToString().Contains(TEXT("Attack"))){
-			PRINT_LOG(TEXT("ASDSAD"));
 		}
 		if (CurrentSection.ToString().Contains(TEXT("NextStart"))) {
 			Owner->WeaponComp->QuickStrikeNext();

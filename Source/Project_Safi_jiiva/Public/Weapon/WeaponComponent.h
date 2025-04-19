@@ -29,34 +29,46 @@ protected:
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-//서버 함수 적용 함수
-protected:
-	virtual void Dash() ;
-	void DashEnd();
-	//UFUNCTION(Client, Reliable)
-	//virtual void ClientRPC_Dash();
-	UFUNCTION(Server, Reliable)
-	virtual void ServerRPC_Dash();
+	//인풋 함수 모음
+public:
+	virtual void InputDash();
+	void InputDashEnd();
+	void InputQuickStart();
+	void InputQuickHolding();
+	void InputQuickEnd();
+	void InputHeavyStart();
+	void InputHeavyHolding();
+	void InputHeavyEnd();
+	void InputUniqueStart();
+	void InputUniqueHolding();
+	void InputUniqueEnd();
+	void InputRoll();
 
-	//UFUNCTION(NetMulticast, Reliable)
-	//virtual void MulticastRPC_Dash();
+
+	//기능 구현 함수 모음
+	//데이터 로드
+	void LoadWeaponData();
+	//대쉬
+	virtual void Dash();
+	virtual void DashEnd();
+	//약공격
+	virtual void QuickInputStart();
+	virtual void QuickInputHolding();
+	virtual void QuickInputEnd();
+	virtual void QuickAttack() {};
+	//강공격
+	virtual void HeavyInputStart();
+	virtual void HeavyInputHolding();
+	virtual void HeavyInputEnd();
+	virtual void HeavyAttack() {};
+	virtual void UniqueAttack() {};
+	virtual void ChargeAttack() {};
+
+
 public:
 	virtual void ResetCombo() override;
 
-	virtual void QuickInputEnd() override;
 protected:
-	// 기본 생성자
-
-	//인터페이스 구현
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	virtual void QuickInputStart() override;
-	UFUNCTION()
-	virtual void QuickInputHolding() override;
-
-
-	virtual void HeavyInputStart() override;
-	virtual void HeavyInputHolding() override;
-	virtual void HeavyInputEnd() override;
 
 	virtual void UniqueInputStart() override;
 	virtual void UniqueInputHolding()override;
@@ -81,32 +93,16 @@ public:
 	void AttachWeaponToHand();
 	void InitializeWeaponActor(AActor* WeaponActor, const FWeaponDataTable& WeaponData);
 	virtual void Roll();
-
-private:
-	void LoadWeaponData();
-
 public:
 	AActor* EquippedWeapon;
-	bool IsAttacking =false;
-	bool isJumpDelay = false;
-	bool iscancel = false;
-	bool IsQuickAttack =false;
-	bool IsHeavyAttack =false;
-	bool IsUniqueAttack =false;
-	bool AllowRoll = false;
-	bool isTacle = false;
 
 protected:
-	bool isHolding = false;
-
 	bool bNextAttackQueued;
 
 	class UAnimMontage* CurrentMontage;
 
 	FTimerHandle ComboTimerHandle;
-protected:
-	UPROPERTY(Replicated)
-	bool isWeaponEquipped = false;
+
 
 public:
 	class UInputAction* IA_Dash;
@@ -124,15 +120,9 @@ private:
     UWeaponDataAsset* WeaponDataTable;
 
     // 모든 무기 데이터를 저장하는 TMap
-    UPROPERTY()
-    TMap<EWeaponType, FWeaponDataTable> WeaponDataMap;
 
-	EWeaponType WeaponType;
 
-protected:
-	int32 QuickStrikeComboIndex = 0;
-	int32 HeavyStrikeComboIndex = 0;
-	int32 UniqueStrikeComboIndex = 0;
+
 public:
 	int32 GetQuickStrikeComboIndex() const { return QuickStrikeComboIndex; }
 	void SetQuickStrikeComboIndex(int32 NewIndex) {QuickStrikeComboIndex = NewIndex;}
@@ -149,13 +139,7 @@ public:
 
 	bool GetisWeaponEquipped() { return isWeaponEquipped; }
 
-	//커맨드 판단 변수 선언
-	protected:
-		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-		float CommandInputTime=0.0f;
-		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-		TArray<float> FCommandInput = {0,0,0};
-		TArray<bool> isCommandInput = {false,false,false};
+
 
 		void IsCommandInputReset();
 		public:
@@ -164,6 +148,55 @@ public:
 		UFUNCTION()
 		float SetDamage();
 		float Damage=0.0f;
+
+		//커맨드 판단 변수 선언
+		TMap<EWeaponType, FWeaponDataTable> WeaponDataMap;
+	protected:
+		UPROPERTY(Replicated)
+		int32 QuickStrikeComboIndex = 0;
+		UPROPERTY(Replicated)
+		int32 HeavyStrikeComboIndex = 0;
+		UPROPERTY(Replicated)
+		int32 UniqueStrikeComboIndex = 0;
+		UPROPERTY(Replicated)
+		bool isWeaponEquipped = false;
+		UPROPERTY(Replicated)
+		EWeaponType WeaponType;
+		UPROPERTY(Replicated)
+		float CommandInputTime = 0.0f;
+		UPROPERTY(Replicated)
+		TArray<float> FCommandInput = { 0,0,0 };
+		UPROPERTY(Replicated)
+		TArray<bool> isCommandInput = { false,false,false };
+	public:
+		UPROPERTY(Replicated)
+		bool IsAttacking =false;
+		UPROPERTY(Replicated)
+		bool isJumpDelay = false;
+		UPROPERTY(Replicated)
+		bool iscancel = false;
+		UPROPERTY(Replicated)
+		bool IsQuickAttack =false;
+		UPROPERTY(Replicated)
+		bool IsHeavyAttack =false;
+		UPROPERTY(Replicated)
+		bool IsUniqueAttack =false;
+		UPROPERTY(Replicated)
+		bool AllowRoll = false;
+		UPROPERTY(Replicated)
+		bool isTacle = false;
+		UPROPERTY(Replicated)
+		bool isHolding = false;
+	public:
+		void SetIsAttacking(bool NewIsAttacking) { IsAttacking = NewIsAttacking; }
+		void SetIsQuickAttack(bool NewIsQuickAttack) { IsQuickAttack = NewIsQuickAttack; }
+		void SetIsHeavyAttack(bool NewIsHeavyAttack) { IsHeavyAttack = NewIsHeavyAttack; }
+		void SetIsUniqueAttack(bool NewIsUniqueAttack) { IsUniqueAttack = NewIsUniqueAttack; }
+		void SetIsTacle(bool NewIsTacle) { isTacle = NewIsTacle; }
+		void SetIsHolding(bool NewIsHolding) { isHolding = NewIsHolding; }
+		void SetIsJumpDelay(bool NewIsJumpDelay) { isJumpDelay = NewIsJumpDelay; }
+		void SetAllowRoll(bool NewAllowRoll) { AllowRoll = NewAllowRoll; }
+
 //////////////////////서버/////////////////////
 		void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 };

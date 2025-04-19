@@ -8,7 +8,7 @@
 #include "GreatSword.generated.h"
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class PROJECT_SAFI_JIIVA_API UGreatSword : public UWeaponComponent
 {
 	GENERATED_BODY()
@@ -36,7 +36,6 @@ protected:
 
 	virtual void ResetCombo() override;
 	virtual void Dash()override;
-	virtual void ServerRPC_Dash() override;
 
 	virtual void ModifyWeaponMoveSpeed() override;
 
@@ -49,15 +48,11 @@ protected:
 private:
 	void PlayMontage(UAnimMontage* Montage);
 
-	void QuickAttack();
-	void HeavyAttack();
-	void UniqueAttack();
-	void ChargeAttack();
+	virtual void QuickAttack() override;
+	virtual void HeavyAttack() override;
+	virtual void UniqueAttack() override;
+	virtual void ChargeAttack() override;
 
 private:
 	void JumpToNextCombo();
-
-
-
-
 };
