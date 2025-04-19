@@ -9,6 +9,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Hunter/Hunter.h"
 #include "CSafiJiiva.generated.h"
 
 
@@ -49,9 +50,64 @@ public: //기본 세팅 파트
 
 
 public:	// 소켓 추가 파트
+
 #pragma region CollisionSocketPart
 
+// =================== 피격용 콜리전 ===================
+#pragma region Collision_Body
+
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* BodyColHead;
+
+
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* Socket_Body_31;
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* Socket_Body_32;
+
+
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* Socket_Body_1;
+
+
+
+
+	///////////// 다리
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* Socket_Body_2;
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* Socket_Body_3;
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* Socket_Body_33;
+
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* Socket_Body_4;
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* Socket_Body_5;
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* Socket_Body_34;
+
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* Socket_Body_6;
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* Socket_Body_7;
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* Socket_Body_8;
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* Socket_Body_35;
+
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* Socket_Body_9;
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* Socket_Body_10;
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* Socket_Body_11;
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* Socket_Body_36;
+#pragma endregion Collision_Body
+
 // =================== 공격용 콜리전 ===================
+
 	UPROPERTY(EditDefaultsOnly)
 	class UBoxComponent* AttCollisionBite;
 
@@ -67,7 +123,16 @@ public:	// 소켓 추가 파트
 	UPROPERTY(EditDefaultsOnly)
 	class UBoxComponent* AttCollisionRB;
 
+	
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* Socket_Body_37;
+
+	UPROPERTY()
+	TArray<UBoxComponent*> TailCollisionBoxes;
+
+
 // =================== 공격 위치 판정용 콜리전===================
+#pragma region Collision_Att
 	UPROPERTY(EditDefaultsOnly)
 	class UBoxComponent* AttPosLF;
 
@@ -79,8 +144,8 @@ public:	// 소켓 추가 파트
 
 	UPROPERTY(EditDefaultsOnly)
 	class UBoxComponent* AttPosRB;
+#pragma endregion Collision_Att
 
-#pragma endregion
 
 private:	// 함수용 변수들
 	float currentTime = 0.f;
@@ -94,8 +159,8 @@ public:	// 체력 등 스탯 계수
 	int MAXRepellCount = 5;
 
 public:	// 사거리, 속도 등
-	float MeleeAttRange = 1000.f;
-	float SearchRange = 3000.f;
+	float MeleeAttRange = 2000.f;
+	float SearchRange = 5000.f;
 	float MaxBreathRange = 5000.f;
 
 	float RunSpeed = 400.f;
@@ -136,11 +201,21 @@ public:
 
 public:
 	void SetSpeed(float _value);
-	void OnDamageSafi(float _value);
+	//void OnDamageSafi(float _value);
 	void KillSafi_Test();
 
+	//void InitBoxes();
+
 public:	// 충돌처리
+
+	TArray<AHunter*> HitPawn;
+
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+
 	UFUNCTION()	
 	void OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()	
+	void OnAttackOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 };

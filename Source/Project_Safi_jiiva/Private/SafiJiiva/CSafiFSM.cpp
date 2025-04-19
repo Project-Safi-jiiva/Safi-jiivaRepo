@@ -4,6 +4,7 @@
 // 무페토지바 각도가 빠르게 회전한다면 Idle 회전값 조건이 잘못 걸려있는 것임. 조정하면 돌아옴.
 // Idle에 있는 각도별 모션판정은 Server 기준으로 판정하게 하기.	- 잘못하면 유저별로 몹 모션 다르게 나옴
 
+
 #include "SafiJiiva/CSafiFSM.h"
 #include "Kismet/GameplayStatics.h"
 #include "Hunter/Hunter.h"
@@ -195,29 +196,26 @@ void UCSafiFSM::IdleState()
 
 
 	// 돌아야 하는 값이 60도 이상이라면 TargetRotationByAnim으로 회전
-	if (isRot == false  && targetYaw >= 60.0f)
+	if (targetYaw <= 3.f && !isRot)
 	{
-		isRot = true;
-		TargetRotationByAnim();
+		me->SetActorRotation(targetRot); // 최종 방향 고정
+		isRot = false; // 회전 완료
+		mState = ESafiState::Attack; // 즉시 공격 상태로 전환
+		Anim->aState = mState;
+		CanMeleeAttack();
+		OnAttackProcess();
+		return;
 	}
 
-
-	else
+	// 회전이 필요한 경우
+	if (targetYaw >= 60.0f && !isRot)
 	{
-		TargetRotation();
-
-		if (targetYaw <= 10.f)
-		{
-			targetYaw = targetRot.Yaw;
-			
-			if (targetYaw <= 3.f)
-			{
-				me->SetActorRotation(targetRot);
-				CanMeleeAttack();
-				OnAttackProcess();
-			}
-
-		}
+		isRot = true;
+		TargetRotationByAnim(); // 큰 각도 회전은 애니메이션으로 처리
+	}
+	else if (isRot)
+	{
+		TargetRotation(); // 부드러운 회전
 	}
 	
 }
@@ -303,7 +301,7 @@ void UCSafiFSM::AttRoar()
 	// ㄴ> 여기서 하지 말고 노티파이로 할 것
 
 	// 노티파이 종료시 EndAttackProcess 호출	- 수행완료
-	// 노티파이 종료시 이뮨 해제				- 수행완료
+
 }
 
 void UCSafiFSM::AttMelee()
@@ -500,6 +498,15 @@ void UCSafiFSM::TargetRotation()
 
 	FRotator TargetRotation = dir.Rotation();
 	FRotator CurrentRotation = me->GetActorRotation();
+
+	float targetYaw = FMath::Abs(FMath::FindDeltaAngleDegrees(CurrentRotation.Yaw, TargetRotation.Yaw));
+	if (targetYaw <= 3.f)
+	{
+		me->SetActorRotation(TargetRotation);
+		isRot = false;
+		OnAttackProcess();
+		return;
+	}
 
 	FRotator NewRotation = FMath::RInterpTo(CurrentRotation , TargetRotation, DeltaTime, 2.f);
 

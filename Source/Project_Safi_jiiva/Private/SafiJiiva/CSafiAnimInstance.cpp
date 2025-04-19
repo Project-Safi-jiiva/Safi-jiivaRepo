@@ -9,7 +9,6 @@ void UCSafiAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 
 // 고장날 때 쓰는 용도
-
 #pragma region LogMSG
 	// FString logMsgState = UEnum::GetValueAsString(aState);
 	// GEngine->AddOnScreenDebugMessage(0, 1, FColor::Yellow, logMsgState);
@@ -69,6 +68,18 @@ void UCSafiAnimInstance::AnimNotify_AttBite_End()
 	me->isOnAttBite = false;
 }
 
+void UCSafiAnimInstance::AnimNotify_AttHandAttack_Start()
+{
+	if (!me || !FSM) { return; }
+	me->isFootAttack = true;
+}
+
+void UCSafiAnimInstance::AnimNotify_AttHandAttack_End()
+{
+	if (!me || !FSM) { return; }
+	me->isFootAttack = false;
+}
+
 void UCSafiAnimInstance::AnimNotify_AttBodyPress_Start()
 {
 	if (!me || !FSM) { return; }
@@ -97,6 +108,7 @@ void UCSafiAnimInstance::AnimNotify_Attack_End()
 {
 	if (!me || !FSM) { return; }
 	FSM->EndAttackProcess();
+	me->HitPawn.Empty();
 }
 
 
@@ -112,4 +124,5 @@ void UCSafiAnimInstance::AnimNotify_Search_End()
 	FSM->mState = ESafiState::Idle;
 	aState = FSM->mState;
 
+	me->HitPawn.Empty();	// 혹시 몰라서...?
 }
