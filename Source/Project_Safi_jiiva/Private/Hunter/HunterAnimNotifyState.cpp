@@ -39,6 +39,7 @@ void UHunterAnimNotifyState::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimS
 		if (CurrentSection.ToString().Contains(TEXT("WeaponCollitionOff"))) {
 			Owner->WeaponComp->WeaponCollitionOff();
 		}
+
 	}
 
 }

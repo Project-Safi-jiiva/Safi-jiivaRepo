@@ -111,7 +111,7 @@ void UMoveComponent::KnockBack()
 	KnockbackDir = KnockbackDir.GetSafeNormal();
 
 	// ¿øÇÏ´Â ³Ë¹é ¼¼±â
-	float KnockbackPower = 1500.f;
+	float KnockbackPower = 2500.f;
 
 	// ³Ë¹é º¤ÅÍ = ³Ë¹é ¹æÇâ * ÆÄ¿ö
 	FVector KnockbackForce = KnockbackDir * KnockbackPower;

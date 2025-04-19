@@ -223,7 +223,9 @@ void UWeaponComponent::InitializeWeaponActor(AActor* NewWeapon, const FWeaponDat
 	}
 }
 
-void UWeaponComponent::Roll(){}
+void UWeaponComponent::Roll(){
+
+}
 
 void UWeaponComponent::LoadWeaponData()
 {

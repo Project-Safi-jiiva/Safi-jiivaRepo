@@ -89,6 +89,9 @@ void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNo
 	if (NotifyName == FName(TEXT("OnCollision"))) {
 		Owner->GetCapsuleComponent()->SetCollisionProfileName(FName("Pawn2"));
 	}
+    if (NotifyName == FName(TEXT("Roll"))) {
+        Owner->WeaponComp->AllowRoll = true;
+    }
 }
 
 void UHunterAnim::OnMontageNotifyEnd(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload){
@@ -96,6 +99,7 @@ void UHunterAnim::OnMontageNotifyEnd(FName NotifyName, const FBranchingPointNoti
     Owner->WeaponComp->isTacle = false;
     Owner->WeaponComp->IsHeavyAttack = false;
     Owner->WeaponComp->IsUniqueAttack = false;
+    Owner->WeaponComp->AllowRoll = false;
 }
 
 void UHunterAnim::SetBluePrintValues()
