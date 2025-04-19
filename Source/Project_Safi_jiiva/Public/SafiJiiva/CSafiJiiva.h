@@ -204,7 +204,7 @@ public:
 	//void OnDamageSafi(float _value);
 	void KillSafi_Test();
 
-	//void InitBoxes();
+	void InitBoxes();
 
 public:	// 충돌처리
 

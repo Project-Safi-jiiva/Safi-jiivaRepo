@@ -108,6 +108,7 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+
 private:
 	UPROPERTY()
 	class ACSafiJiiva* me;
@@ -120,18 +121,30 @@ private:
 
 
 public:
-	UPROPERTY(EditDefaultsOnly, Category = FSM)
+	UPROPERTY(ReplicatedUsing = OnRep_SafiState)
 	ESafiState mState = ESafiState::Idle;
 
-	UPROPERTY(EditDefaultsOnly, Category = FSM)
+	UPROPERTY(ReplicatedUsing = OnRep_AttState)
 	EAttackState mAttState = EAttackState::None;
 
-	UPROPERTY(EditDefaultsOnly, Category = FSM)
+	UPROPERTY(ReplicatedUsing = OnRep_TurnState)
 	ETurnState mTurnState = ETurnState::None;
 
-	UPROPERTY(EditDefaultsOnly, Category = FSM)
+	UPROPERTY(ReplicatedUsing = OnRep_DisturbState)
 	EDisturbState mDisturbState = EDisturbState::None;
 
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
+
+public:
+// 서버 연동용 함수
+	UFUNCTION()
+	void OnRep_SafiState();
+	UFUNCTION()
+	void OnRep_AttState();
+	UFUNCTION()
+	void OnRep_TurnState();
+	UFUNCTION()
+	void OnRep_DisturbState();
 
 // Define 이걸로 바꾸는게 낫나?
 	//EAttackNumber AttNum = EAttackNumber::None;

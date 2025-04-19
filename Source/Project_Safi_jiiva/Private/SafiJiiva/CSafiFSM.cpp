@@ -14,12 +14,13 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/ArrowComponent.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values for this component's properties
 UCSafiFSM::UCSafiFSM()
 {
 	PrimaryComponentTick.bCanEverTick = true;
-
+	SetIsReplicatedByDefault(true); // 또는 SetIsReplicated(true);
 }
 
 
@@ -129,6 +130,38 @@ void UCSafiFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	}
 }
 
+
+
+void UCSafiFSM::OnRep_SafiState()
+{
+	if (Anim) Anim->aState = mState;
+}
+
+void UCSafiFSM::OnRep_AttState()
+{
+	if (Anim) Anim->aAttState = mAttState;
+}
+
+void UCSafiFSM::OnRep_TurnState()
+{
+	if (Anim) Anim->aTurnState = mTurnState;
+}
+
+void UCSafiFSM::OnRep_DisturbState()
+{
+	if (Anim) Anim->aDisturbState = mDisturbState;
+}
+
+void UCSafiFSM::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UCSafiFSM, mState);
+	DOREPLIFETIME(UCSafiFSM, mAttState);
+	DOREPLIFETIME(UCSafiFSM, mTurnState);
+	DOREPLIFETIME(UCSafiFSM, mDisturbState);
+}
+
 void UCSafiFSM::StartState()
 {
 	// ======== 탐지 -> 포효 -> 개전 ========
@@ -160,7 +193,7 @@ void UCSafiFSM::StartState()
 	// 포효
 		// 포효 처리 및 공격 패턴으로 전환
 	mState = ESafiState::Attack;
-	Anim->aState = mState;
+	OnRep_SafiState();
 
 	AttRoar();
 }
@@ -201,7 +234,7 @@ void UCSafiFSM::IdleState()
 		me->SetActorRotation(targetRot); // 최종 방향 고정
 		isRot = false; // 회전 완료
 		mState = ESafiState::Attack; // 즉시 공격 상태로 전환
-		Anim->aState = mState;
+		OnRep_SafiState();
 		CanMeleeAttack();
 		OnAttackProcess();
 		return;
@@ -234,7 +267,7 @@ void UCSafiFSM::CanMeleeAttack()	// SetAttackType으로 이름 바꾸고 근접공격 파트�
 		if (BFattType == attType){ attType = AttBPRESS; }
 
 		mTurnState = ETurnState::None;
-		Anim->aTurnState = mTurnState;
+		OnRep_TurnState();
 		OnAttackProcess();
 	}
 	
@@ -278,7 +311,7 @@ void UCSafiFSM::MoveState()
 	if (currentTime > me->idleTime)
 	{	
 		mState = ESafiState::Idle;
-		Anim->aState = mState;
+		OnRep_SafiState();
 
 		currentTime = 0.f;
 	}
@@ -296,7 +329,7 @@ void UCSafiFSM::AttRoar()
 	// me->isImmune = true;
 
 	mAttState = EAttackState::Roar;
-	Anim->aAttState = mAttState;
+	OnRep_AttState();
 	// 포효 공격판정 실행						- *** 이건 플레이어 함수 불러와야 할 듯?
 	// ㄴ> 여기서 하지 말고 노티파이로 할 것
 
@@ -417,7 +450,7 @@ void UCSafiFSM::OnAttackProcess()
 		mAttState = EAttackState::MeleeBPress;
 		break;
 	} 
-	Anim->aAttState = mAttState;
+	OnRep_AttState();
 
 // ========================================================
 
@@ -425,7 +458,7 @@ void UCSafiFSM::OnAttackProcess()
 	if (mState != ESafiState::Attack)
 	{
 		mState = ESafiState::Attack;
-		Anim->aState = mState;
+		OnRep_SafiState();
 	}
 
 	attType = AttNONE;	// 공격 타입 초기화
@@ -437,10 +470,10 @@ void UCSafiFSM::OnAttackProcess()
 void UCSafiFSM::EndAttackProcess()
 {
 	mAttState = EAttackState::None;
-	Anim->aAttState = mAttState;
+	OnRep_AttState();
 
 	mState = ESafiState::Idle;
-	Anim->aState = mState;
+	OnRep_SafiState();
 	
 
 	//어떤 공격을 할 지 판별 	// 공격 타입 번호만 정해주기	
@@ -464,13 +497,13 @@ void UCSafiFSM::OnDisturbedProcess()
 {
 	//Disturbed 외엔 전부 None으로
 	mState = ESafiState::Disturbed;
-	Anim->aState = mState;
+	OnRep_SafiState();
 
 	mAttState = EAttackState::None;
-	Anim->aAttState = mAttState;
+	OnRep_AttState();
 
 	mTurnState = ETurnState::None;
-	Anim->aTurnState = mTurnState;
+	OnRep_TurnState();
 
 	// 각도 측정 및 넉백()
 
@@ -478,7 +511,7 @@ void UCSafiFSM::OnDisturbedProcess()
 	if (me->isDead == true)
 	{
 		mDisturbState = EDisturbState::Dead;
-		Anim->aDisturbState = mDisturbState;
+		OnRep_DisturbState();
 		return;								// Dead 일경우 하위 상황 판단할 필요가 없음
 	}
 
@@ -526,14 +559,14 @@ void UCSafiFSM::TargetRotationByAnim()
 	//if (dirLocal.X > 0)	{ return; }		// 앞에 있을 경우
 
 	mState = ESafiState::Turn;
-	Anim->aState = mState;
+	OnRep_SafiState();
 
 	//=============================
 	if (dirLocal.X < 0)	// 캐릭터가 뒤에 있음
 	{
 		// 회전 후방으로.
 		mTurnState = ETurnState::TrunBack;
-		Anim->aTurnState = mTurnState;
+		OnRep_TurnState();
 
 	}
 
@@ -541,7 +574,7 @@ void UCSafiFSM::TargetRotationByAnim()
 	{
 		// 회전 좌측으로
 		mTurnState = ETurnState::TurnLeft;
-		Anim->aTurnState = mTurnState;
+		OnRep_TurnState();
 	}
 
 
@@ -549,7 +582,7 @@ void UCSafiFSM::TargetRotationByAnim()
 	{
 		// 회전 우측으로
 		mTurnState = ETurnState::TurnRight;
-		Anim->aTurnState = mTurnState;
+		OnRep_TurnState();
 	}
 
 	// 적이 해당 위치에 있다면 공격으로 전환 -> TrunState( Turn Tick에서 )		- 미수행
@@ -564,41 +597,16 @@ void UCSafiFSM::TargetKnockBackByAnim()
 	FVector dir = SearchTarget();
 	FVector dirLocal = me->GetActorTransform().InverseTransformVectorNoScale(dir);
 
+	// 캐릭터가 뒤에 있음
+	if (dirLocal.X < 0)	{ mDisturbState = EDisturbState::KB_Backward; } // 넉백 돌면서 후방으로
+	// 캐릭터가 앞에 있음 
+	if (dirLocal.X > 0) { mDisturbState = EDisturbState::KB_Forward; } // 앞에서 뒤로 밀려남
+	// 캐릭터가 좌측이지만 뒤는 아님
+	else if (dirLocal.Y < 0 && dirLocal.X > 0) { mDisturbState = EDisturbState::KB_Left; } // 회전 좌측으로
+	// 캐릭터가 우측이지만 뒤는 아님
+	else if (dirLocal.Y > 0 && dirLocal.X > 0) { mDisturbState = EDisturbState::KB_Right; } // 회전 우측으로
 
-
-	//=============================
-	if (dirLocal.X < 0)	// 캐릭터가 뒤에 있음
-	{
-		// 넉백 돌면서 후방으로
-		mDisturbState = EDisturbState::KB_Backward;
-		Anim->aDisturbState = mDisturbState;
-
-	}
-
-	if (dirLocal.X > 0)	// 캐릭터가 앞에 있음
-	{
-		// 앞에서 뒤로 밀려남
-		mDisturbState = EDisturbState::KB_Forward;
-		Anim->aDisturbState = mDisturbState;
-
-	}
-
-
-	else if (dirLocal.Y < 0 && dirLocal.X > 0)	// 캐릭터가 좌측이지만 뒤는 아님
-	{
-		// 회전 좌측으로
-		mDisturbState = EDisturbState::KB_Left;
-		Anim->aDisturbState = mDisturbState;
-	}
-
-
-	else if (dirLocal.Y > 0 && dirLocal.X > 0)	// 캐릭터가 우측이지만 뒤는 아님
-	{
-		// 회전 우측으로
-		mDisturbState = EDisturbState::KB_Right;
-		Anim->aDisturbState = mDisturbState;
-	}
-
+	OnRep_DisturbState();	// 동기화
 }
 
 FVector UCSafiFSM::SearchTarget()
