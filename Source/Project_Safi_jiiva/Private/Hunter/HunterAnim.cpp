@@ -51,23 +51,24 @@ void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNo
     Owner->WeaponComp->isJumpDelay = true;
     Owner->WeaponComp->IsAttacking = true;
     //노티파이 공통 부분
-    if (NotifyName == FName(TEXT("AttackStart"))) {Owner->WeaponComp->IsAttacking = true;}
     if (NotifyName == FName(TEXT("AttackEnd"))) {Owner->WeaponComp->IsAttacking = false;}
     if (NotifyName == FName(TEXT("ComboEnd"))) { Owner->WeaponComp->ResetCombo();}
     //약공격 노티파이
     if (NotifyName == FName(TEXT("QuickAttackStart"))) { Owner->WeaponComp->IsQuickAttack = true;}
     if (NotifyName == FName(TEXT("QuickAttackAddIndex"))) { Owner->WeaponComp->SetQuickStrikeComboIndex(Owner->WeaponComp->GetQuickStrikeComboIndex() + 1); }
     if (NotifyName == FName(TEXT("QuickAttackEnd"))) { Owner->WeaponComp->IsQuickAttack = false; }
-    if (NotifyName == FName(TEXT("QuickCharge"))) {Owner->WeaponComp->QuickStrikeNext();} //선입력 처리 부분
 
-    //강공격 노티파이
+
+    ////강공격 노티파이
     if (NotifyName == FName(TEXT("HeavyAttackAddIndex"))) {Owner->WeaponComp->SetHeavyStrikeComboIndex(Owner->WeaponComp->GetHeavyStrikeComboIndex() + 1);}
-    if (NotifyName == FName(TEXT("HeavyAttackNext"))) { Owner->WeaponComp->HeavyStrikeNext();}
+    if (NotifyName == FName(TEXT("HeavyAttackStart"))) { Owner->WeaponComp->IsHeavyAttack = true; }
+
 
     //특수공격 노티파이
+    if (NotifyName == FName(TEXT("UniqueAttackStart"))) { Owner->WeaponComp->IsUniqueAttack = true; }
 
     //구르기, 캔슬 노티파이
-    if (NotifyName == FName(TEXT("Roll"))) { Owner->WeaponComp->ArrowRoll = true;}
+    if (NotifyName == FName(TEXT("Roll"))) { Owner->WeaponComp->AllowRoll = true;}
     if (NotifyName == FName(TEXT("iscancelEnd"))) { Owner->WeaponComp->iscancel = false;}
 
 
@@ -77,25 +78,28 @@ void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNo
     //무기 붙이고 때기
     if (NotifyName == FName(TEXT("Attach"))) {Owner->WeaponComp->AttachWeaponToHand();}
     if (NotifyName == FName(TEXT("Detach"))) {Owner->WeaponComp->AttachWeaponToOwner();}
-
-    if (NotifyName == FName(TEXT("OffCollision")))
-        Owner->GetCapsuleComponent()->SetCollisionProfileName(FName("Pawn"));
-    if (NotifyName == FName(TEXT("OnCollision")))
-        Owner->GetCapsuleComponent()->SetCollisionProfileName(FName("Pawn2"));
-    if (NotifyName == FName(TEXT("isTacle")))
-        Owner->WeaponComp->isTacle = true;
-    if (NotifyName == FName(TEXT("WeaponCollitionOn")))
-        Owner->WeaponComp->WeaponCollitionOn();
-    if (NotifyName == FName(TEXT("WeaponCollitionOff")))
-        Owner->WeaponComp->WeaponCollitionOff();
+    if (NotifyName == FName(TEXT("WeaponCollitionOn"))) {Owner->WeaponComp->WeaponCollitionOn();}
+    if (NotifyName == FName(TEXT("WeaponCollitionOff"))) {Owner->WeaponComp->WeaponCollitionOff(); }
+    if (NotifyName == FName(TEXT("TacleOn"))) { Owner->WeaponComp->isTacle = true; }
 
 
+	if (NotifyName == FName(TEXT("OffCollision"))) {
+		Owner->GetCapsuleComponent()->SetCollisionProfileName(FName("Pawn"));
+	}
+	if (NotifyName == FName(TEXT("OnCollision"))) {
+		Owner->GetCapsuleComponent()->SetCollisionProfileName(FName("Pawn2"));
+	}
+    if (NotifyName == FName(TEXT("Roll"))) {
+        Owner->WeaponComp->AllowRoll = true;
+    }
 }
 
 void UHunterAnim::OnMontageNotifyEnd(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload){
     Owner->WeaponComp->IsQuickAttack = false;
     Owner->WeaponComp->isTacle = false;
-
+    Owner->WeaponComp->IsHeavyAttack = false;
+    Owner->WeaponComp->IsUniqueAttack = false;
+    Owner->WeaponComp->AllowRoll = false;
 }
 
 void UHunterAnim::SetBluePrintValues()

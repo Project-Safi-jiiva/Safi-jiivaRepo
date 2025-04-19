@@ -11,6 +11,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Hunter/HunterAnim.h"
 #include "Weapon/WeaponComponent.h"
+#include "Project_Safi_jiiva.h"
 
 // Sets default values for this component's properties
 UMoveComponent::UMoveComponent()
@@ -30,13 +31,17 @@ UMoveComponent::UMoveComponent()
 void UMoveComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	Owner->GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this,&UMoveComponent::BeginOverlap);
 	Owner->GetCharacterMovement()->MaxAcceleration = 600.0f;
 }
 
 void UMoveComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	if (isRotation){
+		Owner->SetActorRotation(FRotator(DirectionY));
+	PRINT_LOG(TEXT("%f"), DirectionY);
+	}
+
 }
 
 void UMoveComponent::SetupInputBinding(class UEnhancedInputComponent* InputComponent)
@@ -62,7 +67,7 @@ void UMoveComponent::Move(const FInputActionValue& Value)
 {
 	FVector2D Scale = Value.Get<FVector2D>();
 	Direction = Scale;
-
+	DirectionY = Scale.Y;
 	// 카메라의 전방 방향 (앞뒤 이동)
 	FVector ForwardDirection = Owner->CameraComponent->GetForwardVector();
 	ForwardDirection.Z = 0.0f;
@@ -83,11 +88,6 @@ void UMoveComponent::Turn(const FInputActionValue& Value)
 	FVector2d Scale = Value.Get<FVector2d>();
 	Owner->AddControllerPitchInput(Scale.Y);
 	Owner->AddControllerYawInput(Scale.X);
-}
-void UMoveComponent::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-
-
 }
 
 void UMoveComponent::InputOff()
@@ -111,7 +111,7 @@ void UMoveComponent::KnockBack()
 	KnockbackDir = KnockbackDir.GetSafeNormal();
 
 	// 원하는 넉백 세기
-	float KnockbackPower = 1500.f;
+	float KnockbackPower = 2500.f;
 
 	// 넉백 벡터 = 넉백 방향 * 파워
 	FVector KnockbackForce = KnockbackDir * KnockbackPower;
@@ -124,14 +124,18 @@ void UMoveComponent::KnockBack()
 
 void UMoveComponent::EnableControllerRotaion()
 {
-	Owner->bUseControllerRotationYaw = false;
-	Owner->GetCharacterMovement()->bOrientRotationToMovement = false;
-
+	//Owner->bUseControllerRotationYaw = true;
+	//Owner->GetCharacterMovement()->bOrientRotationToMovement = false;
+	//PRINT_LOG(TEXT("START"));
+	isRotation = true;
 }
 
 void UMoveComponent::DisableControllerRotaion()
 {
-	Owner->bUseControllerRotationYaw = false;
-	Owner->GetCharacterMovement()->bOrientRotationToMovement = true;
+	//Owner->bUseControllerRotationYaw = false;
+	//Owner->GetCharacterMovement()->bOrientRotationToMovement = true;
+	//PRINT_LOG(TEXT("END"));
+	isRotation = false;
+
 }
 

@@ -29,7 +29,8 @@ void UGreatSword::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 void UGreatSword::QuickStrikeNext()
 {
 	Super::QuickStrikeNext();
-	if (FCommandInput[0]<=0.1)return;
+	if (IsQuickAttack)return;
+	if (FCommandInput[0]<=0.2)return;
 	ChargeAttack();
 }
 
@@ -89,7 +90,6 @@ void UGreatSword::checkCommand(float DeltaTime)
 			HeavyAttack();
 			}
 		if (isCommandInput[0] && isCommandInput[1] && !isCommandInput[2]){
-			PRINT_LOG(TEXT("tacle %f"),FCommandInput[0]);
 			if (FCommandInput[0] >= 0.2){
 				PlayMontage(CurrentData.HeavyStrikeMontages[1]);
 				SetHeavyStrikeComboIndex(0);
@@ -99,7 +99,6 @@ void UGreatSword::checkCommand(float DeltaTime)
 				IsCommandInputReset();
 			}
 			else {
-				//CancelHandler();
 				UniqueAttack();
 			}
 		}
@@ -163,18 +162,12 @@ void UGreatSword::CancelHandler()
 
 void UGreatSword::Roll()
 {
+	Super::Roll();
+	if (IsAttacking && !AllowRoll)return;
+	AllowRoll = false;
+
 	FWeaponDataTable CurrentData = GetCurrentWeaponData();
-	if (IsAttacking) {
-		if (ArrowRoll) {
-			PlayMontage(CurrentData.DodgeMontage);
-			ArrowRoll = false;
-		}
-	}
-	else {
 		PlayMontage(CurrentData.DodgeMontage);
-
-	}
-
 }
 
 void UGreatSword::WeaponCollitionOn()
@@ -201,7 +194,6 @@ void UGreatSword::PlayMontage(UAnimMontage* Montage)
 
 void UGreatSword::QuickAttack()
 {
-	//if (IsAttacking)return;
 	FWeaponDataTable CurrentData = GetCurrentWeaponData();
 	if (CurrentData.QuickStrikeMontages.Num() > 0 && Owner) {
 		 if (!isWeaponEquipped && Owner->GetVelocity().Size2D() <= 0) {
@@ -233,6 +225,7 @@ void UGreatSword::HeavyAttack()
 
 void UGreatSword::UniqueAttack()
 {
+	if (!isWeaponEquipped) return;
 	if (IsAttacking) return;
 
 	FWeaponDataTable CurrentData = GetCurrentWeaponData();

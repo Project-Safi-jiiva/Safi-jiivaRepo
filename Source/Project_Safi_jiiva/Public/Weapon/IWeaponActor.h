@@ -30,4 +30,7 @@ public:
 
     UFUNCTION(BlueprintNativeEvent, Category = "Weapon")
     void ApplyDamage(AActor* HitActor, float DamageMultiplier);
+
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+    void SetOwnerComponent(UActorComponent* Component);
 };

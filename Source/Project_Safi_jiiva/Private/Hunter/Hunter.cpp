@@ -71,7 +71,6 @@ AHunter::AHunter()
 	CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
 	CameraComponent->bUsePawnControlRotation = false;
 	GetCapsuleComponent()->SetCollisionProfileName(FName("Pawn2"));
-
 }
 
 void AHunter::BeginPlay()
@@ -80,16 +79,21 @@ void AHunter::BeginPlay()
 	ChangeWeapon(EWeaponType::GREATSWORD);
 	Anim = Cast<UHunterAnim>(GetMesh()->GetAnimInstance());
 	APlayerController* PC = Cast<APlayerController>(GetController());
+	if(PC){
 	UEnhancedInputLocalPlayerSubsystem* subSys = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer());
 
 	if (subSys)
 		subSys->AddMappingContext(IMC_Hunter, 0);
-
+	}
 }
 
 void AHunter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	NetLog();
+
+	if (Anim->Montage_IsPlaying(nullptr)&&isHit)
+		Anim->Montage_Stop(0.1f);
 
 }
 
@@ -108,20 +112,20 @@ float AHunter::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, 
 {
 	if (WeaponComp->isTacle) return 0;
 	MoveComp->MoveState = EMoveState::HIT;
+	isHit = true;
 	MoveComp->InputOff();
 	GetCapsuleComponent()->SetCollisionProfileName(FName("Pawn"));
-	if (Anim->Montage_IsPlaying(nullptr))
-		Anim->Montage_Stop(0.1f);
+
 	MoveComp->KnockBack();
 	WeaponComp->ResetCombo();
 	FTimerHandle Handler;
 	auto OnInput = [this]()
 		{
-			MoveComp->InputOn(); MoveComp->MoveState = EMoveState::IDLE;
+	MoveComp->InputOn(); MoveComp->MoveState = EMoveState::IDLE;
+			isHit = false;
 			GetCapsuleComponent()->SetCollisionProfileName(FName("Pawn2"));
-
 		};
-	GetWorld()->GetTimerManager().SetTimer(Handler, OnInput, 2.5, false);
+	GetWorld()->GetTimerManager().SetTimer(Handler, OnInput, 2.3, false);
 	return Damage;
 }
 
@@ -155,4 +159,13 @@ void AHunter::ChangeWeapon(EWeaponType NewWeaponType)
 	}
 }
 
+void AHunter::NetLog()
+{
+	const FString conStr = GetNetConnection() != nullptr ? TEXT("Valid Connection") : TEXT("Invalid Connection");
+	const FString ownerName = GetOwner() != nullptr ? GetOwner()->GetName() : TEXT("No Owner");
+
+	const FString logStr = FString::Printf(TEXT("Connection : %s \nOwner Name : %s \nLocalRole : %s \nRemote Role : %s"), *conStr, *ownerName, *LOCAL_ROLE, *REMOTE_ROLE);
+
+	DrawDebugString(GetWorld(), GetActorLocation() + FVector::UpVector * 100.0f, logStr, nullptr, FColor::White, 0, true);
+}
 
