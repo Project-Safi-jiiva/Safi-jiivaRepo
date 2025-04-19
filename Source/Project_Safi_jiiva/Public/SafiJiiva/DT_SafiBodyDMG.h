@@ -13,12 +13,12 @@ USTRUCT(BlueprintType)
 struct PROJECT_SAFI_JIIVA_API FDT_SafiBodyDMG : public FTableRowBase
 {
 	GENERATED_BODY()
-
+    /*
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
    
 
-    /*
+  
     //¹«±â ¿¢ÅÍ
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Actor")
     TSubclassOf<AActor> WeaponActorClass;

@@ -50,6 +50,7 @@ public: //기본 세팅 파트
 
 
 public:	// 소켓 추가 파트
+
 #pragma region CollisionSocketPart
 
 // =================== 피격용 콜리전 ===================
@@ -60,57 +61,53 @@ public:	// 소켓 추가 파트
 
 
 	UPROPERTY(EditDefaultsOnly)
-	class UBoxComponent* BodyColNeck_1;
+	class UBoxComponent* Socket_Body_31;
 	UPROPERTY(EditDefaultsOnly)
-	class UBoxComponent* BodyColNeck_2;
+	class UBoxComponent* Socket_Body_32;
 
 
 	UPROPERTY(EditDefaultsOnly)
-	class UBoxComponent* BodyCol_1;
+	class UBoxComponent* Socket_Body_1;
 
 
-	UPROPERTY()
-	TArray<UBoxComponent*> TailCollisionBoxes;
 
 
+	///////////// 다리
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* Socket_Body_2;
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* Socket_Body_3;
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* Socket_Body_33;
+
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* Socket_Body_4;
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* Socket_Body_5;
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* Socket_Body_34;
+
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* Socket_Body_6;
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* Socket_Body_7;
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* Socket_Body_8;
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* Socket_Body_35;
+
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* Socket_Body_9;
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* Socket_Body_10;
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* Socket_Body_11;
+	UPROPERTY(EditDefaultsOnly)
+	class UBoxComponent* Socket_Body_36;
 #pragma endregion Collision_Body
 
-#pragma region Collision_Leg
-	UPROPERTY(EditDefaultsOnly)
-	class UBoxComponent* BodyColLF_1;
-	UPROPERTY(EditDefaultsOnly)
-	class UBoxComponent* BodyColLF_2;
-	UPROPERTY(EditDefaultsOnly)
-	class UBoxComponent* BodyColLF_3;
-
-	UPROPERTY(EditDefaultsOnly)
-	class UBoxComponent* BodyColRF_1;
-	UPROPERTY(EditDefaultsOnly)
-	class UBoxComponent* BodyColRF_2;
-	UPROPERTY(EditDefaultsOnly)
-	class UBoxComponent* BodyColRF_3;
-
-	UPROPERTY(EditDefaultsOnly)
-	class UBoxComponent* BodyColLB_1;
-	UPROPERTY(EditDefaultsOnly)
-	class UBoxComponent* BodyColLB_2;
-	UPROPERTY(EditDefaultsOnly)
-	class UBoxComponent* BodyColLB_3;
-	UPROPERTY(EditDefaultsOnly)
-	class UBoxComponent* BodyColLB_4;
-
-	UPROPERTY(EditDefaultsOnly)
-	class UBoxComponent* BodyColRB_1;
-	UPROPERTY(EditDefaultsOnly)
-	class UBoxComponent* BodyColRB_2;
-	UPROPERTY(EditDefaultsOnly)
-	class UBoxComponent* BodyColRB_3;
-	UPROPERTY(EditDefaultsOnly)
-	class UBoxComponent* BodyColRB_4;
-#pragma endregion Collision_Leg
-
 // =================== 공격용 콜리전 ===================
-#pragma region Collision_Att
+
 	UPROPERTY(EditDefaultsOnly)
 	class UBoxComponent* AttCollisionBite;
 
@@ -128,9 +125,14 @@ public:	// 소켓 추가 파트
 
 	
 	UPROPERTY(EditDefaultsOnly)
-	class UBoxComponent* BodyCol_2;
+	class UBoxComponent* Socket_Body_37;
+
+	UPROPERTY()
+	TArray<UBoxComponent*> TailCollisionBoxes;
+
 
 // =================== 공격 위치 판정용 콜리전===================
+#pragma region Collision_Att
 	UPROPERTY(EditDefaultsOnly)
 	class UBoxComponent* AttPosLF;
 
@@ -201,6 +203,8 @@ public:
 	void SetSpeed(float _value);
 	//void OnDamageSafi(float _value);
 	void KillSafi_Test();
+
+	//void InitBoxes();
 
 public:	// 충돌처리
 
