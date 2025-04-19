@@ -21,18 +21,26 @@ class PROJECT_SAFI_JIIVA_API UWeaponComponent
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this component's properties
 	UWeaponComponent();
 
-
+	//베이스 오버라이드 함수
 protected:
-	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:
-	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+//서버 함수 적용 함수
+protected:
+	virtual void Dash() ;
+	void DashEnd();
+	//UFUNCTION(Client, Reliable)
+	//virtual void ClientRPC_Dash();
+	UFUNCTION(Server, Reliable)
+	virtual void ServerRPC_Dash();
+
+	//UFUNCTION(NetMulticast, Reliable)
+	//virtual void MulticastRPC_Dash();
+public:
 	virtual void ResetCombo() override;
 
 	virtual void QuickInputEnd() override;
@@ -76,9 +84,7 @@ public:
 
 private:
 	void LoadWeaponData();
-protected:
-	virtual void Dash();
-	void DashEnd();
+
 public:
 	AActor* EquippedWeapon;
 	bool IsAttacking =false;
@@ -99,6 +105,7 @@ protected:
 
 	FTimerHandle ComboTimerHandle;
 protected:
+	UPROPERTY(Replicated)
 	bool isWeaponEquipped = false;
 
 public:
@@ -157,4 +164,6 @@ public:
 		UFUNCTION()
 		float SetDamage();
 		float Damage=0.0f;
+//////////////////////서버/////////////////////
+		void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 };

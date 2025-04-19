@@ -10,6 +10,7 @@
 #include "Weapon/IWeaponActor.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Hunter/HunterAnim.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values for this component's properties
 UWeaponComponent::UWeaponComponent(){
@@ -117,7 +118,7 @@ void UWeaponComponent::SetupInputBinding(class UEnhancedInputComponent* InputCom
 	{
 
 		// 입력 액션에 델리게이트 연결
-		InputComponent->BindAction(IA_Dash, ETriggerEvent::Triggered, this, &UWeaponComponent::Dash);
+		InputComponent->BindAction(IA_Dash, ETriggerEvent::Triggered, this, &UWeaponComponent::ServerRPC_Dash);
 		InputComponent->BindAction(IA_Dash, ETriggerEvent::Completed, this, &UWeaponComponent::DashEnd);
 		InputComponent->BindAction(IA_QuickStrike, ETriggerEvent::Started, this, &UWeaponComponent::QuickInputStart);
 		InputComponent->BindAction(IA_QuickStrike, ETriggerEvent::Triggered, this, &UWeaponComponent::QuickInputHolding);
@@ -236,17 +237,27 @@ void UWeaponComponent::LoadWeaponData()
 
 void UWeaponComponent::Dash()
 {
-	if (isWeaponEquipped) {
-		Owner->isRun = false;
-		return;
-	}
-	Owner->isRun = true;
+	PRINTLOG_NET(TEXT("sadsadasdsad"));
+
 }
 
 void UWeaponComponent::DashEnd()
 {
 	if (isWeaponEquipped) return;
 	Owner->isRun = false;
+}
+
+void UWeaponComponent::ServerRPC_Dash_Implementation()
+{
+	//Dash();
+	PRINTLOG_NET(TEXT("UWeaponComponent ServerRPC_Dash_Implementation"));
+	if (!Owner)return;
+	if (isWeaponEquipped) {
+		Owner->isRun = false;
+		return;
+	}
+	Owner->isRun = true;
+
 }
 
 FWeaponDataTable UWeaponComponent::GetCurrentWeaponData() const
@@ -289,3 +300,7 @@ float UWeaponComponent::SetDamage()
 	return Damage;
 }
 
+void UWeaponComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	DOREPLIFETIME(UWeaponComponent, isWeaponEquipped);
+}

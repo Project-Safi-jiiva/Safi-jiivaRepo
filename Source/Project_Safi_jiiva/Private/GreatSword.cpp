@@ -116,16 +116,24 @@ void UGreatSword::ResetCombo()
 void UGreatSword::Dash()
 {
 	Super::Dash();
+	PRINTLOG_NET(TEXT("Child ServerRPC Dash"));
 
+}
+
+
+void UGreatSword::ServerRPC_Dash()
+{
+	Super::ServerRPC_Dash_Implementation();
+	PRINTLOG_NET(TEXT("UGreatSword ServerRPC Dash"));
 	if (!isWeaponEquipped)return;
-	if(!IsAttacking){
-	FWeaponDataTable CurrentData = GetCurrentWeaponData();
-	if (CurrentData.QuickStrikeMontages.Num() > 0 && Owner){
-		if (isWeaponEquipped) {
-			PlayMontage(CurrentData.DrawMontage);
-			isWeaponEquipped = false;
+	if (!IsAttacking) {
+		FWeaponDataTable CurrentData = GetCurrentWeaponData();
+		if (CurrentData.QuickStrikeMontages.Num() > 0 && Owner) {
+			if (isWeaponEquipped) {
+				PlayMontage(CurrentData.DrawMontage);
+				isWeaponEquipped = false;
+			}
 		}
-	}
 	}
 }
 

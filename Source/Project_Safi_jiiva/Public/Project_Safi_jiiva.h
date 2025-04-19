@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/Engine.h"
+#include "Logging/LogMacros.h"
 
 // 1. 일반 로그 매크로
 #define PRINT_LOG(Message, ...) \
@@ -46,3 +47,10 @@
 	DrawDebugString(GetWorld(), GetActorLocation() + FVector::UpVector * 100.0f, logStr, nullptr, FColor::White, 0, true, 1); \
 }
 
+
+DECLARE_LOG_CATEGORY_EXTERN(Project_Safi_jiiva_LOG, Log, All);
+#define LOCAL_ROLE (UEnum::GetValueAsString<ENetRole>(GetLocalRole()))
+#define REMOTE_ROLE (UEnum::GetValueAsString<ENetRole>(GetRemoteRole()))
+#define NETMODE (GetWorld()->GetNetMode() == ENetMode::NM_Client ? TEXT("CLIENT") : GetWorld()->GetNetMode() == NM_Standalone ? TEXT("Standalone") : TEXT("Server"))
+#define CALLINFO (FString(__FUNCTION__) + TEXT("( ") + FString::FromInt(__LINE__) + TEXT(" )"))
+#define PRINTLOG_NET(fmt, ...) UE_LOG(Project_Safi_jiiva_LOG, Warning, TEXT("[%s]%s : %s"), NETMODE, *CALLINFO, *FString::Printf(fmt, ##__VA_ARGS__))

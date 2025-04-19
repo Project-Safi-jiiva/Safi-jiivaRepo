@@ -63,11 +63,17 @@ private:
 	class USkeletalMeshComponent* SkeletalMeshComp;
 
 public:
+	UPROPERTY(Replicated)
 	bool isRun = false;
+
+	UFUNCTION()
+	void OnRep_IsRun();
+
 	bool isHit = false;
 
 	void NetLog();
 
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
 
 

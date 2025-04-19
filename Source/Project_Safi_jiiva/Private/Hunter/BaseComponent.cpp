@@ -52,9 +52,6 @@ void UBaseComponent::SetupInputBinding(class UEnhancedInputComponent* InputCompo
 
 void UBaseComponent::ModifyWeaponMoveSpeed()
 {
-	if (Owner->isRun)
-		Owner->GetCharacterMovement()->MaxWalkSpeed = 500;
-	else
-		Owner->GetCharacterMovement()->MaxWalkSpeed = 300;
+
 }
 

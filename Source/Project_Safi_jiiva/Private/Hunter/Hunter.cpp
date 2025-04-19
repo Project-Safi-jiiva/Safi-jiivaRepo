@@ -22,6 +22,7 @@
 #include "Weapon/WeaponComponent.h"
 #include "GreatSword.h"
 #include "Components/CapsuleComponent.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values
 AHunter::AHunter()
@@ -160,6 +161,14 @@ void AHunter::ChangeWeapon(EWeaponType NewWeaponType)
 	}
 }
 
+void AHunter::OnRep_IsRun()
+{
+	if (isRun)
+		GetCharacterMovement()->MaxWalkSpeed = 500;
+	else
+		GetCharacterMovement()->MaxWalkSpeed = 300;
+}
+
 void AHunter::NetLog()
 {
 	const FString conStr = GetNetConnection() != nullptr ? TEXT("Valid Connection") : TEXT("Invalid Connection");
@@ -168,5 +177,11 @@ void AHunter::NetLog()
 	const FString logStr = FString::Printf(TEXT("Connection : %s \nOwner Name : %s \nLocalRole : %s \nRemote Role : %s"), *conStr, *ownerName, *LOCAL_ROLE, *REMOTE_ROLE);
 
 	DrawDebugString(GetWorld(), GetActorLocation() + FVector::UpVector * 100.0f, logStr, nullptr, FColor::White, 0, true);
+}
+
+void AHunter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AHunter, isRun);
 }
 

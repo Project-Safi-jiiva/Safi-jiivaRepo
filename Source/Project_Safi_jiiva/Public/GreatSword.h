@@ -35,7 +35,9 @@ protected:
 	virtual void QuickStrikeNext() override;
 
 	virtual void ResetCombo() override;
-	virtual void Dash() override;
+	virtual void Dash()override;
+	virtual void ServerRPC_Dash() override;
+
 	virtual void ModifyWeaponMoveSpeed() override;
 
 	virtual void CancelHandler() override;
