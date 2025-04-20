@@ -17,6 +17,7 @@
 #include "SafiJiiva/CSafiAnimInstance.h"
 #include "Kismet/GameplayStatics.h"
 
+
 // Sets default values
 ACSafiJiiva::ACSafiJiiva()
 {
@@ -155,6 +156,7 @@ void ACSafiJiiva::BeginPlay()
 void ACSafiJiiva::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
 // ============================= 테스트용 Tick 데미지 =============================
 //
 //	currentTime += DeltaTime;
@@ -180,12 +182,6 @@ void ACSafiJiiva::Tick(float DeltaTime)
 #pragma region CollisionEnable
 
 // 몸통공격 콜리전 활성화 / 비활성화
-/*
-	if (BodyCollisionBoxes.IsValidIndex(19))
-	{
-		BodyCollisionBoxes[19]->SetCollisionEnabled(isOnBodyPress ? ECollisionEnabled::QueryAndPhysics : ECollisionEnabled::NoCollision);
-	}
-*/
 	if (isOnBodyPress == true) 
 	{ 
 		Socket_Body_37->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
@@ -207,11 +203,12 @@ void ACSafiJiiva::Tick(float DeltaTime)
 // 다리공격 콜리전 활성화 / 비활성화
 	if (isOnBodyPress == true || isFootAttack == true)
 	{
-		AttCollisionLF->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		AttCollisionRF->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		AttCollisionLB->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		AttCollisionRB->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		/*
+		// AttCollisionLF->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		// AttCollisionRF->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		// AttCollisionLB->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		// AttCollisionRB->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		
+
 		switch (attackPos)
 		{
 		case AttMELEE_LF:
@@ -230,7 +227,8 @@ void ACSafiJiiva::Tick(float DeltaTime)
 			AttCollisionRB->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 			break;
 		}
-		*/
+
+
 	}
 	else
 	{
@@ -238,6 +236,8 @@ void ACSafiJiiva::Tick(float DeltaTime)
 		AttCollisionRF->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		AttCollisionLB->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		AttCollisionRB->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		// attackPos = 0;
 	}
 
 // 색적 콜리전 활성화/비활성화
@@ -306,6 +306,7 @@ void ACSafiJiiva::SetNormal()
 	isDisturbed = false;
 
 	isOnSearch = false;
+	// attackPos = 0;
 }
 
 void ACSafiJiiva::SetSpeed(float _value)
@@ -377,7 +378,7 @@ void ACSafiJiiva::KillSafi_Test()
 	UGameplayStatics::ApplyDamage(this, MAXHP, nullptr, this, nullptr);
 }
 
-
+// ===================================================콜리전 세팅 ===================================================
 void ACSafiJiiva::InitBoxes()
 {
 
@@ -565,10 +566,10 @@ void ACSafiJiiva::InitBoxes()
 	Socket_Body_37->SetupAttachment(SafiComponent, TEXT("Socket_Body_37"));
 	Socket_Body_37->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Socket_Body_37->SetCollisionResponseToAllChannels(ECR_Overlap);
-	Socket_Body_37->SetCollisionProfileName(TEXT("SafiBody"));
+	Socket_Body_37->SetCollisionProfileName(TEXT("SafiAttack"));
 	Socket_Body_37->SetCollisionObjectType(ECC_Pawn);
 	Socket_Body_37->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
-	Socket_Body_37->SetBoxExtent(FVector(350.f, 350.f, 500.f));
+	Socket_Body_37->SetBoxExtent(FVector(600.f, 400.f, 900.f));
 
 
 	AttCollisionBite->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnAttackOverlapBegin);
@@ -609,6 +610,9 @@ void ACSafiJiiva::InitBoxes()
 
 
 }
+// ===================================================콜리전 세팅 ===================================================
+
+
 
 void ACSafiJiiva::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {

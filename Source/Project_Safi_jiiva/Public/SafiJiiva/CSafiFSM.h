@@ -119,6 +119,11 @@ private:
 	UPROPERTY()
 	class AHunter* target;
 
+	UPROPERTY()
+	TArray<AHunter*>HunterList;
+
+	UPROPERTY()
+	TArray<AHunter*>TargetList;
 
 public:
 	UPROPERTY(ReplicatedUsing = OnRep_SafiState)
@@ -167,13 +172,16 @@ public: // 공격 관련 함수
 	//void AttMelee();											// - 깡통
 	void AttBreath();
 
-	void CanMeleeAttack();				// 공격 가능 위치에 정확히 있는지 확인 , 브레스 종류 랜덤 결정.
+	void DecideAttackType();				// 공격 가능 위치에 정확히 있는지 확인 , 브레스 종류 랜덤 결정.
 
 public:
 	void TargetRotation();
 	void TargetRotationByAnim();		// 애니메이션으로 회전
 	void TargetKnockBackByAnim();
-	FVector SearchTarget();
+
+	FVector SetTargetDir();
+	void SetTarget();
+	void UpdateHunterList();			// EndAttackList에서 갱신
 
 public:
 	bool isRot = false;				// 좀 한 번만 돌자 :)....

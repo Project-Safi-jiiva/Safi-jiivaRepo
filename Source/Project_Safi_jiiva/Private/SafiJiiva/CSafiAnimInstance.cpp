@@ -110,6 +110,7 @@ void UCSafiAnimInstance::AnimNotify_Attack_End()
 	if (!me || !FSM) { return; }
 	FSM->EndAttackProcess();
 	me->HitPawn.Empty();
+	me->attackPos = 0;
 }
 
 

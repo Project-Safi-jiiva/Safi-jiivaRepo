@@ -53,7 +53,7 @@ void UCSafiFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 #pragma region LogMessageState
 
 	/// ==================================== 에러 테스트용 계산 ====================================
-	FVector dir = SearchTarget();
+	FVector dir = SetTargetDir();
 	FRotator targetRot = dir.Rotation();
 	FRotator currentRot = me->GetActorRotation();
 	float length = dir.Size();
@@ -72,11 +72,13 @@ void UCSafiFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	FString logMsgTurn = UEnum::GetValueAsString(mTurnState);
 	GEngine->AddOnScreenDebugMessage(2, 1, FColor::Yellow, logMsgTurn);
 
-	FString logBFattType = FString::Printf(TEXT("BFattType: %d"), BFattType);
-	GEngine->AddOnScreenDebugMessage(3, 1, FColor::Red, logBFattType);
+	GEngine->AddOnScreenDebugMessage(3, 1, FColor::Emerald, FString::Printf(TEXT("attackPos: %d"), me->attackPos));
 
-	FString logattType = FString::Printf(TEXT("attType: %d"), attType);
-	GEngine->AddOnScreenDebugMessage(4, 1, FColor::Yellow, logattType);
+	// FString logBFattType = FString::Printf(TEXT("BFattType: %d"), BFattType);
+	// GEngine->AddOnScreenDebugMessage(3, 1, FColor::Red, logBFattType);
+	// 
+	// FString logattType = FString::Printf(TEXT("attType: %d"), attType);
+	// GEngine->AddOnScreenDebugMessage(4, 1, FColor::Yellow, logattType);
 
 
 	// GEngine->AddOnScreenDebugMessage(3, 1, FColor::Emerald, FString::Printf(TEXT("distance: %f"),length));
@@ -119,7 +121,7 @@ void UCSafiFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 		case ESafiState::Start		: { StartState(); }	break;
 		case ESafiState::Idle		: { IdleState(); }	break;
 		//case ESafiState::Move		: {  }	break;
-		case ESafiState::Turn		: { CanMeleeAttack(); }	break;
+		case ESafiState::Turn		: { DecideAttackType(); }	break;
 		case ESafiState::Attack		: {  }	break;
 		case ESafiState::Disturbed	: {  }	break;
 	}
@@ -143,11 +145,14 @@ void UCSafiFSM::StartState()
 	// ======== 탐지 -> 포효 -> 개전 ========
 
 //탐지파트
+
+
+	// 기존 로직대로 타겟 하나 지정
 	AActor* actor = UGameplayStatics::GetActorOfClass(GetWorld(), AHunter::StaticClass());
 	if (!actor) { return; }
 	target = Cast<AHunter>(actor);
 
-	FVector dir = SearchTarget();
+	FVector dir = SetTargetDir();
 
 	//타겟과의 사거리가 색적범위보다 멀다면 타겟을 삭제
 	if (dir.Size() > me->SearchRange)
@@ -165,11 +170,12 @@ void UCSafiFSM::StartState()
 	// 위 조건을 지나옴 = 색적범위 안쪽
 	me->isInBattle = true;
 
+	// 헌터 리스트 업데이트 해주고
+	// 원랜 탐지파트 상단에 있었음. 그런데 굳이 계속 리스트 갱신할 필요가 있나 싶어서 아래로.
+	UpdateHunterList();					
 
 	// 포효
 	// 포효 처리 및 공격 패턴으로 전환
-	//  mState = ESafiState::Attack;
-	//  OnRep_SafiState();
 	ServerSetActState(ESafiState::Attack);
 	AttRoar();
 }
@@ -186,10 +192,10 @@ void UCSafiFSM::IdleState()
 		return;
 	}
 
-	CanMeleeAttack();	// 공격 수행시 노티파이로 attackPos = 0;		- 미수행
+	DecideAttackType();	// 공격 수행시 노티파이로 attackPos = 0;		- 미수행
 
 	// 공격 판단부분도 Idle에서 수행
-	FRotator targetRot = SearchTarget().Rotation();
+	FRotator targetRot = SetTargetDir().Rotation();
 	FRotator currentRot = me->GetActorRotation();
 	float targetYaw = FMath::Abs(FMath::FindDeltaAngleDegrees(currentRot.Yaw, targetRot.Yaw));
 
@@ -205,15 +211,16 @@ void UCSafiFSM::IdleState()
 
 
 	// 돌아야 하는 값이 60도 이상이라면 TargetRotationByAnim으로 회전
-	// 뭘 하고싶었던거지... 재점검하기
+
+	// *** 뭘 하고싶었던거지... 재점검하기 ****
 	if (targetYaw <= 3.f && !isRot)
 	{
 		me->SetActorRotation(targetRot); // 최종 방향 고정
 		isRot = false; // 회전 완료
-		// mState = ESafiState::Attack; // 즉시 공격 상태로 전환
-		// OnRep_SafiState();
+
 		ServerSetActState(ESafiState::Attack);
-		CanMeleeAttack();
+
+		DecideAttackType();
 		OnAttackProcess();
 		return;
 	}
@@ -231,11 +238,9 @@ void UCSafiFSM::IdleState()
 	
 }
 
-void UCSafiFSM::CanMeleeAttack()	// SetAttackType으로 이름 바꾸고 근접공격 파트만 빼는것도 나쁘지 않을듯.
+void UCSafiFSM::DecideAttackType()	// SetAttackType으로 이름 바꾸고 근접공격 파트만 빼는것도 나쁘지 않을듯.
 {
-	FVector dir = SearchTarget();
-	// BFattType = attType;
-
+	FVector dir = SetTargetDir();
 
 	// 어떤 공격을 할 지 판별 	// 공격 타입 번호만 정해주기	
 	// 회전중에 다리에 걸릴 경우에는 바로 내리친다.
@@ -308,16 +313,11 @@ void UCSafiFSM::AttRoar()
 {
 	// me->isImmune = true;
 
-	// mAttState = EAttackState::Roar;
-	// OnRep_AttState();
 	ServerSetAttState(EAttackState::Roar);
 
 
 	// 포효 공격판정 실행						- *** 이건 플레이어 함수 불러와야 할 듯?
 	// ㄴ> 여기서 하지 말고 노티파이로 할 것
-
-	// 노티파이 종료시 EndAttackProcess 호출	- 수행완료
-
 }
 
 /*
@@ -326,16 +326,17 @@ void UCSafiFSM::AttMelee()
 	// 노티파이로 isOnAttBite = true 활성화  - 수행완료
 	// isOnAttBite 상태라면 Collision_1 활성화, 비활성화 - 캐릭터 자체 틱으로 옮김  - 수행완료
 	// 노티파이로 isOnAttBite = false	- 수행완료
-	// 노티파이로 공격이 끝날땐 정리 프로세스 - 수행완료
+
 }
 */
+
 void UCSafiFSM::AttBreath()
 {
 	// 브레스 사용중에만 실행
 	if (me->isOnBreath == false){ return; }
 
 	FVector Start = me->FireArrowComp->GetComponentLocation();
-	FVector Forward = (SearchTarget() - Start).GetSafeNormal();
+	FVector Forward = (SetTargetDir() - Start).GetSafeNormal();
 	
 	// FVector Start = me->FireArrowComp->GetComponentLocation();
 	// FVector Forward = me->FireArrowComp->GetForwardVector();
@@ -388,7 +389,7 @@ void UCSafiFSM::OnAttackProcess()
 {
 	isRot = false;
 	me->isOnSearch = false;
-	FVector dir = SearchTarget();
+	FVector dir = SetTargetDir();
 
 
 // ======================== 스위치 ======================== 
@@ -444,7 +445,6 @@ void UCSafiFSM::OnAttackProcess()
 		ServerSetAttState(EAttackState::MeleeBPress);
 		break;
 	} 
-	// OnRep_AttState();
 
 
 // ========================================================
@@ -452,24 +452,21 @@ void UCSafiFSM::OnAttackProcess()
 	//공격 상태로의 전환, 수행
 	if (mState != ESafiState::Attack)
 	{
-		// mState = ESafiState::Attack;
-		// OnRep_SafiState();
 		ServerSetActState(ESafiState::Attack);
 	}
 
-	// 여기여기여기
 	// attType = AttNONE;	// 공격 타입 확정 후 초기화
-	 me->attackPos = 0;	// 공격 후엔 팔공격도 초기화
+	// me->attackPos = 0;	// 공격 후엔 팔공격도 초기화
+	// ㄴ> 둘 다 여기있으면 안됨. 위치 옮겼음.
 }
 
 
 void UCSafiFSM::EndAttackProcess()
 {
-	// mAttState = EAttackState::None;
-	// OnRep_AttState();
+	// 타겟 리스트 갱신
+	SetTarget();
+
 	ServerSetAttState(EAttackState::None);
-	// mState = ESafiState::Idle;
-	// OnRep_SafiState();
 	ServerSetActState(ESafiState::Idle);
 
 	me->isOnSearch = true;	// 공격할 때 꺼주기	- OnAttackProcess에 false 해줌
@@ -488,25 +485,17 @@ void UCSafiFSM::EndAttackProcess()
 void UCSafiFSM::OnDisturbedProcess()
 {
 	//Disturbed 외엔 전부 None으로
-	//mState = ESafiState::Disturbed;
-	//OnRep_SafiState();
+
 	ServerSetActState(ESafiState::Disturbed);
-
-	//mAttState = EAttackState::None;
-	//OnRep_AttState();
 	ServerSetAttState(EAttackState::None);
-
-	//mTurnState = ETurnState::None;
-	//OnRep_TurnState();
 	ServerSetTurnState(ETurnState::None);
 
-	// 각도 측정 및 넉백()
+
+	// 각도 측정 및 넉백	-> 플레이어에서 해줬다
 
 	// 조건에 따라 스위치
 	if (me->isDead == true)
 	{
-		// mDisturbState = EDisturbState::Dead;
-		// OnRep_DisturbState();
 		ServerSetDisturbState(EDisturbState::Dead);
 
 		return;								// Dead 일경우 하위 상황 판단할 필요가 없음
@@ -524,7 +513,7 @@ void UCSafiFSM::OnDisturbedProcess()
 void UCSafiFSM::TargetRotation()
 {
 	float DeltaTime = GetWorld()->DeltaTimeSeconds;
-	FVector dir = SearchTarget();
+	FVector dir = SetTargetDir();
 
 	FRotator TargetRotation = dir.Rotation();
 	FRotator CurrentRotation = me->GetActorRotation();
@@ -546,33 +535,26 @@ void UCSafiFSM::TargetRotation()
 
 void UCSafiFSM::TargetRotationByAnim()
 {
-	FVector dir = SearchTarget();
+	FVector dir = SetTargetDir();
 	FVector dirLocal = me->GetActorTransform().InverseTransformVectorNoScale(dir);	// 로컬 방향 계산
 
 	
 	// 캐릭터가 앞에 있음. 회전 불필요. return.
 	// 나중에 idle이나 백스텝 밟으면서 rotation만 조금 돌리게 수정할 것.
 
-	//if (dirLocal.X > 0)	{ return; }		// 앞에 있을 경우
-
-	// mState = ESafiState::Turn;
-	// OnRep_SafiState();
+	// if (dirLocal.X > 0)	{ return; }		// 앞에 있을 경우
 	ServerSetActState(ESafiState::Turn);
 
 	//=============================
 	if (dirLocal.X < 0)	// 캐릭터가 뒤에 있음
 	{
 		// 회전 후방으로.
-		// mTurnState = ETurnState::TrunBack;
-		// OnRep_TurnState();
 		ServerSetTurnState(ETurnState::TrunBack);
 	}
 
 	else if (dirLocal.Y < 0 && dirLocal.X > 0)	// 캐릭터가 좌측이지만 뒤는 아님
 	{
 		// 회전 좌측으로
-		// mTurnState = ETurnState::TurnLeft;
-		// OnRep_TurnState();
 		ServerSetTurnState(ETurnState::TurnLeft);
 	}
 
@@ -580,8 +562,6 @@ void UCSafiFSM::TargetRotationByAnim()
 	else if (dirLocal.Y > 0 && dirLocal.X > 0)	// 캐릭터가 우측이지만 뒤는 아님
 	{
 		// 회전 우측으로
-		// mTurnState = ETurnState::TurnRight;
-		// OnRep_TurnState();
 		ServerSetTurnState(ETurnState::TurnRight);
 	}
 
@@ -594,7 +574,7 @@ void UCSafiFSM::TargetRotationByAnim()
 
 void UCSafiFSM::TargetKnockBackByAnim()
 {
-	FVector dir = SearchTarget();
+	FVector dir = SetTargetDir();
 	FVector dirLocal = me->GetActorTransform().InverseTransformVectorNoScale(dir);
 
 	// 캐릭터가 뒤에 있음
@@ -609,12 +589,12 @@ void UCSafiFSM::TargetKnockBackByAnim()
 	OnRep_DisturbState();	// 동기화
 }
 
-FVector UCSafiFSM::SearchTarget()
+FVector UCSafiFSM::SetTargetDir()
 {
-	if (target == nullptr || me == nullptr){ return FVector::ZeroVector; }
+	if (target == nullptr || me == nullptr) { return FVector::ZeroVector; }
 
-	FVector destination		= target->GetActorLocation();
-	FVector dir				= destination - me->GetActorLocation();
+	FVector destination = target->GetActorLocation();
+	FVector dir = destination - me->GetActorLocation();
 
 	if (dir.Size() < me->SearchRange)
 	{
@@ -625,13 +605,53 @@ FVector UCSafiFSM::SearchTarget()
 }
  
 
+void UCSafiFSM::SetTarget()
+{
+	// 헌터 리스트 갱신, 타겟 리스트로 목록 받아옴
+	UpdateHunterList();
+	TargetList.Empty();
+
+	// 리스트가 비어있는지 확인
+	if (HunterList.IsEmpty()) { return; }
+
+	// 리스트 순회하면서 색적범위 안쪽인지 확인
+	for (AHunter* Hunter : HunterList)
+	{
+		float dist = FVector::Dist(Hunter->GetActorLocation(), me->GetActorLocation());
+
+		// 타겟과의 거리가 색적범위보다 가까울 경우
+		if (dist < me->SearchRange)			
+		{
+			// 타겟을 리스트에 추가
+			TargetList.Add(Hunter);
+		}
+	}
+	int32 RandTarget = FMath::RandRange(0, TargetList.Num()-1);
+	target = TargetList[RandTarget];
+
+	 // UE_LOG(LogTemp, Warning, TEXT("target: %s"), *target->GetName());
+}
 
 
+void UCSafiFSM::UpdateHunterList()
+{
+	HunterList.Empty();
 
+	TArray<AActor*> joinedPlayers;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AHunter::StaticClass(), joinedPlayers);
 
+	for (AActor* player : joinedPlayers)
+	{
+		AHunter* hunter = Cast<AHunter>(player);
 
+		if (IsValid(hunter))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Hunter Found: %s"), *hunter->GetName());
+			HunterList.Add(hunter);
+		}
 
-
+	}
+}
 
 
 
@@ -663,6 +683,7 @@ void UCSafiFSM::OnRep_DisturbState()
 
 void UCSafiFSM::ServerSetActState_Implementation(ESafiState _newState)
 {
+	if (mState == _newState) { return; }
 	mState = _newState;
 	OnRep_SafiState();
 }
@@ -671,18 +692,21 @@ void UCSafiFSM::ServerSetActState_Implementation(ESafiState _newState)
 
 void UCSafiFSM::ServerSetAttState_Implementation(EAttackState _newAttState)
 {
+	if (mAttState == _newAttState) { return; }
 	mAttState = _newAttState;
 	OnRep_AttState();
 }
 
 void UCSafiFSM::ServerSetTurnState_Implementation(ETurnState _newTurnState)
 {
+	if (mTurnState == _newTurnState) { return; }
 	mTurnState = _newTurnState;
 	OnRep_TurnState();
 }
 
 void UCSafiFSM::ServerSetDisturbState_Implementation(EDisturbState _newDistState)
 {
+	if (mDisturbState == _newDistState) { return; }
 	mDisturbState = _newDistState;
 	OnRep_DisturbState();
 }
@@ -690,7 +714,7 @@ void UCSafiFSM::ServerSetDisturbState_Implementation(EDisturbState _newDistState
 void UCSafiFSM::SetActState(ESafiState _newState)
 {
 	//if (GetOwner()->HasAuthority() && mState != _newState)
-	if (GetOwnerRole() == ROLE_Authority)
+	if (GetOwnerRole() == ROLE_Authority && mState != _newState)
 	{
 		mState = _newState;
 		// 뭔가의 추가 내용
@@ -704,7 +728,7 @@ void UCSafiFSM::SetActState(ESafiState _newState)
 
 void UCSafiFSM::SetAttState(EAttackState _newAttState)
 {
-	if (GetOwnerRole() == ROLE_Authority)
+	if (GetOwnerRole() == ROLE_Authority && mAttState != _newAttState)
 	{
 		mAttState = _newAttState;
 		// 뭔가의 추가 내용
@@ -717,7 +741,7 @@ void UCSafiFSM::SetAttState(EAttackState _newAttState)
 
 void UCSafiFSM::SetTurnState(ETurnState _newTurnState)
 {
-	if (GetOwnerRole() == ROLE_Authority)
+	if (GetOwnerRole() == ROLE_Authority && mTurnState != _newTurnState)
 	{
 		mTurnState = _newTurnState;
 		// 뭔가의 추가 내용
@@ -730,7 +754,7 @@ void UCSafiFSM::SetTurnState(ETurnState _newTurnState)
 
 void UCSafiFSM::SetDisturbState(EDisturbState _newDistState)
 {
-	if (GetOwnerRole() == ROLE_Authority)
+	if (GetOwnerRole() == ROLE_Authority && mDisturbState != _newDistState)
 	{
 		mDisturbState = _newDistState;
 		// 뭔가의 추가 내용
