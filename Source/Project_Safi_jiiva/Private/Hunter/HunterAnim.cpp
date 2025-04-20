@@ -56,11 +56,11 @@ void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNo
     if (NotifyName == FName(TEXT("ComboEnd"))) { Owner->WeaponComp->ResetCombo();}
     //약공격 노티파이
     if (NotifyName == FName(TEXT("QuickAttackStart"))) { Owner->ServerRPC_SetIsQuickAttack(true); }
-    if (NotifyName == FName(TEXT("QuickAttackAddIndex"))) { Owner->WeaponComp->SetQuickStrikeComboIndex(Owner->WeaponComp->GetQuickStrikeComboIndex() + 1); }
+    if (NotifyName == FName(TEXT("QuickAttackAddIndex"))) { Owner->ServerRPC_SetQuickAddIndex(Owner->WeaponComp->GetQuickStrikeComboIndex() + 1); }
     if (NotifyName == FName(TEXT("QuickAttackEnd"))) { Owner->ServerRPC_SetIsQuickAttack(false); }
 
     ////강공격 노티파이
-    if (NotifyName == FName(TEXT("HeavyAttackAddIndex"))) {Owner->WeaponComp->SetHeavyStrikeComboIndex(Owner->WeaponComp->GetHeavyStrikeComboIndex() + 1);}
+    if (NotifyName == FName(TEXT("HeavyAttackAddIndex"))) {Owner->ServerPRC_SetHeavyAddIndex(Owner->WeaponComp->GetHeavyStrikeComboIndex() + 1);}
     if (NotifyName == FName(TEXT("HeavyAttackStart"))) { Owner->ServerRPC_SetIsHeavyAttack(true); }
 
     //특수공격 노티파이

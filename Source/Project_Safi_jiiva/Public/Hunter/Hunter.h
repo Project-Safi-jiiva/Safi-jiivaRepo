@@ -77,6 +77,8 @@ public:
 	///////////////////////////서버 함수//////////////////////////
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_Dash();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_Dash();
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_DashEnd();
 
@@ -146,6 +148,20 @@ public:
 	void ServerRPC_AttachWeaponToOwner();
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastRPC_AttachWeaponToOwner();
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_SetQuickAddIndex(int32 AddIndex);
+	UFUNCTION(Server, Reliable)
+	void ServerPRC_SetHeavyAddIndex(int32 AddIndex);
+	UFUNCTION(Server, Reliable)
+	void ServerPRC_SetUniqueAddIndex(int32 AddIndex);
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_QuickStrikeNext();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_QuickStrikeNext();
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_HeavyStrikeNext();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_HeavyStrikeNext();
 
 
 

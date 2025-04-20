@@ -196,6 +196,8 @@ void UGreatSword::PlayMontage(UAnimMontage* Montage)
 
 void UGreatSword::QuickAttack()
 {
+	Super::QuickAttack();
+	PRINTLOG_NET(TEXT("QuickAttack %d"),isWeaponEquipped);
 	FWeaponDataTable CurrentData = GetCurrentWeaponData();
 	if (CurrentData.QuickStrikeMontages.Num() > 0 && Owner) {
 		 if (!isWeaponEquipped && Owner->GetVelocity().Size2D() <= 0) {
@@ -218,6 +220,7 @@ void UGreatSword::QuickAttack()
 
 void UGreatSword::HeavyAttack()
 {
+	Super::HeavyAttack();
 	if (!isWeaponEquipped) return;
 	if (IsAttacking) return;
 		FWeaponDataTable CurrentData = GetCurrentWeaponData();

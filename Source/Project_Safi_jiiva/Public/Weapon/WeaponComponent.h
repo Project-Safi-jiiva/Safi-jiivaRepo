@@ -120,9 +120,6 @@ private:
     UWeaponDataAsset* WeaponDataTable;
 
     // 모든 무기 데이터를 저장하는 TMap
-
-
-
 public:
 	int32 GetQuickStrikeComboIndex() const { return QuickStrikeComboIndex; }
 	void SetQuickStrikeComboIndex(int32 NewIndex) {QuickStrikeComboIndex = NewIndex;}
@@ -159,8 +156,6 @@ public:
 		UPROPERTY(Replicated)
 		int32 UniqueStrikeComboIndex = 0;
 		UPROPERTY(Replicated)
-		bool isWeaponEquipped = false;
-		UPROPERTY(Replicated)
 		EWeaponType WeaponType;
 		UPROPERTY(Replicated)
 		float CommandInputTime = 0.0f;
@@ -169,6 +164,10 @@ public:
 		UPROPERTY(Replicated)
 		TArray<bool> isCommandInput = { false,false,false };
 	public:
+		UPROPERTY(ReplicatedUsing=OnRep_IsWeaponEquipped)
+		bool isWeaponEquipped = false;
+		UFUNCTION()
+		void OnRep_IsWeaponEquipped();
 		UPROPERTY(Replicated)
 		bool IsAttacking =false;
 		UPROPERTY(Replicated)

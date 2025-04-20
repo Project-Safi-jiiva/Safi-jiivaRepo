@@ -26,11 +26,11 @@ void UHunterAnimNotifyState::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimS
 		if (CurrentSection.ToString().Contains(TEXT("Attack"))){
 		}
 		if (CurrentSection.ToString().Contains(TEXT("NextStart"))) {
-			Owner->WeaponComp->QuickStrikeNext();
+			Owner->ServerRPC_QuickStrikeNext();
 		}
 		if (CurrentSection.ToString().Contains(TEXT("Next"))) {
-			Owner->WeaponComp->QuickStrikeNext();
-			Owner->WeaponComp->HeavyStrikeNext();
+			Owner->ServerRPC_QuickStrikeNext();
+			Owner->ServerRPC_HeavyStrikeNext();
 		}
 
 		if (CurrentSection.ToString().Contains(TEXT("WeaponCollitionOn"))) {

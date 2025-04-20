@@ -151,6 +151,7 @@ void AHunter::ChangeWeapon(EWeaponType NewWeaponType)
 	{
 		WeaponComp->SetWeaponType(NewWeaponType);
 		WeaponComp->RegisterComponent();
+		WeaponComp->isWeaponEquipped=false;
 		// ��������Ʈ�� �˸�
 		if (InputBindingDeleagate.IsBound())
 		{
@@ -176,6 +177,11 @@ void AHunter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 }
 //대쉬 함수
 void AHunter::ServerRPC_Dash_Implementation()
+{
+	MulticastRPC_Dash();
+}
+
+void AHunter::MulticastRPC_Dash_Implementation()
 {
 	WeaponComp->Dash();
 	WeaponComp->ModifyWeaponMoveSpeed();
@@ -297,4 +303,39 @@ void AHunter::ServerRPC_AttachWeaponToOwner_Implementation()
 void AHunter::MulticastRPC_AttachWeaponToOwner_Implementation()
 {
 	WeaponComp->AttachWeaponToOwner();
+}
+
+void AHunter::ServerRPC_SetQuickAddIndex_Implementation(int32 AddIndex)
+{
+	WeaponComp->SetQuickStrikeComboIndex(AddIndex);
+}
+
+void AHunter::ServerPRC_SetHeavyAddIndex_Implementation(int32 AddIndex)
+{
+	WeaponComp->SetHeavyStrikeComboIndex(AddIndex);
+}
+
+void AHunter::ServerPRC_SetUniqueAddIndex_Implementation(int32 AddIndex)
+{
+	WeaponComp->SetUniqueStrikeComboIndex(AddIndex);
+}
+
+void AHunter::ServerRPC_QuickStrikeNext_Implementation()
+{
+	MulticastRPC_QuickStrikeNext();
+}
+
+void AHunter::MulticastRPC_QuickStrikeNext_Implementation()
+{
+	WeaponComp->QuickStrikeNext();
+}
+
+void AHunter::ServerRPC_HeavyStrikeNext_Implementation()
+{
+	MulticastRPC_HeavyStrikeNext();
+}
+
+void AHunter::MulticastRPC_HeavyStrikeNext_Implementation()
+{
+	WeaponComp->HeavyStrikeNext();
 }

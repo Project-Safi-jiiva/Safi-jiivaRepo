@@ -272,7 +272,6 @@ bool UWeaponComponent::SpawnNewWeaponActor(const FWeaponDataTable& WeaponData)
 	return EquippedWeapon != nullptr;
 }
 
-// ÇïÆÛ ÇÔ¼öµé
 void UWeaponComponent::DestroyEquippedWeapon()
 {
 	if (EquippedWeapon)
@@ -307,6 +306,7 @@ void UWeaponComponent::AttachWeaponToHand()
 		);
 	}
 }
+
 void UWeaponComponent::InitializeWeaponActor(AActor* NewWeapon, const FWeaponDataTable& WeaponData)
 {
 	if (!NewWeapon) return;
@@ -358,9 +358,16 @@ float UWeaponComponent::SetDamage()
 	return Damage;
 }
 
+void UWeaponComponent::OnRep_IsWeaponEquipped()
+{
+	PRINTLOG_NET(TEXT("test %d"), isWeaponEquipped);
+}
+
 void UWeaponComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
-	DOREPLIFETIME(UWeaponComponent, isWeaponEquipped);
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(UWeaponComponent, isWeaponEquipped, COND_OwnerOnly);
 	DOREPLIFETIME(UWeaponComponent, CommandInputTime);
 	DOREPLIFETIME(UWeaponComponent, WeaponType);
 	DOREPLIFETIME(UWeaponComponent, FCommandInput);
