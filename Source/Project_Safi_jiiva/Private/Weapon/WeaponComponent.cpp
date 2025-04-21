@@ -44,7 +44,8 @@ void UWeaponComponent::BeginPlay()
 void UWeaponComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	checkCommand(DeltaTime);
+	if(Owner&&Owner->HasAuthority()&&!IsAttacking)
+		checkCommand(DeltaTime);
 }
 void UWeaponComponent::SetupInputBinding(class UEnhancedInputComponent* InputComponent)
 {

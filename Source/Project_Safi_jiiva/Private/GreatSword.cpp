@@ -81,7 +81,6 @@ void UGreatSword::UniqueInputEnd()
 void UGreatSword::checkCommand(float DeltaTime)
 {
 	Super::checkCommand(DeltaTime);
-	if (!Owner->IsLocallyControlled())return;
 	FWeaponDataTable CurrentData = GetCurrentWeaponData();
 	if (isCommandInput[0] || isCommandInput[1] || isCommandInput[2])
 		CommandInputTime += DeltaTime;
@@ -165,7 +164,6 @@ void UGreatSword::CancelHandler()
 
 void UGreatSword::Roll()
 {
-	Super::Roll();
 	if (IsAttacking && !AllowRoll)return;
 	AllowRoll = false;
 

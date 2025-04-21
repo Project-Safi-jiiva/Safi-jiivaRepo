@@ -48,8 +48,7 @@ void UHunterAnim::NativeUpdateAnimation(float DeltaTime)
 
 void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload)
 {
-
-    if (Owner->IsLocallyControlled())return;
+    if (!Owner->HasAuthority()) return;
     Owner->ServerRPC_SetIsJumpDelay(true);
     Owner->ServerRPC_SetIsAttacking(true);
     if (NotifyName == FName(TEXT("AttackEnd"))) { Owner->ServerRPC_SetIsAttacking(false); }
@@ -81,6 +80,9 @@ void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNo
     if (NotifyName == FName(TEXT("DelayEnd"))) {
         Owner->ServerRPC_SetIsJumpDelay(false); Owner->ServerRPC_JumpToNextCombo();
     }
+    if (NotifyName == FName(TEXT("JumpDelay"))) {
+            Owner->ServerRPC_SetIsJumpDelay(true);
+    }
     //무기 붙이고 때기
     if (NotifyName == FName(TEXT("Attach"))) { Owner->ServerRPC_AttachWeaponToHand();}
     if (NotifyName == FName(TEXT("Detach"))) {Owner->ServerRPC_AttachWeaponToOwner();}
@@ -102,7 +104,7 @@ void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNo
 
 void UHunterAnim::OnMontageNotifyEnd(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload){
     if (!Owner->HasAuthority())return;
-
+    Owner->ServerRPC_SetIsJumpDelay(false);
     Owner->ServerRPC_SetIsQuickAttack(false);
     Owner->ServerRPC_SetIsHeavyAttack(false);
     Owner->ServerRPC_SetIsUniqueAttack(false);
