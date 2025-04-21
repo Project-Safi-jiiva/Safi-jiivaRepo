@@ -48,7 +48,8 @@ void UHunterAnim::NativeUpdateAnimation(float DeltaTime)
 
 void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload)
 {
-    if (!Owner->IsLocallyControlled())return;
+    //if (!Owner->IsLocallyControlled())return;
+    if (!Owner->HasAuthority())return;
     Owner->ServerRPC_SetIsJumpDelay(true);
     Owner->ServerRPC_SetIsAttacking(true);
     if (NotifyName == FName(TEXT("AttackEnd"))) { Owner->ServerRPC_SetIsAttacking(false); }
@@ -60,8 +61,8 @@ void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNo
     if (NotifyName == FName(TEXT("QuickAttackStart"))) { Owner->ServerRPC_SetIsQuickAttack(true); }
     if (NotifyName == FName(TEXT("QuickAttackAddIndex"))) {
         Owner->ServerRPC_SetQuickAddIndex(Owner->WeaponComp->GetQuickStrikeComboIndex() + 1);
-        PRINTLOG_NET(TEXT("addindex :%d"),Owner->WeaponComp->GetQuickStrikeComboIndex());
     }
+
     if (NotifyName == FName(TEXT("QuickAttackEnd"))) { Owner->ServerRPC_SetIsQuickAttack(false); }
 
     ////강공격 노티파이
@@ -78,8 +79,8 @@ void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNo
 
     //중복 입력 방지 부분
     if (NotifyName == FName(TEXT("DelayEnd"))) {
-        Owner->ServerRPC_SetIsJumpDelay(false);
         Owner->ServerRPC_JumpToNextCombo();
+        Owner->ServerRPC_SetIsJumpDelay(false);
         PRINTLOG_NET(TEXT("DelayEnd"));
     }
     if (NotifyName == FName(TEXT("JumpDelay"))) {
@@ -122,7 +123,6 @@ void UHunterAnim::OnMontageNotifyEnd(FName NotifyName, const FBranchingPointNoti
     Owner->ServerRPC_SetIsAttacking(false);
     Owner->ServerRPC_SetIsJumpDelay(false);
 
-    PRINT_LOG(TEXT("tldlqkf"));
 }
 
 void UHunterAnim::SetBluePrintValues()

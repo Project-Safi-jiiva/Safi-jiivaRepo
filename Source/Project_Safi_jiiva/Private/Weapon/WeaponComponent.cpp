@@ -94,7 +94,6 @@ void UWeaponComponent::InputQuickHolding()
 }
 void UWeaponComponent::InputQuickEnd()
 {
-	if (isJumpDelay) return;
 	Owner->ServerRPC_QuickEnd();
 }
 

@@ -44,6 +44,7 @@ void UGreatSword::QuickInputHolding()
 void UGreatSword::QuickInputEnd()
 {
 	Super::QuickInputEnd();
+	if (isJumpDelay) return;
 	JumpToNextCombo();
 }
 
