@@ -171,7 +171,6 @@ void UCSafiFSM::StartState()
 	me->isInBattle = true;
 
 	// 헌터 리스트 업데이트 해주고
-	// 원랜 탐지파트 상단에 있었음. 그런데 굳이 계속 리스트 갱신할 필요가 있나 싶어서 아래로.
 	UpdateHunterList();					
 
 	// 포효
@@ -213,10 +212,10 @@ void UCSafiFSM::IdleState()
 	// 돌아야 하는 값이 60도 이상이라면 TargetRotationByAnim으로 회전
 
 	// *** 뭘 하고싶었던거지... 재점검하기 ****
-	if (targetYaw <= 3.f && !isRot)
+	if (targetYaw <= 5.f && !isRot)
 	{
-		me->SetActorRotation(targetRot); // 최종 방향 고정
-		isRot = false; // 회전 완료
+		me->SetActorRotation(FRotator(targetRot.Pitch, targetRot.Yaw, targetRot.Roll)); // 최종 방향 고정
+		isRot = true; // 회전 완료
 
 		ServerSetActState(ESafiState::Attack);
 
@@ -226,7 +225,7 @@ void UCSafiFSM::IdleState()
 	}
 
 	// 회전이 필요한 경우
-	if (targetYaw >= 60.0f && !isRot)
+	if (targetYaw >= 60.0f)
 	{
 		isRot = true;
 		TargetRotationByAnim(); // 큰 각도 회전은 애니메이션으로 처리
