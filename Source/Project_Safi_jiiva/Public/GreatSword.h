@@ -49,7 +49,7 @@ private:
 	void PlayMontage(UAnimMontage* Montage);
 
 	virtual void QuickAttack() override;
-	virtual void HeavyAttack() override;
+	virtual void HeavyAttack(const struct FWeaponDataTable& CrrentData) override;
 	virtual void UniqueAttack() override;
 
 	virtual void ChargeAttack(const struct FWeaponDataTable& CurrentData={}) override;

@@ -109,7 +109,7 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_HeavyAttack();
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticasrRPC_HeavyAttack();
+	void MulticasrRPC_HeavyAttack(const struct FWeaponDataTable& CurrentData);
 	//특수공격
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_UniqueAttack();

@@ -233,12 +233,12 @@ void AHunter::ServerRPC_HeavyEnd_Implementation()
 //강공격 함수
 void AHunter::ServerRPC_HeavyAttack_Implementation()
 {
-	MulticasrRPC_HeavyAttack();
+	MulticasrRPC_HeavyAttack(WeaponComp->GetCurrentWeaponData());
 }
 
-void AHunter::MulticasrRPC_HeavyAttack_Implementation()
+void AHunter::MulticasrRPC_HeavyAttack_Implementation(const struct FWeaponDataTable& CurrentData)
 {
-	WeaponComp->HeavyAttack();
+	WeaponComp->HeavyAttack(CurrentData);
 }
 //특수공격 함수
 void AHunter::ServerRPC_UniqueAttack_Implementation()

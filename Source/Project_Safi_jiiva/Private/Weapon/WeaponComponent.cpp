@@ -46,7 +46,7 @@ void UWeaponComponent::BeginPlay()
 void UWeaponComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	if(Owner&&Owner->HasAuthority()&&!IsAttacking)
+	if(Owner&&Owner->HasAuthority())
 		checkCommand(DeltaTime);
 }
 void UWeaponComponent::SetupInputBinding(class UEnhancedInputComponent* InputComponent)
@@ -266,12 +266,14 @@ bool UWeaponComponent::SpawnNewWeaponActor(const FWeaponDataTable& WeaponData)
 	FVector SpawnLocation = Owner->GetActorLocation();
 	FRotator SpawnRotation = Owner->GetActorRotation();
 
+
 	EquippedWeapon = World->SpawnActor<AActor>(
 		WeaponData.WeaponActorClass,
 		SpawnLocation,
 		SpawnRotation,
 		SpawnParams
 	);
+	EquippedWeapon->SetOwner(Owner);
 
 	return EquippedWeapon != nullptr;
 }
@@ -351,7 +353,6 @@ void UWeaponComponent::WeaponCollitionOff()
 
 float UWeaponComponent::SetDamage()
 {
-
 	FWeaponDataTable WeaponData = GetCurrentWeaponData();
 	Damage = (WeaponData.BaseDamage)*(WeaponData.QuickStrikeDamageMultipliers[GetQuickStrikeComboIndex()]);
 	if (IsHeavyAttack) {

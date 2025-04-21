@@ -60,7 +60,7 @@ public:
 	virtual void HeavyInputStart();
 	virtual void HeavyInputHolding();
 	virtual void HeavyInputEnd();
-	virtual void HeavyAttack() {};
+	virtual void HeavyAttack(const struct FWeaponDataTable& CrrentData) {};
 	virtual void UniqueAttack() {};
 	virtual void ChargeAttack() {};
 
