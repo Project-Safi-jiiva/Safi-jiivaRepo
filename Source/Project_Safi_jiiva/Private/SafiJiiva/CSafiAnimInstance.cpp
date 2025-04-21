@@ -49,7 +49,7 @@ void UCSafiAnimInstance::AnimNotify_Roar_END()
 
 	FSM->mState = ESafiState::Idle;
 	//aState = FSM->mState;
-	FSM->OnRep_SafiState();
+	FSM->OnRep_SafiActState();
 
 	me->isDisturbed = false;
 
@@ -126,7 +126,7 @@ void UCSafiAnimInstance::AnimNotify_Search_End()
 	// Idle º¹±Í
 	FSM->mState = ESafiState::Idle;
 	//aState = FSM->mState;
-	FSM->OnRep_SafiState();
+	FSM->OnRep_SafiActState();
 
 	me->HitPawn.Empty();	// È¤½Ã ¸ô¶ó¼­...?
 }

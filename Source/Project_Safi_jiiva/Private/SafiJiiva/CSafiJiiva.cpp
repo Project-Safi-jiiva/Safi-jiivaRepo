@@ -203,30 +203,30 @@ void ACSafiJiiva::Tick(float DeltaTime)
 // 다리공격 콜리전 활성화 / 비활성화
 	if (isOnBodyPress == true || isFootAttack == true)
 	{
-		// AttCollisionLF->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		// AttCollisionRF->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		// AttCollisionLB->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		// AttCollisionRB->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		//  AttCollisionLF->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		//  AttCollisionRF->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		//  AttCollisionLB->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		//  AttCollisionRB->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		
 
-		switch (attackPos)
-		{
-		case AttMELEE_LF:
-			AttCollisionLF->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-			break;
+		 switch (attackPos)
+		 {
+		 case AttMELEE_LF:
+			 AttCollisionLF->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+			 break;
 
-		case AttMELEE_RF:
-			AttCollisionRF->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-			break;
+		 case AttMELEE_RF:
+			 AttCollisionRF->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+			 break;
 
-		case AttMELEE_LB:
-			AttCollisionLB->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-			break;
+		 case AttMELEE_LB:
+			 AttCollisionLB->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+			 break;
 
-		case AttMELEE_RB:
-			AttCollisionRB->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-			break;
-		}
+		 case AttMELEE_RB:
+			 AttCollisionRB->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+			 break;
+		 }
 
 
 	}

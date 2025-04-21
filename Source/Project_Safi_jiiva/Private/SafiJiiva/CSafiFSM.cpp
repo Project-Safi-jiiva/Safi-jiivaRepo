@@ -176,7 +176,10 @@ void UCSafiFSM::StartState()
 
 	// 포효
 	// 포효 처리 및 공격 패턴으로 전환
-	ServerSetActState(ESafiState::Attack);
+	mState = ESafiState::Attack;
+	// OnRep_SafiActState();
+	// SetActState(ESafiState::Attack);
+
 	AttRoar();
 }
 
@@ -218,7 +221,9 @@ void UCSafiFSM::IdleState()
 		me->SetActorRotation(targetRot); // 최종 방향 고정
 		isRot = false; // 회전 완료
 
-		ServerSetActState(ESafiState::Attack);
+		 mState = ESafiState::Attack;
+
+		// SetActState(ESafiState::Attack);
 
 		DecideAttackType();
 		OnAttackProcess();
@@ -254,9 +259,9 @@ void UCSafiFSM::DecideAttackType()	// SetAttackType으로 이름 바꾸고 근접공격 파�
 		attType = me->attackPos;
 		if (BFattType == attType){ attType = AttBPRESS; }
 
-		//mTurnState = ETurnState::None;
-		//OnRep_TurnState();
-		ServerSetTurnState(ETurnState::None);
+		mTurnState = ETurnState::None;
+		OnRep_TurnState();
+		// SetTurnState(ETurnState::None);
 
 		OnAttackProcess();
 	}
@@ -312,8 +317,9 @@ void UCSafiFSM::MoveState()
 void UCSafiFSM::AttRoar()
 {
 	// me->isImmune = true;
-
-	ServerSetAttState(EAttackState::Roar);
+	mAttState = EAttackState::Roar;
+	OnRep_AttState();
+	// SetAttState(EAttackState::Roar);
 
 
 	// 포효 공격판정 실행						- *** 이건 플레이어 함수 불러와야 할 듯?
@@ -370,12 +376,12 @@ void UCSafiFSM::AttBreath()
 	if (!bHit){ return; }
 
 	AActor* HitActor = Hit.GetActor();
-	if (!HitActor)
+	if (HitActor)
 	{ 
 		AHunter* hunter = Cast<AHunter>(HitActor);
 		if (hunter)
 		{
-			//Hunter->SetDamage(_value);
+			//hunter->SetDamage(_value);
 		}
 		return; 
 	}
@@ -398,51 +404,51 @@ void UCSafiFSM::OnAttackProcess()
 	switch (attType)
 	{
 	case AttNONE:
-		//mAttState = EAttackState::None;
-		ServerSetAttState(EAttackState::None);
+		mAttState = EAttackState::None;
+		// SetAttState(EAttackState::None);
 		break;
 
 	case AttROAR:
-		//mAttState = EAttackState::Roar;
-		ServerSetAttState(EAttackState::Roar);
+		mAttState = EAttackState::Roar;
+		//SetAttState(EAttackState::Roar);
 		break;
 //========================== 팔다리 공격 부분 ==========================
 	case AttMELEE_LF:
-		//mAttState = EAttackState::MeleeAttLF;
-		ServerSetAttState(EAttackState::MeleeAttLF);
+		mAttState = EAttackState::MeleeAttLF;
+		//SetAttState(EAttackState::MeleeAttLF);
 		break;
 
 	case AttMELEE_RF:
-		//mAttState = EAttackState::MeleeAttRF;
-		ServerSetAttState(EAttackState::MeleeAttRF);
+		mAttState = EAttackState::MeleeAttRF;
+		//SetAttState(EAttackState::MeleeAttRF);
 		break;
 
 	case AttMELEE_RB:
-		//mAttState = EAttackState::MeleeAttRB;
-		ServerSetAttState(EAttackState::MeleeAttRB);
+		mAttState = EAttackState::MeleeAttRB;
+		//SetAttState(EAttackState::MeleeAttRB);
 		break;
 
 	case AttMELEE_LB:
-		//mAttState = EAttackState::MeleeAttLB;
-		ServerSetAttState(EAttackState::MeleeAttLB);
+		mAttState = EAttackState::MeleeAttLB;
+		//SetAttState(EAttackState::MeleeAttLB);
 		break;
 //========================== 브레스 부분 ==========================
 	case AttNMBREATH:
-		//mAttState = EAttackState::NormalBreath;
-		ServerSetAttState(EAttackState::NormalBreath);
+		mAttState = EAttackState::NormalBreath;
+		//SetAttState(EAttackState::NormalBreath);
 		break;
 	case AttAIMBREATH:
-		//mAttState = EAttackState::AimedBreath;
-		ServerSetAttState(EAttackState::AimedBreath);
+		mAttState = EAttackState::AimedBreath;
+		//SetAttState(EAttackState::AimedBreath);
 		break;
 //========================== 근접공격 부분 ==========================
 	case AttBITE:
-		//mAttState = EAttackState::MeleeBite;
-		ServerSetAttState(EAttackState::MeleeBite);
+		mAttState = EAttackState::MeleeBite;
+		//SetAttState(EAttackState::MeleeBite);
 		break;
 	case AttBPRESS:
-		//mAttState = EAttackState::MeleeBPress;
-		ServerSetAttState(EAttackState::MeleeBPress);
+		mAttState = EAttackState::MeleeBPress;
+		// SetAttState(EAttackState::MeleeBPress);
 		break;
 	} 
 
@@ -452,7 +458,9 @@ void UCSafiFSM::OnAttackProcess()
 	//공격 상태로의 전환, 수행
 	if (mState != ESafiState::Attack)
 	{
-		ServerSetActState(ESafiState::Attack);
+		mState = ESafiState::Attack;
+		OnRep_SafiActState();
+		//SetActState(ESafiState::Attack);
 	}
 
 	// attType = AttNONE;	// 공격 타입 확정 후 초기화
@@ -465,9 +473,13 @@ void UCSafiFSM::EndAttackProcess()
 {
 	// 타겟 리스트 갱신
 	SetTarget();
+	mAttState = EAttackState::None;
+	OnRep_AttState();
 
-	ServerSetAttState(EAttackState::None);
-	ServerSetActState(ESafiState::Idle);
+	mState = ESafiState::Idle;
+	OnRep_SafiActState();
+	// SetAttState(EAttackState::None);
+	// SetActState(ESafiState::Idle);
 
 	me->isOnSearch = true;	// 공격할 때 꺼주기	- OnAttackProcess에 false 해줌
 
@@ -486,9 +498,16 @@ void UCSafiFSM::OnDisturbedProcess()
 {
 	//Disturbed 외엔 전부 None으로
 
-	ServerSetActState(ESafiState::Disturbed);
-	ServerSetAttState(EAttackState::None);
-	ServerSetTurnState(ETurnState::None);
+	// SetActState(ESafiState::Disturbed);
+	// SetAttState(EAttackState::None);
+	// SetTurnState(ETurnState::None);
+	mState = ESafiState::Disturbed;
+	OnRep_SafiActState();
+	mAttState = EAttackState::None;
+	OnRep_AttState();
+	mTurnState = ETurnState::None;
+	OnRep_TurnState();
+
 
 
 	// 각도 측정 및 넉백	-> 플레이어에서 해줬다
@@ -496,7 +515,10 @@ void UCSafiFSM::OnDisturbedProcess()
 	// 조건에 따라 스위치
 	if (me->isDead == true)
 	{
-		ServerSetDisturbState(EDisturbState::Dead);
+		//SetDisturbState(EDisturbState::Dead);
+		mDisturbState = EDisturbState::Dead;
+		OnRep_DisturbState();
+		
 
 		return;								// Dead 일경우 하위 상황 판단할 필요가 없음
 	}
@@ -543,26 +565,35 @@ void UCSafiFSM::TargetRotationByAnim()
 	// 나중에 idle이나 백스텝 밟으면서 rotation만 조금 돌리게 수정할 것.
 
 	// if (dirLocal.X > 0)	{ return; }		// 앞에 있을 경우
-	ServerSetActState(ESafiState::Turn);
+	
+	//SetActState(ESafiState::Turn);
+	mState = ESafiState::Turn;
+	OnRep_SafiActState();
 
 	//=============================
 	if (dirLocal.X < 0)	// 캐릭터가 뒤에 있음
 	{
 		// 회전 후방으로.
-		ServerSetTurnState(ETurnState::TrunBack);
+		// SetTurnState(ETurnState::TrunBack);
+		mTurnState = ETurnState::TrunBack;
+		OnRep_TurnState();
 	}
 
 	else if (dirLocal.Y < 0 && dirLocal.X > 0)	// 캐릭터가 좌측이지만 뒤는 아님
 	{
 		// 회전 좌측으로
-		ServerSetTurnState(ETurnState::TurnLeft);
+		// SetTurnState(ETurnState::TurnLeft);
+		mTurnState = ETurnState::TurnLeft;
+		OnRep_TurnState();
 	}
 
 
 	else if (dirLocal.Y > 0 && dirLocal.X > 0)	// 캐릭터가 우측이지만 뒤는 아님
 	{
 		// 회전 우측으로
-		ServerSetTurnState(ETurnState::TurnRight);
+		// SetTurnState(ETurnState::TurnRight);
+		mTurnState = ETurnState::TurnRight;
+		OnRep_TurnState();
 	}
 
 	// 적이 해당 위치에 있다면 공격으로 전환 -> TrunState( Turn Tick에서 )		- 미수행
@@ -661,7 +692,7 @@ void UCSafiFSM::UpdateHunterList()
 
 // ===================================== 서버용 ======================================================
 
-void UCSafiFSM::OnRep_SafiState()
+void UCSafiFSM::OnRep_SafiActState()
 {
 	if (Anim) Anim->aState = mState;
 }
@@ -685,7 +716,7 @@ void UCSafiFSM::ServerSetActState_Implementation(ESafiState _newState)
 {
 	if (mState == _newState) { return; }
 	mState = _newState;
-	OnRep_SafiState();
+	OnRep_SafiActState();
 }
 
 // 서버
@@ -713,6 +744,7 @@ void UCSafiFSM::ServerSetDisturbState_Implementation(EDisturbState _newDistState
 
 void UCSafiFSM::SetActState(ESafiState _newState)
 {
+
 	//if (GetOwner()->HasAuthority() && mState != _newState)
 	if (GetOwnerRole() == ROLE_Authority && mState != _newState)
 	{
@@ -750,6 +782,8 @@ void UCSafiFSM::SetTurnState(ETurnState _newTurnState)
 	{
 		ServerSetTurnState(_newTurnState);
 	}
+
+
 }
 
 void UCSafiFSM::SetDisturbState(EDisturbState _newDistState)

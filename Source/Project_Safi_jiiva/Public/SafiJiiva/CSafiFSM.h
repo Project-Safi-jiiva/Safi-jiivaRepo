@@ -126,7 +126,7 @@ private:
 	TArray<AHunter*>TargetList;
 
 public:
-	UPROPERTY(ReplicatedUsing = OnRep_SafiState)
+	UPROPERTY(ReplicatedUsing = OnRep_SafiActState)
 	ESafiState mState = ESafiState::Idle;
 
 	UPROPERTY(ReplicatedUsing = OnRep_AttState)
@@ -140,12 +140,7 @@ public:
 
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
-// 스테이트 변경
-//===============================================================================
-	void SetActState(ESafiState _newState);
-	void SetAttState(EAttackState _newAttState);
-	void SetTurnState(ETurnState _newTurnState);
-	void SetDisturbState(EDisturbState _newDistState);
+
 
 // Define 이걸로 바꾸는게 낫나?
 	//EAttackNumber AttNum = EAttackNumber::None;
@@ -188,10 +183,17 @@ public:
 
 	
 public:
+	// 스테이트 변경
+
+	void SetActState(ESafiState _newState);
+	void SetAttState(EAttackState _newAttState);
+	void SetTurnState(ETurnState _newTurnState);
+	void SetDisturbState(EDisturbState _newDistState);
+
 
 // 네트워크 연동 함수
 	UFUNCTION()
-	void OnRep_SafiState();
+	void OnRep_SafiActState();
 	UFUNCTION()
 	void OnRep_AttState();
 	UFUNCTION()
