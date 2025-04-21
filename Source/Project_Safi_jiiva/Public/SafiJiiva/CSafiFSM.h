@@ -108,6 +108,7 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+
 private:
 	UPROPERTY()
 	class ACSafiJiiva* me;
@@ -118,34 +119,47 @@ private:
 	UPROPERTY()
 	class AHunter* target;
 
+	UPROPERTY()
+	TArray<AHunter*>HunterList;
+
+	UPROPERTY()
+	TArray<AHunter*>TargetList;
 
 public:
-	UPROPERTY(EditDefaultsOnly, Category = FSM)
+	UPROPERTY(ReplicatedUsing = OnRep_SafiState)
 	ESafiState mState = ESafiState::Idle;
 
-	UPROPERTY(EditDefaultsOnly, Category = FSM)
+	UPROPERTY(ReplicatedUsing = OnRep_AttState)
 	EAttackState mAttState = EAttackState::None;
 
-	UPROPERTY(EditDefaultsOnly, Category = FSM)
+	UPROPERTY(ReplicatedUsing = OnRep_TurnState)
 	ETurnState mTurnState = ETurnState::None;
 
-	UPROPERTY(EditDefaultsOnly, Category = FSM)
+	UPROPERTY(ReplicatedUsing = OnRep_DisturbState)
 	EDisturbState mDisturbState = EDisturbState::None;
 
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
+
+// 스테이트 변경
+//===============================================================================
+	void SetActState(ESafiState _newState);
+	void SetAttState(EAttackState _newAttState);
+	void SetTurnState(ETurnState _newTurnState);
+	void SetDisturbState(EDisturbState _newDistState);
 
 // Define 이걸로 바꾸는게 낫나?
 	//EAttackNumber AttNum = EAttackNumber::None;
 public:
 	float currentTime = 0.f;
-	int attType = AttNONE;
+	int32 attType = AttNONE;
+	int32 BFattType = AttNONE;
 	//EAttackNumber attType = EAttackNumber::None;
 
 
 private: // 기본 State 함수
 	void StartState();
 	void IdleState();
-	void MoveState();
-	void BreathState();
+	//void MoveState();											// - 깡통
 
 public:	// AttState 함수
 	void OnAttackProcess();		// 공격 스위치 시켜주기
@@ -155,17 +169,47 @@ public:	// AttState 함수
 
 public: // 공격 관련 함수
 	void AttRoar();
-	void AttMelee();
+	//void AttMelee();											// - 깡통
 	void AttBreath();
 
-	void CanMeleeAttack();				// 공격 가능 위치에 정확히 있는지 확인 , 브레스 종류 랜덤 결정.
+	void DecideAttackType();				// 공격 가능 위치에 정확히 있는지 확인 , 브레스 종류 랜덤 결정.
 
 public:
 	void TargetRotation();
 	void TargetRotationByAnim();		// 애니메이션으로 회전
 	void TargetKnockBackByAnim();
-	FVector SearchTarget();
+
+	FVector SetTargetDir();
+	void SetTarget();
+	void UpdateHunterList();			// EndAttackList에서 갱신
 
 public:
 	bool isRot = false;				// 좀 한 번만 돌자 :)....
+
+	
+public:
+
+// 네트워크 연동 함수
+	UFUNCTION()
+	void OnRep_SafiState();
+	UFUNCTION()
+	void OnRep_AttState();
+	UFUNCTION()
+	void OnRep_TurnState();
+	UFUNCTION()
+	void OnRep_DisturbState();
+
+// 얘는 서버
+	UFUNCTION(Server, Reliable)
+	void ServerSetActState( ESafiState _newState );
+
+	UFUNCTION(Server, Reliable)
+	void ServerSetAttState( EAttackState _newAttState );
+
+	UFUNCTION(Server, Reliable)
+	void ServerSetTurnState( ETurnState _newTurnState );
+
+	UFUNCTION(Server, Reliable)
+	void ServerSetDisturbState( EDisturbState _newDistState );
+
 };

@@ -48,7 +48,8 @@ void UCSafiAnimInstance::AnimNotify_Roar_END()
 	if( !me ){ return; }
 
 	FSM->mState = ESafiState::Idle;
-	aState = FSM->mState;
+	//aState = FSM->mState;
+	FSM->OnRep_SafiState();
 
 	me->isDisturbed = false;
 
@@ -109,6 +110,7 @@ void UCSafiAnimInstance::AnimNotify_Attack_End()
 	if (!me || !FSM) { return; }
 	FSM->EndAttackProcess();
 	me->HitPawn.Empty();
+	me->attackPos = 0;
 }
 
 
@@ -118,11 +120,13 @@ void UCSafiAnimInstance::AnimNotify_Search_End()
 	me->isOnSearch = false;
 
 	FSM->mTurnState = ETurnState::None;
-	aTurnState = FSM->mTurnState;
+	//aTurnState = FSM->mTurnState;
+	FSM->OnRep_TurnState();
 
 	// Idle º¹±Í
 	FSM->mState = ESafiState::Idle;
-	aState = FSM->mState;
+	//aState = FSM->mState;
+	FSM->OnRep_SafiState();
 
 	me->HitPawn.Empty();	// È¤½Ã ¸ô¶ó¼­...?
 }
