@@ -70,6 +70,8 @@ AHunter::AHunter()
 	CameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
 	CameraComponent->bUsePawnControlRotation = false;
 	GetCapsuleComponent()->SetCollisionProfileName(FName("Pawn2"));
+
+	SpringArmComponent->bDoCollisionTest = false;
 }
 
 void AHunter::BeginPlay()
