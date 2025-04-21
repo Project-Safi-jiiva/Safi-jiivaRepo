@@ -63,10 +63,158 @@ private:
 	class USkeletalMeshComponent* SkeletalMeshComp;
 
 public:
+	UPROPERTY(Replicated)
 	bool isRun = false;
+
+	UPROPERTY(Replicated)
 	bool isHit = false;
+	//서버 설정 함수
 
 	void NetLog();
+
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
+
+	///////////////////////////서버 함수//////////////////////////
+
+	//대쉬
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_Dash();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_Dash();
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_DashEnd();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_DashEnd();
+
+	//약공격 입력
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_QuickStart();
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_QuickHolding();
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_QuickEnd();
+	//약공격
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_QuickAttack();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticasrRPC_QuickAttack();
+	//강공격 입력
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_HeavyStart();
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_HeavyHolding();
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_HeavyEnd();
+	//강공격
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_HeavyAttack();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticasrRPC_HeavyAttack();
+	//특수공격
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_UniqueAttack();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticasrRPC_UniqueAttack();
+	//차지 공격
+	UFUNCTION(Server,Reliable)
+	void ServerRPC_ChargeAttack();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticasrRPC_ChargeAttack();
+
+
+	//UFUNCTION(Server, Reliable)
+	//void ServerRPC_CommandInputReset();
+
+	//UFUNCTION(NetMulticast, Reliable)
+	//void MulticastRPC_CommandInputReset();
+
+	//공격 중인지 판단
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_SetIsAttacking(bool IsAttack);
+
+	//약공격 판단
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_SetIsQuickAttack(bool IsQuick);
+	//강공격 판단
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_SetIsHeavyAttack(bool IsHeavy);
+	//특수 공격 판단
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_SetIsUniqueAttack(bool IsUnique);
+	//태클 판단
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_SetIsTacle(bool IsTacle);
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_SetIsHolding(bool IsHolding);
+	//딜레이 판단
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_SetIsJumpDelay(bool IsJumpDelay);
+	//구르기 허용 여부 판단
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_SetAllowRoll(bool AllowRoll);
+
+
+	//무기 손에 붙이기
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_AttachWeaponToHand();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_AttachWeaponToHand();
+	//무기 손에서 때고 등에 붙이기
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_AttachWeaponToOwner();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_AttachWeaponToOwner();
+
+	//약공격 인덱스 올리기
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_SetQuickAddIndex(int32 AddIndex);
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_SetQuickAddIndex(int32 AddIndex);
+	//강공격 인덱스 올리기
+	UFUNCTION(Server, Reliable)
+	void ServerPRC_SetHeavyAddIndex(int32 AddIndex);
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_SetHeavyAddIndex(int32 AddIndex);
+	//특수공격 인덱스 올리기
+	UFUNCTION(Server, Reliable)
+	void ServerPRC_SetUniqueAddIndex(int32 AddIndex);
+	//공격중 약공격 연계
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_QuickStrikeNext();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_QuickStrikeNext();
+	//공격중 강공격 연계
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_HeavyStrikeNext();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_HeavyStrikeNext();
+
+	//콤보 리셋
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_ResetCombo();
+	UFUNCTION(NetMulticast, Reliable)
+	void NetMulticastRPC_ResetCombo();
+
+	//구르기 실행 함수
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_Roll();
+	UFUNCTION(NetMulticast, Reliable)
+	void NetMulticastRPC_Roll();
+	//다음 콤보로 점프
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_JumpToNextCombo();
+	UFUNCTION(NetMulticast, Reliable)
+	void NetMulticastRPC_JumpToNextCombo();
+	//힛 판정
+	UFUNCTION(Server,Reliable)
+	void ServerRPC_HitEvent();
+
+
+
+
+
+
+
 
 
 

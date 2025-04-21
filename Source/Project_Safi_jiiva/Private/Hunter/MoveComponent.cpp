@@ -12,6 +12,7 @@
 #include "Hunter/HunterAnim.h"
 #include "Weapon/WeaponComponent.h"
 #include "Project_Safi_jiiva.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values for this component's properties
 UMoveComponent::UMoveComponent()
@@ -24,6 +25,7 @@ UMoveComponent::UMoveComponent()
 	ConstructorHelpers::FObjectFinder<UInputAction> IA_TurnTool(AssetPaths::IA_TURN);
 	IA_Move = IA_MoveTool.Object;
 	IA_Turn = IA_TurnTool.Object;
+	SetIsReplicatedByDefault(true);
 
 	// ...
 }
@@ -137,5 +139,10 @@ void UMoveComponent::DisableControllerRotaion()
 	//PRINT_LOG(TEXT("END"));
 	isRotation = false;
 
+}
+
+void UMoveComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	DOREPLIFETIME(UMoveComponent, MoveState);
 }
 

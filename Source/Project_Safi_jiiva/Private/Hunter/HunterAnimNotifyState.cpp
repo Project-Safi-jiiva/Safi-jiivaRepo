@@ -17,20 +17,22 @@ void UHunterAnimNotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnim
 
 void UHunterAnimNotifyState::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime)
 {
+
 	Super::NotifyTick(MeshComp, Animation, FrameDeltaTime);
 	AHunter* Owner = Cast<AHunter>(MeshComp->GetOwner());
+	if (!Owner->HasAuthority())return;
 	if (UHunterAnim* Anim = Cast<UHunterAnim>(MeshComp->GetAnimInstance())) {
 		UAnimMontage* CurrentMontage = Anim->GetCurrentActiveMontage();
 		FName CurrentSection = Anim->Montage_GetCurrentSection(CurrentMontage);
+
 		if (CurrentSection.ToString().Contains(TEXT("Attack"))){
-			PRINT_LOG(TEXT("ASDSAD"));
 		}
 		if (CurrentSection.ToString().Contains(TEXT("NextStart"))) {
-			Owner->WeaponComp->QuickStrikeNext();
+			Owner->ServerRPC_QuickStrikeNext();
 		}
 		if (CurrentSection.ToString().Contains(TEXT("Next"))) {
-			Owner->WeaponComp->QuickStrikeNext();
-			Owner->WeaponComp->HeavyStrikeNext();
+			Owner->ServerRPC_QuickStrikeNext();
+			Owner->ServerRPC_HeavyStrikeNext();
 		}
 
 		if (CurrentSection.ToString().Contains(TEXT("WeaponCollitionOn"))) {

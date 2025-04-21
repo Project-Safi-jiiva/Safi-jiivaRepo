@@ -10,6 +10,7 @@
 #include "Weapon/IWeaponActor.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Hunter/HunterAnim.h"
+#include "Net/UnrealNetwork.h"
 
 // Sets default values for this component's properties
 UWeaponComponent::UWeaponComponent(){
@@ -29,7 +30,7 @@ UWeaponComponent::UWeaponComponent(){
 	IA_Roll = IA_RollTool.Object;
 	ConstructorHelpers::FObjectFinder<UWeaponDataAsset> WeaponDataTableTool(AssetPaths::WeaponDataAsset);
 	WeaponDataTable = WeaponDataTableTool.Object;
-
+	SetIsReplicatedByDefault(true);
 }
 
 void UWeaponComponent::BeginPlay()
@@ -45,17 +46,117 @@ void UWeaponComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	checkCommand(DeltaTime);
 }
+void UWeaponComponent::SetupInputBinding(class UEnhancedInputComponent* InputComponent)
+{
+	Super::SetupInputBinding(InputComponent);
 
-void UWeaponComponent::ResetCombo() {
-	SetQuickStrikeComboIndex(0);
-	SetHeavyStrikeComboIndex(0);
-	SetUniqueStrikeComboIndex(0);
-	bNextAttackQueued = false;
-	IsAttacking = false;
-	isJumpDelay = false;
-	isHolding = false;
+	if (InputComponent)
+	{
+		// 입력 액션에 델리게이트 연결
+		InputComponent->BindAction(IA_Dash, ETriggerEvent::Triggered, this, &UWeaponComponent::InputDash);
+		InputComponent->BindAction(IA_Dash, ETriggerEvent::Completed, this, &UWeaponComponent::InputDashEnd);
+		InputComponent->BindAction(IA_QuickStrike, ETriggerEvent::Started, this, &UWeaponComponent::InputQuickStart);
+		InputComponent->BindAction(IA_QuickStrike, ETriggerEvent::Triggered, this, &UWeaponComponent::InputQuickHolding);
+		InputComponent->BindAction(IA_QuickStrike, ETriggerEvent::Completed, this, &UWeaponComponent::InputQuickEnd);
+		InputComponent->BindAction(IA_HeavyStrike, ETriggerEvent::Started, this, &UWeaponComponent::InputHeavyStart);
+		InputComponent->BindAction(IA_HeavyStrike, ETriggerEvent::Triggered, this, &UWeaponComponent::InputHeavyHolding);
+		InputComponent->BindAction(IA_HeavyStrike, ETriggerEvent::Completed, this, &UWeaponComponent::InputHeavyEnd);
+		InputComponent->BindAction(IA_UniqueStrike, ETriggerEvent::Started, this, &UWeaponComponent::UniqueInputStart);
+		InputComponent->BindAction(IA_UniqueStrike, ETriggerEvent::Triggered, this, &UWeaponComponent::UniqueInputHolding);
+		InputComponent->BindAction(IA_UniqueStrike, ETriggerEvent::Completed, this, &UWeaponComponent::UniqueInputEnd);
+		InputComponent->BindAction(IA_Roll, ETriggerEvent::Started, this, &UWeaponComponent::InputRoll);
+	}
+}
+// <summary>
+/// 인풋 함수 모음
+/// </summary>
+void UWeaponComponent::InputDash()
+{
+	Owner->ServerRPC_Dash();
 }
 
+void UWeaponComponent::InputDashEnd()
+{
+	Owner->ServerRPC_QuickStart();
+}
+
+void UWeaponComponent::InputQuickStart()
+{
+	Owner->ServerRPC_QuickStart();
+}
+
+void UWeaponComponent::InputQuickHolding()
+{
+	Owner->ServerRPC_QuickHolding();
+}
+void UWeaponComponent::InputQuickEnd()
+{
+	Owner->ServerRPC_QuickEnd();
+}
+
+void UWeaponComponent::InputHeavyStart()
+{
+	Owner->ServerRPC_HeavyStart();
+}
+
+void UWeaponComponent::InputHeavyHolding()
+{
+	Owner->ServerRPC_HeavyHolding();
+}
+
+void UWeaponComponent::InputHeavyEnd()
+{
+	Owner->ServerRPC_HeavyEnd();
+}
+
+void UWeaponComponent::InputUniqueStart()
+{
+
+}
+
+void UWeaponComponent::InputUniqueHolding()
+{
+
+}
+
+void UWeaponComponent::InputUniqueEnd()
+{
+
+}
+
+void UWeaponComponent::InputRoll()
+{
+	Owner->ServerRPC_Roll();
+}
+
+void UWeaponComponent::LoadWeaponData()
+{
+	if (!WeaponDataTable)return;
+	WeaponDataMap.Empty();
+	WeaponDataMap = WeaponDataTable->WeaponDataMap;
+}
+
+
+
+/// <summary>
+/// 기능 구현 함수 모음
+/// </summary>
+
+void UWeaponComponent::Dash()
+{
+	if (!Owner)return;
+	if (isWeaponEquipped) {
+		Owner->isRun = false;
+		return;
+	}
+	Owner->isRun = true;
+}
+
+void UWeaponComponent::DashEnd()
+{
+	if (isWeaponEquipped) return;
+	Owner->isRun = false;
+}
 void UWeaponComponent::QuickInputStart() {
 	isCommandInput[0] = false;
 	FCommandInput[0] = 0;
@@ -64,7 +165,6 @@ void UWeaponComponent::QuickInputStart() {
 void UWeaponComponent::QuickInputHolding()
 {
 	FCommandInput[0] += GetWorld()->DeltaTimeSeconds;
-	//PRINT_LOG(TEXT("%f"),FCommandInput[0]);
 	isCommandInput[0] = true;
 }
 
@@ -73,7 +173,9 @@ void UWeaponComponent::QuickInputEnd() {
 	FCommandInput[0] = 0;
 }
 
-void UWeaponComponent::HeavyInputStart(){
+void UWeaponComponent::HeavyInputStart() {
+	FCommandInput[1] = 0;
+	isCommandInput[1] = false;
 }
 
 void UWeaponComponent::HeavyInputHolding() {
@@ -85,6 +187,21 @@ void UWeaponComponent::HeavyInputEnd() {
 	FCommandInput[1] = 0;
 	isCommandInput[1] = false;
 }
+/// <summary>
+/// //////////////////////////////////////
+/// </summary>
+
+void UWeaponComponent::ResetCombo() {
+	SetQuickStrikeComboIndex(0);
+	SetHeavyStrikeComboIndex(0);
+	SetUniqueStrikeComboIndex(0);
+	bNextAttackQueued = false;
+	IsAttacking = false;
+	isJumpDelay = false;
+	isHolding = false;
+}
+
+
 
 void UWeaponComponent::UniqueInputStart() {
 }
@@ -109,30 +226,6 @@ void UWeaponComponent::JumpToNextCombo(){}
 
 void UWeaponComponent::CancelHandler(){}
 
-void UWeaponComponent::SetupInputBinding(class UEnhancedInputComponent* InputComponent)
-{
-	Super::SetupInputBinding(InputComponent);
-
-	if (InputComponent)
-	{
-
-		// 입력 액션에 델리게이트 연결
-		InputComponent->BindAction(IA_Dash, ETriggerEvent::Triggered, this, &UWeaponComponent::Dash);
-		InputComponent->BindAction(IA_Dash, ETriggerEvent::Completed, this, &UWeaponComponent::DashEnd);
-		InputComponent->BindAction(IA_QuickStrike, ETriggerEvent::Started, this, &UWeaponComponent::QuickInputStart);
-		InputComponent->BindAction(IA_QuickStrike, ETriggerEvent::Triggered, this, &UWeaponComponent::QuickInputHolding);
-		InputComponent->BindAction(IA_QuickStrike, ETriggerEvent::Completed, this, &UWeaponComponent::QuickInputEnd);
-		InputComponent->BindAction(IA_HeavyStrike, ETriggerEvent::Started, this, &UWeaponComponent::HeavyInputStart);
-		InputComponent->BindAction(IA_HeavyStrike, ETriggerEvent::Triggered, this, &UWeaponComponent::HeavyInputHolding);
-		InputComponent->BindAction(IA_HeavyStrike, ETriggerEvent::Completed, this, &UWeaponComponent::HeavyInputEnd);
-		InputComponent->BindAction(IA_UniqueStrike, ETriggerEvent::Started, this, &UWeaponComponent::UniqueInputStart);
-		InputComponent->BindAction(IA_UniqueStrike, ETriggerEvent::Triggered, this, &UWeaponComponent::UniqueInputHolding);
-		InputComponent->BindAction(IA_UniqueStrike, ETriggerEvent::Completed, this, &UWeaponComponent::UniqueInputEnd);
-		InputComponent->BindAction(IA_Roll, ETriggerEvent::Started, this, &UWeaponComponent::Roll);
-
-		// 입력 액션에 델리게이트 연결
-	}
-}
 
 void UWeaponComponent::ModifyWeaponMoveSpeed()
 {
@@ -153,8 +246,7 @@ void UWeaponComponent::SpawnWeaponActor()
 	{
 		InitializeWeaponActor(EquippedWeapon, WeaponData);
 
-		AttachWeaponToOwner();
-	}
+		Owner->ServerRPC_AttachWeaponToOwner();	}
 }
 
 bool UWeaponComponent::SpawnNewWeaponActor(const FWeaponDataTable& WeaponData)
@@ -179,7 +271,6 @@ bool UWeaponComponent::SpawnNewWeaponActor(const FWeaponDataTable& WeaponData)
 	return EquippedWeapon != nullptr;
 }
 
-// 헬퍼 함수들
 void UWeaponComponent::DestroyEquippedWeapon()
 {
 	if (EquippedWeapon)
@@ -191,6 +282,7 @@ void UWeaponComponent::DestroyEquippedWeapon()
 
 void UWeaponComponent::AttachWeaponToOwner()
 {
+
 	if (EquippedWeapon && Owner)
 	{
 		USkeletalMeshComponent* MeshComp = Owner->GetMesh();
@@ -214,6 +306,7 @@ void UWeaponComponent::AttachWeaponToHand()
 		);
 	}
 }
+
 void UWeaponComponent::InitializeWeaponActor(AActor* NewWeapon, const FWeaponDataTable& WeaponData)
 {
 	if (!NewWeapon) return;
@@ -223,31 +316,7 @@ void UWeaponComponent::InitializeWeaponActor(AActor* NewWeapon, const FWeaponDat
 	}
 }
 
-void UWeaponComponent::Roll(){
-
-}
-
-void UWeaponComponent::LoadWeaponData()
-{
-	if (!WeaponDataTable)return;
-	WeaponDataMap.Empty();
-	WeaponDataMap = WeaponDataTable->WeaponDataMap;
-}
-
-void UWeaponComponent::Dash()
-{
-	if (isWeaponEquipped) {
-		Owner->isRun = false;
-		return;
-	}
-	Owner->isRun = true;
-}
-
-void UWeaponComponent::DashEnd()
-{
-	if (isWeaponEquipped) return;
-	Owner->isRun = false;
-}
+void UWeaponComponent::Roll(){}
 
 FWeaponDataTable UWeaponComponent::GetCurrentWeaponData() const
 {
@@ -289,3 +358,30 @@ float UWeaponComponent::SetDamage()
 	return Damage;
 }
 
+void UWeaponComponent::OnRep_IsWeaponEquipped()
+{
+	PRINTLOG_NET(TEXT("test %d"), isWeaponEquipped);
+}
+
+void UWeaponComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UWeaponComponent, isWeaponEquipped);
+	DOREPLIFETIME(UWeaponComponent, CommandInputTime);
+	DOREPLIFETIME(UWeaponComponent, WeaponType);
+	DOREPLIFETIME(UWeaponComponent, FCommandInput);
+	DOREPLIFETIME(UWeaponComponent, isCommandInput);
+	DOREPLIFETIME(UWeaponComponent, QuickStrikeComboIndex);
+	DOREPLIFETIME(UWeaponComponent, HeavyStrikeComboIndex);
+	DOREPLIFETIME(UWeaponComponent, UniqueStrikeComboIndex);
+	DOREPLIFETIME(UWeaponComponent, IsAttacking);
+	DOREPLIFETIME(UWeaponComponent, isJumpDelay);
+	DOREPLIFETIME(UWeaponComponent, isHolding);
+	DOREPLIFETIME(UWeaponComponent, iscancel);
+	DOREPLIFETIME(UWeaponComponent, IsQuickAttack);
+	DOREPLIFETIME(UWeaponComponent, IsHeavyAttack);
+	DOREPLIFETIME(UWeaponComponent, IsUniqueAttack);
+	DOREPLIFETIME(UWeaponComponent, AllowRoll);
+	DOREPLIFETIME(UWeaponComponent, isTacle);
+}
