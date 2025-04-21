@@ -119,7 +119,7 @@ public:
 	UFUNCTION(Server,Reliable)
 	void ServerRPC_ChargeAttack();
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticasrRPC_ChargeAttack();
+	void MulticasrRPC_ChargeAttack(const struct FWeaponDataTable& CurrentData);
 
 
 	//UFUNCTION(Server, Reliable)
@@ -208,6 +208,8 @@ public:
 	//Èý ÆÇÁ¤
 	UFUNCTION(Server,Reliable)
 	void ServerRPC_HitEvent();
+
+	void ChargeAttack();
 
 
 

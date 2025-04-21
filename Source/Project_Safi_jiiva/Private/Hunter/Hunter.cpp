@@ -253,13 +253,16 @@ void AHunter::MulticasrRPC_UniqueAttack_Implementation()
 
 void AHunter::ServerRPC_ChargeAttack_Implementation()
 {
-	MulticasrRPC_ChargeAttack();
+	//FWeaponDataTable CurrentData = ;
+	MulticasrRPC_ChargeAttack(WeaponComp->GetCurrentWeaponData());
+
 }
 
-void AHunter::MulticasrRPC_ChargeAttack_Implementation()
+void AHunter::MulticasrRPC_ChargeAttack_Implementation(const struct FWeaponDataTable& CurrentData)
 {
-	WeaponComp->ChargeAttack();
+	WeaponComp->ChargeAttack(CurrentData);
 }
+
 
 //void AHunter::ServerRPC_CommandInputReset_Implementation() { WeaponComp->IsCommandInputReset(); }
 
@@ -400,4 +403,3 @@ void AHunter::ServerRPC_HitEvent_Implementation()
 	ServerRPC_SetIsAttacking(false);
 	ServerRPC_SetIsJumpDelay(false);
 }
-

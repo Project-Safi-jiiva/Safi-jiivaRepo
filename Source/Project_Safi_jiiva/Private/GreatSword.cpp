@@ -244,9 +244,13 @@ void UGreatSword::UniqueAttack()
 	PlayMontage(CurrentData.UniqueStrikeMontages[GetUniqueStrikeComboIndex()]);
 }
 
-void UGreatSword::ChargeAttack()
+void UGreatSword::ChargeAttack(const struct FWeaponDataTable& CurrentData)
 {
-	FWeaponDataTable CurrentData = GetCurrentWeaponData();
-	PlayMontage(CurrentData.QuickStrikeMontages[GetQuickStrikeComboIndex()]);
+	if (!CurrentData.WeaponActorClass) {
+		PlayMontage(GetCurrentWeaponData().QuickStrikeMontages[GetQuickStrikeComboIndex()]);
+	}
+	else {
+		PlayMontage(CurrentData.QuickStrikeMontages[GetQuickStrikeComboIndex()]);
+	}
 }
 

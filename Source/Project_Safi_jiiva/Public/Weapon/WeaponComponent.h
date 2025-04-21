@@ -111,7 +111,7 @@ public:
 	class UInputAction* IA_UniqueStrike;
 	class UInputAction* IA_Roll;
 
-protected:
+public:
 	FWeaponDataTable GetCurrentWeaponData() const;
 
 private:
@@ -142,6 +142,7 @@ public:
 		public:
 		virtual void WeaponCollitionOn();
 		virtual void WeaponCollitionOff();
+
 		UFUNCTION()
 		float SetDamage();
 		float Damage=0.0f;
@@ -198,4 +199,6 @@ public:
 
 //////////////////////¼­¹ö/////////////////////
 		void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
+
+		virtual void ChargeAttack(const struct FWeaponDataTable& CrrentData) {};
 };

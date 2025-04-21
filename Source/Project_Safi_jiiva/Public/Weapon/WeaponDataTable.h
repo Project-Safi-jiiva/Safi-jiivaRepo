@@ -74,4 +74,19 @@ struct FWeaponDataTable : public FTableRowBase
     // 추가된 항목: 파티클 이펙트 (여러 개를 배열로)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Visuals")
     TArray<UParticleSystem*> HitEffects;
+
+    FWeaponDataTable() :WeaponActorClass(nullptr), BaseDamage(0.f), QuickStrikeMontages({}), HeavyStrikeMontages({}),
+        UniqueStrikeMontages({}), DrawMontage(nullptr), SheatheMontage(nullptr), QuickStrikeDamageMultipliers({}), HeavyStrikeDamageMultipliers({}),
+        UniqueStrikeDamageMultipliers({}), GuardMontage(nullptr), DodgeMontage(nullptr), HitReactionMontage(nullptr),
+        StaminaCosts({}), AttackSounds({}), HitEffects({}) {
+    };
+};
+
+template<>
+struct TStructOpsTypeTraits<FWeaponDataTable> : public TStructOpsTypeTraitsBase2<FWeaponDataTable>
+{
+    enum
+    {
+        WithCopy = true // 구조체 복사를 허용합니다
+    };
 };
