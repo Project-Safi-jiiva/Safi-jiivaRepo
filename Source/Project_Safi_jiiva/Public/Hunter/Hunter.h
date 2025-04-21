@@ -211,6 +211,12 @@ public:
 
 	void ChargeAttack();
 
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_OnWeaponComp();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_OffWeaponComp();
+
 
 
 

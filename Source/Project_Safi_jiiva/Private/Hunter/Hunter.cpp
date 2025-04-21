@@ -403,3 +403,10 @@ void AHunter::ServerRPC_HitEvent_Implementation()
 	ServerRPC_SetIsAttacking(false);
 	ServerRPC_SetIsJumpDelay(false);
 }
+void AHunter::ServerRPC_OnWeaponComp_Implementation() {
+	WeaponComp->WeaponCollitionOn();
+}
+void AHunter::ServerRPC_OffWeaponComp_Implementation() {
+	WeaponComp->WeaponCollitionOff();
+
+}

@@ -353,7 +353,6 @@ float UWeaponComponent::SetDamage()
 {
 
 	FWeaponDataTable WeaponData = GetCurrentWeaponData();
-	//if (IsQuickAttack) {
 	Damage = (WeaponData.BaseDamage)*(WeaponData.QuickStrikeDamageMultipliers[GetQuickStrikeComboIndex()]);
 	if (IsHeavyAttack) {
 		Damage =(WeaponData.BaseDamage) * (WeaponData.HeavyStrikeDamageMultipliers[GetHeavyStrikeComboIndex()]);

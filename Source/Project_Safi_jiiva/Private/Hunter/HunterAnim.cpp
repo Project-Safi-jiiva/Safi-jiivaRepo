@@ -89,8 +89,8 @@ void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNo
     //무기 붙이고 때기
     if (NotifyName == FName(TEXT("Attach"))) { Owner->ServerRPC_AttachWeaponToHand();}
     if (NotifyName == FName(TEXT("Detach"))) {Owner->ServerRPC_AttachWeaponToOwner();}
-    if (NotifyName == FName(TEXT("WeaponCollitionOn"))) {Owner->WeaponComp->WeaponCollitionOn();}
-    if (NotifyName == FName(TEXT("WeaponCollitionOff"))) {Owner->WeaponComp->WeaponCollitionOff(); }
+    if (NotifyName == FName(TEXT("WeaponCollitionOn"))) {Owner->ServerRPC_OnWeaponComp();}
+    if (NotifyName == FName(TEXT("WeaponCollitionOff"))) {Owner->ServerRPC_OffWeaponComp(); }
     if (NotifyName == FName(TEXT("TacleOn"))) { Owner->ServerRPC_SetIsTacle(true); }
 
 
