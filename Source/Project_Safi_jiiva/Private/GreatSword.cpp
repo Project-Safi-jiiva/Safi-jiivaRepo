@@ -164,11 +164,11 @@ void UGreatSword::CancelHandler()
 
 void UGreatSword::Roll()
 {
-	if (IsAttacking && !AllowRoll)return;
-	AllowRoll = false;
+		AllowRoll = false;
 
-	FWeaponDataTable CurrentData = GetCurrentWeaponData();
+		FWeaponDataTable CurrentData = GetCurrentWeaponData();
 		PlayMontage(CurrentData.DodgeMontage);
+
 }
 
 void UGreatSword::WeaponCollitionOn()

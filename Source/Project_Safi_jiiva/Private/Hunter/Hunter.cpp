@@ -93,7 +93,7 @@ void AHunter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	NetLog();
 
-	if (Anim->Montage_IsPlaying(nullptr)&&isHit)
+	if (Anim&& Anim->Montage_IsPlaying(nullptr)&&isHit)
 		Anim->Montage_Stop(0.1f);
 
 }
@@ -396,5 +396,8 @@ void AHunter::ServerRPC_HitEvent_Implementation()
 			GetCapsuleComponent()->SetCollisionProfileName(FName("Pawn2"));
 		};
 	GetWorld()->GetTimerManager().SetTimer(Handler, OnInput, 2.3, false);
+	ServerRPC_SetAllowRoll(true);
+	ServerRPC_SetIsAttacking(false);
+	ServerRPC_SetIsJumpDelay(false);
 }
 

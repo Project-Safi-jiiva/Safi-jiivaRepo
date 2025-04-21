@@ -181,7 +181,7 @@ public:
 		UPROPERTY(Replicated)
 		bool IsUniqueAttack =false;
 		UPROPERTY(Replicated)
-		bool AllowRoll = false;
+		bool AllowRoll = true;
 		UPROPERTY(Replicated)
 		bool isTacle = false;
 		UPROPERTY(Replicated)

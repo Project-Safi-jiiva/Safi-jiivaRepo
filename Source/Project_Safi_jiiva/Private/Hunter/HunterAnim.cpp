@@ -48,7 +48,7 @@ void UHunterAnim::NativeUpdateAnimation(float DeltaTime)
 
 void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload)
 {
-    if (!Owner->HasAuthority()) return;
+    if (!Owner->IsLocallyControlled())return;
     Owner->ServerRPC_SetIsJumpDelay(true);
     Owner->ServerRPC_SetIsAttacking(true);
     if (NotifyName == FName(TEXT("AttackEnd"))) { Owner->ServerRPC_SetIsAttacking(false); }
@@ -72,7 +72,7 @@ void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNo
     if (NotifyName == FName(TEXT("UniqueAttackStart"))) { Owner->ServerRPC_SetIsUniqueAttack(true); }
 
     //구르기, 캔슬 노티파이
-    if (NotifyName == FName(TEXT("Roll"))) { Owner->ServerRPC_SetAllowRoll(true); }
+    if (NotifyName == FName(TEXT("Roll"))) { Owner->ServerRPC_SetAllowRoll(false); }
     if (NotifyName == FName(TEXT("iscancelEnd"))) { Owner->WeaponComp->iscancel = false;}
 
 
@@ -100,16 +100,28 @@ void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNo
     if (NotifyName == FName(TEXT("Roll"))) {
         Owner->ServerRPC_SetAllowRoll(true);
     }
+    if (NotifyName == FName(TEXT("AttackStart"))) {
+        Owner->ServerRPC_SetAllowRoll(false);
+    }
+    if (NotifyName == FName(TEXT("AttackEnd"))) {
+        Owner->ServerRPC_SetIsJumpDelay(false);
+        Owner->ServerRPC_SetIsQuickAttack(false);
+        Owner->ServerRPC_SetIsHeavyAttack(false);
+        Owner->ServerRPC_SetIsUniqueAttack(false);
+        Owner->ServerRPC_SetIsTacle(false);
+        Owner->ServerRPC_SetAllowRoll(true);
+        Owner->ServerRPC_SetIsAttacking(false);
+    }
+
 }
 
 void UHunterAnim::OnMontageNotifyEnd(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload){
-    if (!Owner->HasAuthority())return;
+    if (!Owner->IsLocallyControlled())return;
+    Owner->ServerRPC_SetAllowRoll(true);
+    Owner->ServerRPC_SetIsAttacking(false);
     Owner->ServerRPC_SetIsJumpDelay(false);
-    Owner->ServerRPC_SetIsQuickAttack(false);
-    Owner->ServerRPC_SetIsHeavyAttack(false);
-    Owner->ServerRPC_SetIsUniqueAttack(false);
-    Owner->ServerRPC_SetIsTacle(false);
-    Owner->ServerRPC_SetAllowRoll(false);
+
+    PRINT_LOG(TEXT("tldlqkf"));
 }
 
 void UHunterAnim::SetBluePrintValues()

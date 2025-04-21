@@ -127,7 +127,9 @@ void UWeaponComponent::InputUniqueEnd()
 
 void UWeaponComponent::InputRoll()
 {
-	Owner->ServerRPC_Roll();
+	if(Owner&&Owner->IsLocallyControlled()&&AllowRoll)
+			Owner->ServerRPC_Roll();
+
 }
 
 void UWeaponComponent::LoadWeaponData()
