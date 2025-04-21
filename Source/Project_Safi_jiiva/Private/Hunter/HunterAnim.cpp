@@ -78,7 +78,9 @@ void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNo
 
     //중복 입력 방지 부분
     if (NotifyName == FName(TEXT("DelayEnd"))) {
-        Owner->ServerRPC_SetIsJumpDelay(false); Owner->ServerRPC_JumpToNextCombo();
+        Owner->ServerRPC_SetIsJumpDelay(false);
+        Owner->ServerRPC_JumpToNextCombo();
+        PRINTLOG_NET(TEXT("DelayEnd"));
     }
     if (NotifyName == FName(TEXT("JumpDelay"))) {
             Owner->ServerRPC_SetIsJumpDelay(true);
@@ -112,7 +114,6 @@ void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNo
         Owner->ServerRPC_SetAllowRoll(true);
         Owner->ServerRPC_SetIsAttacking(false);
     }
-
 }
 
 void UHunterAnim::OnMontageNotifyEnd(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload){

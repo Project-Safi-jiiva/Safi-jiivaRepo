@@ -44,7 +44,6 @@ void UGreatSword::QuickInputHolding()
 void UGreatSword::QuickInputEnd()
 {
 	Super::QuickInputEnd();
-	if (isJumpDelay) return;
 	JumpToNextCombo();
 }
 
@@ -143,6 +142,7 @@ void UGreatSword::ModifyWeaponMoveSpeed()
 
 void UGreatSword::JumpToNextCombo()
 {
+	PRINTLOG_NET(TEXT("isCommandInput %d"), isCommandInput[0]);
 	if (isCommandInput[0])return;
 	CurrentMontage = Anim->GetCurrentMontage(Owner);
 	if (Anim->Montage_IsPlaying(CurrentMontage)) {
@@ -173,16 +173,22 @@ void UGreatSword::Roll()
 
 void UGreatSword::WeaponCollitionOn()
 {
+	if (Owner && Owner->HasAuthority()){
+
 	AGreatSwordActor* Weapon = Cast<AGreatSwordActor>(EquippedWeapon);
 	Weapon->SwordMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	}
 
 }
 
 void UGreatSword::WeaponCollitionOff()
 {
-	AGreatSwordActor* Weapon = Cast<AGreatSwordActor>(EquippedWeapon);
-	Weapon->SwordMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	Weapon->HitPawn.Empty();
+	if (Owner && Owner->HasAuthority()) {
+
+		AGreatSwordActor* Weapon = Cast<AGreatSwordActor>(EquippedWeapon);
+		Weapon->SwordMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		Weapon->HitPawn.Empty();
+	}
 }
 
 void UGreatSword::PlayMontage(UAnimMontage* Montage)

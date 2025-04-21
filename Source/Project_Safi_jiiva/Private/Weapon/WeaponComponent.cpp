@@ -31,6 +31,7 @@ UWeaponComponent::UWeaponComponent(){
 	ConstructorHelpers::FObjectFinder<UWeaponDataAsset> WeaponDataTableTool(AssetPaths::WeaponDataAsset);
 	WeaponDataTable = WeaponDataTableTool.Object;
 	SetIsReplicatedByDefault(true);
+
 }
 
 void UWeaponComponent::BeginPlay()
@@ -38,7 +39,8 @@ void UWeaponComponent::BeginPlay()
 	Super::BeginPlay();
 
 	LoadWeaponData();
-	SpawnWeaponActor();
+	if(Owner&&Owner->HasAuthority())
+		SpawnWeaponActor();
 }
 
 void UWeaponComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -92,6 +94,7 @@ void UWeaponComponent::InputQuickHolding()
 }
 void UWeaponComponent::InputQuickEnd()
 {
+	if (isJumpDelay) return;
 	Owner->ServerRPC_QuickEnd();
 }
 
