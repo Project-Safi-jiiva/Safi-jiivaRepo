@@ -609,10 +609,11 @@ void UCSafiFSM::SetTarget()
 {
 	// 헌터 리스트 갱신, 타겟 리스트로 목록 받아옴
 	UpdateHunterList();
-	TargetList.Empty();
-
 	// 리스트가 비어있는지 확인
 	if (HunterList.IsEmpty()) { return; }
+
+	// 리스트 받아오기 전에 비우기
+	TargetList.Empty();
 
 	// 리스트 순회하면서 색적범위 안쪽인지 확인
 	for (AHunter* Hunter : HunterList)

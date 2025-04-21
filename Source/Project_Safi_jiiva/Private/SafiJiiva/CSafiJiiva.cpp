@@ -426,8 +426,8 @@ void ACSafiJiiva::InitBoxes()
 	Socket_Body_33 = CreateDefaultSubobject<UBoxComponent>(TEXT("Socket_Body_33"));
 	Socket_Body_33->SetupAttachment(SafiComponent, TEXT("Socket_Body_33"));
 	Socket_Body_33->SetCollisionProfileName(TEXT("SafiBody"));
-	Socket_Body_33->SetRelativeLocation(FVector(5.f, 0.f, 110.f));
-	Socket_Body_33->SetBoxExtent(FVector(180.f, 70.f, 170.f));
+	Socket_Body_33->SetRelativeLocation(FVector(5.f, -80.f, 110.f));
+	Socket_Body_33->SetBoxExtent(FVector(180.f, 150.f, 170.f));
 
 
 	// 오른쪽 앞다리 (Right Front)
@@ -446,8 +446,8 @@ void ACSafiJiiva::InitBoxes()
 	Socket_Body_34 = CreateDefaultSubobject<UBoxComponent>(TEXT("Socket_Body_34"));
 	Socket_Body_34->SetupAttachment(SafiComponent, TEXT("Socket_Body_34"));
 	Socket_Body_34->SetCollisionProfileName(TEXT("SafiBody"));
-	Socket_Body_34->SetRelativeLocation(FVector(5.f, 0.f, 110.f));
-	Socket_Body_34->SetBoxExtent(FVector(180.f, 70.f, 170.f));
+	Socket_Body_34->SetRelativeLocation(FVector(5.f, -80.f, 110.f));
+	Socket_Body_34->SetBoxExtent(FVector(180.f, 150.f, 170.f));
 
 
 	// 왼쪽 뒷다리 (Left Back)
@@ -473,8 +473,8 @@ void ACSafiJiiva::InitBoxes()
 	Socket_Body_35 = CreateDefaultSubobject<UBoxComponent>(TEXT("Socket_Body_35"));
 	Socket_Body_35->SetupAttachment(SafiComponent, TEXT("Socket_Body_35"));
 	Socket_Body_35->SetCollisionProfileName(TEXT("SafiBody"));
-	Socket_Body_35->SetRelativeLocation(FVector(25.f, 0.f, 130.f));
-	Socket_Body_35->SetBoxExtent(FVector(140.f, 70.f, 180.f));
+	Socket_Body_35->SetRelativeLocation(FVector(25.f, -80.f, 130.f));
+	Socket_Body_35->SetBoxExtent(FVector(140.f, 150.f, 180.f));
 
 
 	// 오른쪽 뒷다리 (Right Back)
@@ -502,8 +502,8 @@ void ACSafiJiiva::InitBoxes()
 	Socket_Body_36 = CreateDefaultSubobject<UBoxComponent>(TEXT("Socket_Body_36"));
 	Socket_Body_36->SetupAttachment(SafiComponent, TEXT("Socket_Body_36"));
 	Socket_Body_36->SetCollisionProfileName(TEXT("SafiBody"));
-	Socket_Body_36->SetRelativeLocation(FVector(-40.f, 0.f, 130.f));
-	Socket_Body_36->SetBoxExtent(FVector(140.f, 70.f, 180.f));
+	Socket_Body_36->SetRelativeLocation(FVector(-40.f, -80.f, 130.f));
+	Socket_Body_36->SetBoxExtent(FVector(140.f, 150.f, 180.f));
 
 
 
@@ -665,8 +665,7 @@ void ACSafiJiiva::OnAttackOverlapBegin(class UPrimitiveComponent* OverlappedComp
 	// 공격 콜리전 켜주는 녀석들이 켜져 있을 경우엔
 	if (isOnAttBite == true || isFootAttack == true || isOnBreath == true || isOnBodyPress == true)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("DMG_Tes1t"));
-		if (HitPawn.Num() <= 0)
+		//if (HitPawn.Num() <= 0)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("DMG_Test"));
 			// 임시 데미지 MeleeBiteDMG
