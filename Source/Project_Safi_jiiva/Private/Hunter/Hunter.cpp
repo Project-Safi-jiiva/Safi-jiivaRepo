@@ -280,7 +280,12 @@ void AHunter::ServerRPC_SetIsHolding_Implementation(bool IsHolding) { WeaponComp
 
 void AHunter::ServerRPC_SetIsJumpDelay_Implementation(bool IsJumpDelay){WeaponComp->SetIsJumpDelay(IsJumpDelay);}
 
-void AHunter::ServerRPC_SetAllowRoll_Implementation(bool AllowRoll) { WeaponComp->SetAllowRoll(AllowRoll); }
+void AHunter::ServerRPC_SetAllowRoll_Implementation(bool AllowRoll) { MulticastRPC_SetAllowRoll(AllowRoll); }
+
+void AHunter::MulticastRPC_SetAllowRoll_Implementation(bool bRoll)
+{
+	WeaponComp->SetAllowRoll(bRoll);
+}
 
 void AHunter::ServerRPC_AttachWeaponToHand_Implementation()
 {
@@ -381,13 +386,18 @@ void AHunter::NetMulticastRPC_JumpToNextCombo_Implementation()
 
 void AHunter::ServerRPC_HitEvent_Implementation()
 {
+	NetMulticastRPC_HitEvent();
+}
+
+void AHunter::NetMulticastRPC_HitEvent_Implementation()
+{
 	MoveComp->MoveState = EMoveState::HIT;
 	isHit = true;
 	MoveComp->InputOff();
 	GetCapsuleComponent()->SetCollisionProfileName(FName("Pawn"));
 
 	MoveComp->KnockBack();
-	WeaponComp->ResetCombo();
+	ServerRPC_ResetCombo();
 	FTimerHandle Handler;
 	auto OnInput = [this]()
 		{
@@ -396,5 +406,10 @@ void AHunter::ServerRPC_HitEvent_Implementation()
 			GetCapsuleComponent()->SetCollisionProfileName(FName("Pawn2"));
 		};
 	GetWorld()->GetTimerManager().SetTimer(Handler, OnInput, 2.3, false);
+}
+
+void AHunter::ServerRPC_IsCancel_Implementation(bool biscancel)
+{
+	WeaponComp->SetCancel(biscancel);
 }
 

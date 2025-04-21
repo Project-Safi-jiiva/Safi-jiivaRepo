@@ -358,9 +358,9 @@ float UWeaponComponent::SetDamage()
 	return Damage;
 }
 
-void UWeaponComponent::OnRep_IsWeaponEquipped()
+void UWeaponComponent::OnRep_IsAttacking()
 {
-	PRINTLOG_NET(TEXT("test %d"), isWeaponEquipped);
+	PRINTLOG_NET(TEXT("test %d"), IsAttacking);
 }
 
 void UWeaponComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

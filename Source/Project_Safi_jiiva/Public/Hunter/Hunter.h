@@ -152,6 +152,8 @@ public:
 	//구르기 허용 여부 판단
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_SetAllowRoll(bool AllowRoll);
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastRPC_SetAllowRoll(bool bRoll);
 
 
 	//무기 손에 붙이기
@@ -208,6 +210,10 @@ public:
 	//힛 판정
 	UFUNCTION(Server,Reliable)
 	void ServerRPC_HitEvent();
+	UFUNCTION(NetMulticast, Reliable)
+	void NetMulticastRPC_HitEvent();
+	UFUNCTION(Server,Reliable)
+	void ServerRPC_IsCancel(bool biscancel);
 
 
 

@@ -164,11 +164,11 @@ public:
 		UPROPERTY(Replicated)
 		TArray<bool> isCommandInput = { false,false,false };
 	public:
-		UPROPERTY(ReplicatedUsing=OnRep_IsWeaponEquipped)
+		UPROPERTY(Replicated)
 		bool isWeaponEquipped = false;
 		UFUNCTION()
-		void OnRep_IsWeaponEquipped();
-		UPROPERTY(Replicated)
+		void OnRep_IsAttacking();
+		UPROPERTY(ReplicatedUsing= OnRep_IsAttacking)
 		bool IsAttacking =false;
 		UPROPERTY(Replicated)
 		bool isJumpDelay = false;
@@ -195,6 +195,7 @@ public:
 		void SetIsHolding(bool NewIsHolding) { isHolding = NewIsHolding; }
 		void SetIsJumpDelay(bool NewIsJumpDelay) { isJumpDelay = NewIsJumpDelay; }
 		void SetAllowRoll(bool NewAllowRoll) { AllowRoll = NewAllowRoll; }
+		void SetCancel(bool biscancel) { iscancel = biscancel; };
 
 //////////////////////¼­¹ö/////////////////////
 		void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;

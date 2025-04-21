@@ -166,6 +166,8 @@ void UGreatSword::CancelHandler()
 void UGreatSword::Roll()
 {
 	Super::Roll();
+	PRINTLOG_NET(TEXT("ROLL %d"), AllowRoll);
+	PRINTLOG_NET(TEXT("IsAttacking %d"), IsAttacking);
 	if (IsAttacking && !AllowRoll)return;
 	AllowRoll = false;
 
