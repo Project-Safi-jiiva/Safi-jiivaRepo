@@ -64,7 +64,7 @@ void UWeaponComponent::SetupInputBinding(class UEnhancedInputComponent* InputCom
 		InputComponent->BindAction(IA_UniqueStrike, ETriggerEvent::Started, this, &UWeaponComponent::UniqueInputStart);
 		InputComponent->BindAction(IA_UniqueStrike, ETriggerEvent::Triggered, this, &UWeaponComponent::UniqueInputHolding);
 		InputComponent->BindAction(IA_UniqueStrike, ETriggerEvent::Completed, this, &UWeaponComponent::UniqueInputEnd);
-		InputComponent->BindAction(IA_Roll, ETriggerEvent::Started, this, &UWeaponComponent::Roll);
+		InputComponent->BindAction(IA_Roll, ETriggerEvent::Started, this, &UWeaponComponent::InputRoll);
 	}
 }
 // <summary>
@@ -126,7 +126,7 @@ void UWeaponComponent::InputUniqueEnd()
 
 void UWeaponComponent::InputRoll()
 {
-
+	Owner->ServerRPC_Roll();
 }
 
 void UWeaponComponent::LoadWeaponData()
@@ -246,8 +246,7 @@ void UWeaponComponent::SpawnWeaponActor()
 	{
 		InitializeWeaponActor(EquippedWeapon, WeaponData);
 
-		AttachWeaponToOwner();
-	}
+		Owner->ServerRPC_AttachWeaponToOwner();	}
 }
 
 bool UWeaponComponent::SpawnNewWeaponActor(const FWeaponDataTable& WeaponData)
@@ -283,6 +282,7 @@ void UWeaponComponent::DestroyEquippedWeapon()
 
 void UWeaponComponent::AttachWeaponToOwner()
 {
+
 	if (EquippedWeapon && Owner)
 	{
 		USkeletalMeshComponent* MeshComp = Owner->GetMesh();
@@ -367,7 +367,7 @@ void UWeaponComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME_CONDITION(UWeaponComponent, isWeaponEquipped, COND_OwnerOnly);
+	DOREPLIFETIME(UWeaponComponent, isWeaponEquipped);
 	DOREPLIFETIME(UWeaponComponent, CommandInputTime);
 	DOREPLIFETIME(UWeaponComponent, WeaponType);
 	DOREPLIFETIME(UWeaponComponent, FCommandInput);

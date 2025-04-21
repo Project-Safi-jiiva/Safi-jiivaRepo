@@ -57,6 +57,7 @@ private:
 private:
 
 public:
+	UPROPERTY(Replicated)
 	EMoveState MoveState = EMoveState::IDLE;
 
 	void InputOff();
@@ -66,5 +67,7 @@ public:
 	void DisableControllerRotaion();
 	bool isRotation = false;
 	float DirectionY;
+
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
 };

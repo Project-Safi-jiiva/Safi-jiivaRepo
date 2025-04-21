@@ -148,7 +148,7 @@ public:
 
 		//커맨드 판단 변수 선언
 		TMap<EWeaponType, FWeaponDataTable> WeaponDataMap;
-	protected:
+	public:
 		UPROPERTY(Replicated)
 		int32 QuickStrikeComboIndex = 0;
 		UPROPERTY(Replicated)

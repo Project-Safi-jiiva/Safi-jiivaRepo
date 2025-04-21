@@ -95,9 +95,9 @@ void UGreatSword::checkCommand(float DeltaTime)
 		if (isCommandInput[0] && isCommandInput[1] && !isCommandInput[2]){
 			if (FCommandInput[0] >= 0.2){
 				PlayMontage(CurrentData.HeavyStrikeMontages[1]);
-				SetHeavyStrikeComboIndex(0);
+				Owner->ServerPRC_SetHeavyAddIndex(0);
 				if(GetQuickStrikeComboIndex()<2)
-					SetQuickStrikeComboIndex(GetQuickStrikeComboIndex() + 1);
+					Owner->ServerRPC_SetQuickAddIndex(GetQuickStrikeComboIndex() + 1);
 				FCommandInput[0] = 0;
 				IsCommandInputReset();
 			}
@@ -125,7 +125,8 @@ void UGreatSword::Dash()
 		if (CurrentData.QuickStrikeMontages.Num() > 0 && Owner) {
 			if (isWeaponEquipped) {
 				PlayMontage(CurrentData.DrawMontage);
-				isWeaponEquipped = false;
+				//if (Owner->HasAuthority())
+					isWeaponEquipped = false;
 			}
 		}
 	}
@@ -197,23 +198,24 @@ void UGreatSword::PlayMontage(UAnimMontage* Montage)
 void UGreatSword::QuickAttack()
 {
 	Super::QuickAttack();
-	PRINTLOG_NET(TEXT("QuickAttack %d"),isWeaponEquipped);
 	FWeaponDataTable CurrentData = GetCurrentWeaponData();
 	if (CurrentData.QuickStrikeMontages.Num() > 0 && Owner) {
 		 if (!isWeaponEquipped && Owner->GetVelocity().Size2D() <= 0) {
 			PlayMontage(CurrentData.SheatheMontage);
-			isWeaponEquipped = true;
+			//if(Owner->HasAuthority())
+				isWeaponEquipped = true;
 			return;
 		}
 		 if (!isWeaponEquipped && Owner->GetVelocity().Size2D() > 0) {
 			PlayMontage(CurrentData.UniqueStrikeMontages[1]);
-			isWeaponEquipped = true;
+			//if (Owner->HasAuthority())
+				isWeaponEquipped = true;
 			return;
 		}
 		 if (isWeaponEquipped) {
 			 PRINT_LOG(TEXT("QuickAttack : %d"), IsAttacking);
 			 if (IsAttacking) return;
-			 Owner->ServerRPC_ChargeAttack();
+			 ChargeAttack();
 		 }
 	}
 }

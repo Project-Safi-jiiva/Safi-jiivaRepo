@@ -17,8 +17,10 @@ void UHunterAnimNotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnim
 
 void UHunterAnimNotifyState::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime)
 {
+
 	Super::NotifyTick(MeshComp, Animation, FrameDeltaTime);
 	AHunter* Owner = Cast<AHunter>(MeshComp->GetOwner());
+	if (!Owner->HasAuthority())return;
 	if (UHunterAnim* Anim = Cast<UHunterAnim>(MeshComp->GetAnimInstance())) {
 		UAnimMontage* CurrentMontage = Anim->GetCurrentActiveMontage();
 		FName CurrentSection = Anim->Montage_GetCurrentSection(CurrentMontage);

@@ -48,15 +48,21 @@ void UHunterAnim::NativeUpdateAnimation(float DeltaTime)
 
 void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload)
 {
-    if (!Owner->HasAuthority())return;
+
+    if (Owner->IsLocallyControlled())return;
     Owner->ServerRPC_SetIsJumpDelay(true);
     Owner->ServerRPC_SetIsAttacking(true);
-    //노티파이 공통 부분
     if (NotifyName == FName(TEXT("AttackEnd"))) { Owner->ServerRPC_SetIsAttacking(false); }
-    if (NotifyName == FName(TEXT("ComboEnd"))) { Owner->WeaponComp->ResetCombo();}
+    //노티파이 공통 부분
+    if (NotifyName == FName(TEXT("ComboEnd"))) {
+        Owner->ServerRPC_ResetCombo();
+    }
     //약공격 노티파이
     if (NotifyName == FName(TEXT("QuickAttackStart"))) { Owner->ServerRPC_SetIsQuickAttack(true); }
-    if (NotifyName == FName(TEXT("QuickAttackAddIndex"))) { Owner->ServerRPC_SetQuickAddIndex(Owner->WeaponComp->GetQuickStrikeComboIndex() + 1); }
+    if (NotifyName == FName(TEXT("QuickAttackAddIndex"))) {
+        Owner->ServerRPC_SetQuickAddIndex(Owner->WeaponComp->GetQuickStrikeComboIndex() + 1);
+        PRINTLOG_NET(TEXT("addindex :%d"),Owner->WeaponComp->GetQuickStrikeComboIndex());
+    }
     if (NotifyName == FName(TEXT("QuickAttackEnd"))) { Owner->ServerRPC_SetIsQuickAttack(false); }
 
     ////강공격 노티파이
@@ -72,7 +78,8 @@ void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNo
 
 
     //중복 입력 방지 부분
-    if (NotifyName == FName(TEXT("DelayEnd"))) { Owner->WeaponComp->isJumpDelay = false; Owner->WeaponComp->JumpToNextCombo();
+    if (NotifyName == FName(TEXT("DelayEnd"))) {
+        Owner->ServerRPC_SetIsJumpDelay(false); Owner->ServerRPC_JumpToNextCombo();
     }
     //무기 붙이고 때기
     if (NotifyName == FName(TEXT("Attach"))) { Owner->ServerRPC_AttachWeaponToHand();}
@@ -89,11 +96,13 @@ void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNo
 		Owner->GetCapsuleComponent()->SetCollisionProfileName(FName("Pawn2"));
 	}
     if (NotifyName == FName(TEXT("Roll"))) {
-        Owner->WeaponComp->AllowRoll = true;
+        Owner->ServerRPC_SetAllowRoll(true);
     }
 }
 
 void UHunterAnim::OnMontageNotifyEnd(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload){
+    if (!Owner->HasAuthority())return;
+
     Owner->ServerRPC_SetIsQuickAttack(false);
     Owner->ServerRPC_SetIsHeavyAttack(false);
     Owner->ServerRPC_SetIsUniqueAttack(false);

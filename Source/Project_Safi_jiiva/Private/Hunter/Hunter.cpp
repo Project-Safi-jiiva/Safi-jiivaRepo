@@ -111,21 +111,7 @@ float AHunter::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, 
 {
 	if (WeaponComp->isTacle) return 0;
 	PRINT_LOG(TEXT("%f"),Damage);
-	MoveComp->MoveState = EMoveState::HIT;
-	isHit = true;
-	MoveComp->InputOff();
-	GetCapsuleComponent()->SetCollisionProfileName(FName("Pawn"));
-
-	MoveComp->KnockBack();
-	WeaponComp->ResetCombo();
-	FTimerHandle Handler;
-	auto OnInput = [this]()
-		{
-	MoveComp->InputOn(); MoveComp->MoveState = EMoveState::IDLE;
-			isHit = false;
-			GetCapsuleComponent()->SetCollisionProfileName(FName("Pawn2"));
-		};
-	GetWorld()->GetTimerManager().SetTimer(Handler, OnInput, 2.3, false);
+	ServerRPC_HitEvent();
 	return Damage;
 }
 
@@ -174,6 +160,8 @@ void AHunter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AHunter, isRun);
+	DOREPLIFETIME(AHunter, isHit);
+
 }
 //대쉬 함수
 void AHunter::ServerRPC_Dash_Implementation()
@@ -189,9 +177,15 @@ void AHunter::MulticastRPC_Dash_Implementation()
 
 void AHunter::ServerRPC_DashEnd_Implementation()
 {
+	MulticastRPC_DashEnd();
+}
+
+void AHunter::MulticastRPC_DashEnd_Implementation()
+{
 	WeaponComp->DashEnd();
 	WeaponComp->ModifyWeaponMoveSpeed();
 }
+
 //약공격 함수
 void AHunter::ServerRPC_QuickStart_Implementation()
 {
@@ -271,6 +265,7 @@ void AHunter::MulticasrRPC_ChargeAttack_Implementation()
 
 void AHunter::ServerRPC_SetIsAttacking_Implementation(bool IsAttack) { WeaponComp->SetIsAttacking(IsAttack); }
 
+
 void AHunter::ServerRPC_SetIsQuickAttack_Implementation(bool IsQuick) { WeaponComp->SetIsQuickAttack(IsQuick); }
 
 void AHunter::ServerRPC_SetIsHeavyAttack_Implementation(bool IsHeavy) { WeaponComp->SetIsHeavyAttack(IsHeavy); }
@@ -307,14 +302,25 @@ void AHunter::MulticastRPC_AttachWeaponToOwner_Implementation()
 
 void AHunter::ServerRPC_SetQuickAddIndex_Implementation(int32 AddIndex)
 {
+	MulticastRPC_SetQuickAddIndex(AddIndex);
+}
+
+void AHunter::MulticastRPC_SetQuickAddIndex_Implementation(int32 AddIndex)
+{
 	WeaponComp->SetQuickStrikeComboIndex(AddIndex);
+
 }
 
 void AHunter::ServerPRC_SetHeavyAddIndex_Implementation(int32 AddIndex)
 {
-	WeaponComp->SetHeavyStrikeComboIndex(AddIndex);
+	MulticastRPC_SetHeavyAddIndex(AddIndex);
 }
 
+void AHunter::MulticastRPC_SetHeavyAddIndex_Implementation(int32 AddIndex)
+{
+	WeaponComp->SetHeavyStrikeComboIndex(AddIndex);
+
+}
 void AHunter::ServerPRC_SetUniqueAddIndex_Implementation(int32 AddIndex)
 {
 	WeaponComp->SetUniqueStrikeComboIndex(AddIndex);
@@ -339,3 +345,54 @@ void AHunter::MulticastRPC_HeavyStrikeNext_Implementation()
 {
 	WeaponComp->HeavyStrikeNext();
 }
+
+void AHunter::ServerRPC_ResetCombo_Implementation()
+{
+	NetMulticastRPC_ResetCombo();
+}
+
+void AHunter::NetMulticastRPC_ResetCombo_Implementation()
+{
+	WeaponComp->ResetCombo();
+
+}
+
+void AHunter::ServerRPC_Roll_Implementation()
+{
+	NetMulticastRPC_Roll();
+}
+
+void AHunter::NetMulticastRPC_Roll_Implementation()
+{
+	WeaponComp->Roll();
+}
+
+void AHunter::ServerRPC_JumpToNextCombo_Implementation()
+{
+	NetMulticastRPC_JumpToNextCombo();
+}
+
+void AHunter::NetMulticastRPC_JumpToNextCombo_Implementation()
+{
+	WeaponComp->JumpToNextCombo();
+}
+
+void AHunter::ServerRPC_HitEvent_Implementation()
+{
+	MoveComp->MoveState = EMoveState::HIT;
+	isHit = true;
+	MoveComp->InputOff();
+	GetCapsuleComponent()->SetCollisionProfileName(FName("Pawn"));
+
+	MoveComp->KnockBack();
+	WeaponComp->ResetCombo();
+	FTimerHandle Handler;
+	auto OnInput = [this]()
+		{
+			MoveComp->InputOn(); MoveComp->MoveState = EMoveState::IDLE;
+			isHit = false;
+			GetCapsuleComponent()->SetCollisionProfileName(FName("Pawn2"));
+		};
+	GetWorld()->GetTimerManager().SetTimer(Handler, OnInput, 2.3, false);
+}
+
