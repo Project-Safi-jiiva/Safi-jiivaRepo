@@ -297,7 +297,7 @@ bool ACSafiJiiva::CheckHitLineTrace(FVector _startPos, FVector& _curPos)
 
 void ACSafiJiiva::SetNormal()
 {
-
+	FSM->isSetDir = false;
 	isOnBreath = false;
 	isOnAttBite= false;
 	isFootAttack = false;
@@ -356,19 +356,19 @@ float ACSafiJiiva::TakeDamage(float DamageAmount, struct FDamageEvent const& Dam
 			// Disturbed 상태가 걸림
 			SetNormal();
 			isDisturbed = true;		// AnimInstance 에서 연동되는중
-
 			RepellCount = 0;
 		}
 		return DamageAmount;
 	}
 
-
-	hp = 0;
-	//뭔가 사망처리 해주기
-	isDead = true;
-	FSM->OnDisturbedProcess();
-
-	return DamageAmount;
+else
+	{
+		hp = 0;
+		//뭔가 사망처리 해주기
+		isDead = true;
+		FSM->OnDisturbedProcess();
+		return DamageAmount;
+	}
 }
 
 

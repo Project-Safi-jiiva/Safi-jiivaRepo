@@ -72,7 +72,10 @@ void UCSafiFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	FString logMsgTurn = UEnum::GetValueAsString(mTurnState);
 	GEngine->AddOnScreenDebugMessage(2, 1, FColor::Yellow, logMsgTurn);
 
-	GEngine->AddOnScreenDebugMessage(3, 1, FColor::Emerald, FString::Printf(TEXT("attackPos: %d"), me->attackPos));
+	FString logMsgstDisturbed = UEnum::GetValueAsString(mDisturbState);
+	GEngine->AddOnScreenDebugMessage(3, 1, FColor::Green, logMsgstDisturbed);
+
+	GEngine->AddOnScreenDebugMessage(4, 1, FColor::Emerald, FString::Printf(TEXT("hp: %f"), me->hp));
 
 	// FString logBFattType = FString::Printf(TEXT("BFattType: %d"), BFattType);
 	// GEngine->AddOnScreenDebugMessage(3, 1, FColor::Red, logBFattType);
@@ -220,7 +223,10 @@ void UCSafiFSM::IdleState()
 	// 일정 회전각 아래로 내려가면 스냅해버리기
 	if (targetYaw <= 3.f)
 	{
+	// 여기여기여기여기
+		
 		me->SetActorRotation(targetRot); // 최종 방향 고정
+		//FVector SetRotation(targetRot);
 
 		ServerSetActState(ESafiState::Attack);
 
@@ -253,8 +259,8 @@ void UCSafiFSM::DecideAttackType()
 		OnAttackProcess();
 	}
 	
-	// 우선 공격 사거리 체크, 사거리보다 멀리 있다면 브레스
-	else if (dir.Size() < me->MeleeAttRange )
+	//  // 우선 공격 사거리 체크, 사거리보다 멀리 있다면 브레스
+	else if (dir.Size() < me->MeleeAttRange)
 	{
 		int iMelee = FMath::RandRange(AttBITE, AttBITE + 1);
 		while (BFattType == iMelee)
@@ -262,20 +268,22 @@ void UCSafiFSM::DecideAttackType()
 			iMelee = FMath::RandRange(AttBITE, AttBITE + 1);
 		}
 		attType = iMelee;
-		
-		
-		//	attType = AttBPRESS;
-		//
-		//	if (me->MeleeAttRange - me->BiteRange < dir.Size())
-		//	{
-		//		int iMelee = FMath::RandRange(AttBITE, AttBITE + 1);
-		//		while (BFattType == iMelee)
-		//		{
-		//			iMelee = FMath::RandRange(AttBITE, AttBITE + 1);
-		//		}
-		//		attType = iMelee;
-		//	}
 	}
+
+	// else if (dir.Size() < me->MeleeAttRange)
+	// {
+	// 	attType = AttBPRESS;
+	// 
+	// 	if (me->MeleeAttRange - me->BiteRange < dir.Size())
+	// 	{
+	// 		int iMelee = FMath::RandRange(AttBITE, AttBITE + 1);
+	// 		while (BFattType == iMelee)
+	// 		{
+	// 			iMelee = FMath::RandRange(AttBITE, AttBITE + 1);
+	// 		}
+	// 		attType = iMelee;
+	// 	}
+	// }
 
 	else
 	{
@@ -307,11 +315,19 @@ void UCSafiFSM::AttBreath()
 	// 브레스 사용중에만 실행
 	if (me->isOnBreath == false){ return; }
 
-	FVector Start = me->FireArrowComp->GetComponentLocation();
-	FVector Forward = (SetTargetDir() - Start).GetSafeNormal();
-	
-	// FVector Start = me->FireArrowComp->GetComponentLocation();
-	// FVector Forward = me->FireArrowComp->GetForwardVector();
+	if ( isSetDir == false)
+	{
+		FVector CalStart = me->FireArrowComp->GetComponentLocation();
+		//FVector Forward = (SetTargetDir() - Start).GetSafeNormal();
+		FVector CalForward = SetTargetDir();
+		// FVector Start = me->FireArrowComp->GetComponentLocation();
+		// FVector Forward = me->FireArrowComp->GetForwardVector();
+
+		Start = CalStart;
+		Forward = CalForward;
+
+		isSetDir = true;
+	}
 
 
 	float MaxDistance = me->MaxBreathRange; 
@@ -323,7 +339,7 @@ void UCSafiFSM::AttBreath()
 
 	FHitResult Hit;
 
-	bool bHit = GetWorld()->SweepSingleByChannel( Hit,Start,End,FQuat::Identity, ECC_GameTraceChannel1, FCollisionShape::MakeSphere(50.f), TraceParams );
+	bool bHit = GetWorld()->SweepSingleByChannel( Hit,Start,End,FQuat::Identity, ECC_GameTraceChannel4, FCollisionShape::MakeSphere(50.f), TraceParams );
 
 
 // ================== 디버그용 =====================================
@@ -497,7 +513,7 @@ void UCSafiFSM::TargetRotation()
 		return;
 	}
 
-	FRotator NewRotation = FMath::RInterpTo(CurrentRotation , TargetRotation, DeltaTime, 2.f);
+	FRotator NewRotation = FMath::RInterpTo(CurrentRotation , TargetRotation, DeltaTime, 3.f);
 
 
 	me->SetActorRotation(NewRotation);
@@ -559,7 +575,7 @@ FVector UCSafiFSM::SetTargetDir()
 {
 	if (target == nullptr || me == nullptr) { return FVector::ZeroVector; }
 
-	FVector destination = target->GetActorLocation();
+	FVector destination = FVector(target->GetActorLocation().X, target->GetActorLocation().Y, target->GetActorLocation().Z - 100.f );
 	FVector dir = destination - me->GetActorLocation();
 
 	if (dir.Size() < me->SearchRange)
@@ -672,6 +688,13 @@ void UCSafiFSM::ServerSetDisturbState_Implementation(EDisturbState _newDistState
 	mDisturbState = _newDistState;
 	OnRep_DisturbState();
 }
+
+
+
+// FVector UCSafiFSM::SetRotation_Implementation(FRotator _value)
+// {
+// 	me->SetActorRotation(_value);
+// }
 
 void UCSafiFSM::SetActState(ESafiState _newState)
 {

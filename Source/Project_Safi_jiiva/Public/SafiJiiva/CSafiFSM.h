@@ -185,6 +185,11 @@ public:
 public:
 	bool isRot = false;				// 좀 한 번만 돌자 :)....
 
+	bool isSetDir = false;			// 처음 한번만 방향 설정'
+
+
+	FVector Start;
+	FVector Forward;
 	
 public:
 
@@ -210,5 +215,8 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void ServerSetDisturbState( EDisturbState _newDistState );
+
+	//UFUNCTION(Server, Reliable)
+	//FVector SetRotation(FRotator _value );
 
 };
