@@ -44,8 +44,8 @@ void UGreatSword::QuickInputHolding()
 void UGreatSword::QuickInputEnd()
 {
 	Super::QuickInputEnd();
-
-	JumpToNextCombo();
+	if (isJumpDelay) return;
+		JumpToNextCombo();
 }
 
 void UGreatSword::HeavyInputHolding()
@@ -144,12 +144,14 @@ void UGreatSword::ModifyWeaponMoveSpeed()
 
 void UGreatSword::JumpToNextCombo()
 {
+	Super::JumpToNextCombo();
 	if (isCommandInput[0])return;
 	CurrentMontage = Anim->GetCurrentMontage(Owner);
-	if (Anim->Montage_IsPlaying(CurrentMontage)) {
+	//if (Anim->Montage_IsPlaying(CurrentMontage)) {
 		Anim->Montage_JumpToSection(FName("Attack"), CurrentMontage);
 		Owner->WeaponComp->SetHeavyStrikeComboIndex(0);
-	}
+		return;
+	//}
 }
 
 void UGreatSword::CancelHandler(const struct FWeaponDataTable& CurrentData)

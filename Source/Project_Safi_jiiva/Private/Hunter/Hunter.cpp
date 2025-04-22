@@ -261,7 +261,6 @@ void AHunter::MulticasrRPC_UniqueAttack_Implementation()
 
 void AHunter::ServerRPC_ChargeAttack_Implementation()
 {
-	//FWeaponDataTable CurrentData = ;
 	MulticasrRPC_ChargeAttack(WeaponComp->GetCurrentWeaponData());
 
 }
@@ -317,6 +316,7 @@ void AHunter::MulticastRPC_AttachWeaponToOwner_Implementation()
 void AHunter::ServerRPC_SetQuickAddIndex_Implementation(int32 AddIndex)
 {
 	MulticastRPC_SetQuickAddIndex(AddIndex);
+
 }
 
 void AHunter::MulticastRPC_SetQuickAddIndex_Implementation(int32 AddIndex)
@@ -327,13 +327,14 @@ void AHunter::MulticastRPC_SetQuickAddIndex_Implementation(int32 AddIndex)
 
 void AHunter::ServerPRC_SetHeavyAddIndex_Implementation(int32 AddIndex)
 {
+	PRINTLOG_NET(TEXT("%d"), AddIndex);
 	MulticastRPC_SetHeavyAddIndex(AddIndex);
+
 }
 
 void AHunter::MulticastRPC_SetHeavyAddIndex_Implementation(int32 AddIndex)
 {
 	WeaponComp->SetHeavyStrikeComboIndex(AddIndex);
-	WeaponComp->OnRep_StrikeCombo();
 }
 void AHunter::ServerPRC_SetUniqueAddIndex_Implementation(int32 AddIndex)
 {
@@ -385,6 +386,7 @@ void AHunter::NetMulticastRPC_Roll_Implementation()
 void AHunter::ServerRPC_JumpToNextCombo_Implementation()
 {
 	NetMulticastRPC_JumpToNextCombo();
+
 }
 
 void AHunter::NetMulticastRPC_JumpToNextCombo_Implementation()

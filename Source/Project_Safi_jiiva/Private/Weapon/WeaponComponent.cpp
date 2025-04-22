@@ -130,8 +130,7 @@ void UWeaponComponent::InputUniqueEnd()
 void UWeaponComponent::InputRoll()
 {
 	if(Owner&&Owner->IsLocallyControlled()&&AllowRoll)
-			Owner->ServerRPC_Roll();
-
+		Owner->ServerRPC_Roll();
 }
 
 void UWeaponComponent::LoadWeaponData()
@@ -140,9 +139,6 @@ void UWeaponComponent::LoadWeaponData()
 	WeaponDataMap.Empty();
 	WeaponDataMap = WeaponDataTable->WeaponDataMap;
 }
-
-
-
 /// <summary>
 /// 기능 구현 함수 모음
 /// </summary>
@@ -157,8 +153,6 @@ void UWeaponComponent::Dash()
 	Owner->isRun = true;
 	if (!isWeaponEquipped)return;
 	if (IsAttacking) return;
-
-
 }
 
 void UWeaponComponent::DashEnd()
@@ -180,6 +174,7 @@ void UWeaponComponent::QuickInputHolding()
 void UWeaponComponent::QuickInputEnd() {
 	isCommandInput[0] = false;
 	FCommandInput[0] = 0;
+
 }
 
 void UWeaponComponent::HeavyInputStart() {
@@ -195,7 +190,6 @@ void UWeaponComponent::HeavyInputHolding() {
 void UWeaponComponent::HeavyInputEnd() {
 	FCommandInput[1] = 0;
 	isCommandInput[1] = false;
-	if (isJumpDelay) return;
 
 }
 /// <summary>
@@ -203,10 +197,8 @@ void UWeaponComponent::HeavyInputEnd() {
 /// </summary>
 
 void UWeaponComponent::ResetCombo() {
-	PRINTLOG_NET(TEXT("ResetCombo"));
-	SetQuickStrikeComboIndex(0);
-	SetHeavyStrikeComboIndex(0);
-	SetUniqueStrikeComboIndex(0);
+	QuickStrikeComboIndex = 0;
+	HeavyStrikeComboIndex = 0;
 	bNextAttackQueued = false;
 	IsAttacking = false;
 	isJumpDelay = false;
@@ -224,6 +216,7 @@ void UWeaponComponent::UniqueInputHolding() {
 }
 
 void UWeaponComponent::UniqueInputEnd(){
+
 	FCommandInput[2] = 0;
 	isCommandInput[2] = false;
 }
