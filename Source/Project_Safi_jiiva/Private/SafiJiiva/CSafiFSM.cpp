@@ -208,32 +208,6 @@ void UCSafiFSM::IdleState()
 
 	// 돌아야 하는 값이 60도 이상이라면 TargetRotationByAnim으로 회전
 
-	// 회전이 필요한 경우
-	/*
-	if (targetYaw >= 60.0f && !isRot)
-	{
-		TargetRotationByAnim(); // 큰 각도 회전은 애니메이션으로 처리
-		isRot = true;
-	}
-	else
-	{
-		TargetRotation(); // 부드러운 회전
-
-		if (targetYaw <= 3.f && !isRot)
-		{
-			me->SetActorRotation(targetRot); // 최종 방향 고정
-
-			ServerSetActState(ESafiState::Attack);
-
-			DecideAttackType();
-			OnAttackProcess();
-
-			isRot = false; // 회전 완료
-			return;
-		}
-
-	}
-	*/
 
 	if (!isRot)
 	{
@@ -305,29 +279,6 @@ void UCSafiFSM::DecideAttackType()	// SetAttackType으로 이름 바꾸고 근접공격 파�
 	// ㄴ 여기에서 브레스 종류 결정하기
 }
 
-/*
-void UCSafiFSM::MoveState()
-{
-	currentTime += GetWorld()->DeltaTimeSeconds;
-
-	if (target != nullptr)
-	{
-		TargetRotation();
-		FVector dir = SearchTarget();
-		me->AddMovementInput(dir);
-	}
-
-	if (currentTime > me->idleTime)
-	{	
-		mState = ESafiState::Idle;
-		OnRep_SafiState();
-
-		currentTime = 0.f;
-	}
-
-}
-*/
-
 void UCSafiFSM::AttRoar()
 {
 	// me->isImmune = true;
@@ -338,16 +289,6 @@ void UCSafiFSM::AttRoar()
 	// 포효 공격판정 실행						- *** 이건 플레이어 함수 불러와야 할 듯?
 	// ㄴ> 여기서 하지 말고 노티파이로 할 것
 }
-
-/*
-void UCSafiFSM::AttMelee()
-{
-	// 노티파이로 isOnAttBite = true 활성화  - 수행완료
-	// isOnAttBite 상태라면 Collision_1 활성화, 비활성화 - 캐릭터 자체 틱으로 옮김  - 수행완료
-	// 노티파이로 isOnAttBite = false	- 수행완료
-
-}
-*/
 
 void UCSafiFSM::AttBreath()
 {
@@ -490,7 +431,7 @@ void UCSafiFSM::EndAttackProcess()
 
 
 
-	//CanMeleeAttack();		// 공격 가능 대상 있다면 바로 공격
+	// DecideAttackType();		// 공격 가능 대상 있다면 바로 공격
 
 	//if 돌아야 한다면 플레이어 방향으로 회전, 아닐시 return;		- 수행완료
 	// ㄴ> 회전 적게해야할지 많이해야할지를 판단때려줌.				- 수행완료
@@ -583,11 +524,6 @@ void UCSafiFSM::TargetRotationByAnim()
 	}
 
 	isRot = true;
-	// 적이 해당 위치에 있다면 공격으로 전환 -> TrunState( Turn Tick에서 )		- 미수행
-
-
-	// 노티파이로 isOnSearch 꺼주기			- 수행완료
-	//	ㄴ OnAttackProcess도 같이			- 수행완료
 }
 
 void UCSafiFSM::TargetKnockBackByAnim()
@@ -671,11 +607,6 @@ void UCSafiFSM::UpdateHunterList()
 
 	}
 }
-
-
-
-
-
 
 
 // ===================================== 서버용 ======================================================

@@ -159,7 +159,7 @@ public:
 private: // 기본 State 함수
 	void StartState();
 	void IdleState();
-	//void MoveState();											// - 깡통
+
 
 public:	// AttState 함수
 	void OnAttackProcess();		// 공격 스위치 시켜주기
@@ -169,7 +169,6 @@ public:	// AttState 함수
 
 public: // 공격 관련 함수
 	void AttRoar();
-	//void AttMelee();											// - 깡통
 	void AttBreath();
 
 	void DecideAttackType();				// 공격 가능 위치에 정확히 있는지 확인 , 브레스 종류 랜덤 결정.
