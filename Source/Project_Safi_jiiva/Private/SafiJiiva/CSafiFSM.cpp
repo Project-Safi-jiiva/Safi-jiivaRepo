@@ -256,17 +256,25 @@ void UCSafiFSM::DecideAttackType()
 	// 우선 공격 사거리 체크, 사거리보다 멀리 있다면 브레스
 	else if (dir.Size() < me->MeleeAttRange )
 	{
-		attType = AttBPRESS;
-
-		if (me->MeleeAttRange - me->BiteRange < dir.Size())
+		int iMelee = FMath::RandRange(AttBITE, AttBITE + 1);
+		while (BFattType == iMelee)
 		{
-			int iMelee = FMath::RandRange(AttBITE, AttBITE + 1);
-			while (BFattType == iMelee)
-			{
-				iMelee = FMath::RandRange(AttBITE, AttBITE + 1);
-			}
-			attType = iMelee;
+			iMelee = FMath::RandRange(AttBITE, AttBITE + 1);
 		}
+		attType = iMelee;
+		
+		
+		//	attType = AttBPRESS;
+		//
+		//	if (me->MeleeAttRange - me->BiteRange < dir.Size())
+		//	{
+		//		int iMelee = FMath::RandRange(AttBITE, AttBITE + 1);
+		//		while (BFattType == iMelee)
+		//		{
+		//			iMelee = FMath::RandRange(AttBITE, AttBITE + 1);
+		//		}
+		//		attType = iMelee;
+		//	}
 	}
 
 	else
