@@ -172,9 +172,9 @@ public:
 	void MulticastRPC_SetQuickAddIndex(int32 AddIndex);
 	//강공격 인덱스 올리기
 	UFUNCTION(Server, Reliable)
-	void ServerPRC_SetHeavyAddIndex();
+	void ServerPRC_SetHeavyAddIndex(int32 AddIndex);
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticastRPC_SetHeavyAddIndex();
+	void MulticastRPC_SetHeavyAddIndex(int32 AddIndex);
 	//특수공격 인덱스 올리기
 	UFUNCTION(Server, Reliable)
 	void ServerPRC_SetUniqueAddIndex(int32 AddIndex);
@@ -207,13 +207,25 @@ public:
 	void NetMulticastRPC_JumpToNextCombo();
 	//힛 판정
 	UFUNCTION(Server,Reliable)
-	void ServerRPC_HitEvent();
+	void ServerRPC_HitEvent(UPrimitiveComponent* DamageCauserComponent);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void NetMulticastRPC_HitEvent(UPrimitiveComponent* DamageCauserComponent);
+
 
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_OnWeaponComp();
 
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_OffWeaponComp();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_CancelHandler();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void NetMulticastRPC_CancelHandler(const struct FWeaponDataTable& CurrentData);
+
+
 
 
 

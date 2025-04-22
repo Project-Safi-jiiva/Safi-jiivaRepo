@@ -80,7 +80,7 @@ public:
 	virtual void QuickStrikeNext() override;
 	virtual void HeavyStrikeNext(const struct FWeaponDataTable& CurrentData);
 	virtual void JumpToNextCombo() override;
-	virtual void CancelHandler() override;
+	virtual void CancelHandler(const struct FWeaponDataTable& CurrentData);
 	//부모 상속
 
 	virtual void SetupInputBinding(class UEnhancedInputComponent* InputComponent) override;
@@ -122,15 +122,26 @@ private:
 
     // 모든 무기 데이터를 저장하는 TMap
 public:
-	int32 GetQuickStrikeComboIndex() const { return QuickStrikeComboIndex; }
-	void SetQuickStrikeComboIndex(int32 NewIndex) {QuickStrikeComboIndex = NewIndex;}
+	int32 GetQuickStrikeComboIndex() const {
+			return QuickStrikeComboIndex;
+	}
+	void SetQuickStrikeComboIndex(int32 NewIndex) {
+		if (QuickStrikeComboIndex <= 1)
+			QuickStrikeComboIndex = NewIndex;
+	}
 
 
 	int32 GetHeavyStrikeComboIndex() const { return HeavyStrikeComboIndex; }
-	void SetHeavyStrikeComboIndex(int32 NewIndex) {HeavyStrikeComboIndex = NewIndex;}
+	void SetHeavyStrikeComboIndex(int32 NewIndex) {
+		if (HeavyStrikeComboIndex <= 1)
+			HeavyStrikeComboIndex = NewIndex;
+	}
 
 	int32 GetUniqueStrikeComboIndex() const { return UniqueStrikeComboIndex; }
-	void SetUniqueStrikeComboIndex(int32 NewIndex) { UniqueStrikeComboIndex = NewIndex; }
+	void SetUniqueStrikeComboIndex(int32 NewIndex) {
+		if (UniqueStrikeComboIndex <= 1)
+			UniqueStrikeComboIndex = NewIndex;
+	}
 
 	EWeaponType GetWeaponType() { return WeaponType; };
 	void SetWeaponType(EWeaponType NewWeaponType) { WeaponType = NewWeaponType; }

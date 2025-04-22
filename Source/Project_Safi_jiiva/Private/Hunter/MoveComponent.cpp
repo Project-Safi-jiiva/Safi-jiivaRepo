@@ -13,6 +13,7 @@
 #include "Weapon/WeaponComponent.h"
 #include "Project_Safi_jiiva.h"
 #include "Net/UnrealNetwork.h"
+#include "Components/PrimitiveComponent.h"
 
 // Sets default values for this component's properties
 UMoveComponent::UMoveComponent()
@@ -94,34 +95,50 @@ void UMoveComponent::Turn(const FInputActionValue& Value)
 
 void UMoveComponent::InputOff()
 {
-	Owner->DisableInput(Cast<APlayerController>(PC));
+	if(Owner->IsLocallyControlled())
+		Owner->DisableInput(Cast<APlayerController>(PC));
 
 }
 
 void UMoveComponent::InputOn()
 {
-	Owner->EnableInput(Cast<APlayerController>(PC));
+	if (Owner->IsLocallyControlled())
+		Owner->EnableInput(Cast<APlayerController>(PC));
 
 }
 
-void UMoveComponent::KnockBack()
+void UMoveComponent::KnockBack(UPrimitiveComponent* DamageCauserComponent)
 {
-	FVector CurrentVelocity = Owner->GetVelocity();
+	if (!Owner || !DamageCauserComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("KnockBack: Owner or DamageCauserComponent is null"));
+		return;
+	}
 
-	// 넉백 방향 설정 (예: 반대로 튕겨나가는 방향)
-	FVector KnockbackDir = -Owner->GetActorForwardVector(); // 반대방향으로 튕기게 예시
+	// 캐릭터와 DamageCauserComponent의 위치 가져오기
+	FVector OwnerLocation = Owner->GetActorLocation();
+	FVector CauserLocation = DamageCauserComponent->GetComponentLocation();
+
+	// 넉백 방향 계산 (캐릭터에서 발로 향하는 벡터의 반대)
+	FVector KnockbackDir = (OwnerLocation - CauserLocation).GetSafeNormal();
+
+	// 수직 성분 추가 (넉백이 자연스럽게 위로 튀도록)
+	KnockbackDir.Z += 0.5f;
 	KnockbackDir = KnockbackDir.GetSafeNormal();
 
-	// 원하는 넉백 세기
-	float KnockbackPower = 2500.f;
+	// 넉백 세기 설정
+	float KnockbackPower = 800.0f;
 
-	// 넉백 벡터 = 넉백 방향 * 파워
+	// 넉백 힘 계산
 	FVector KnockbackForce = KnockbackDir * KnockbackPower;
 
-	// 기존 속도 반영 (예: 상쇄하거나 중립화하고 싶다면)
+	// 현재 속도 상쇄
+	FVector CurrentVelocity = Owner->GetVelocity();
 	FVector LaunchVector = KnockbackForce - CurrentVelocity;
 
+	// 캐릭터를 넉백 방향으로 날림
 	Owner->LaunchCharacter(LaunchVector, true, true);
+
 }
 
 void UMoveComponent::EnableControllerRotaion()

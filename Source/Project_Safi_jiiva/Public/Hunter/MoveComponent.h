@@ -62,7 +62,7 @@ public:
 
 	void InputOff();
 	void InputOn();
-	void KnockBack();
+	void KnockBack(UPrimitiveComponent* DamageCauserComponent);
 	void EnableControllerRotaion();
 	void DisableControllerRotaion();
 	bool isRotation = false;
