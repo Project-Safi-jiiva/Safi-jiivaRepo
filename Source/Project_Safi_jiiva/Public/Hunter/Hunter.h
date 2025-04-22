@@ -109,7 +109,7 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_HeavyAttack();
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticasrRPC_HeavyAttack();
+	void MulticasrRPC_HeavyAttack(const struct FWeaponDataTable& CurrentData);
 	//특수공격
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_UniqueAttack();
@@ -119,7 +119,7 @@ public:
 	UFUNCTION(Server,Reliable)
 	void ServerRPC_ChargeAttack();
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticasrRPC_ChargeAttack();
+	void MulticasrRPC_ChargeAttack(const struct FWeaponDataTable& CurrentData);
 
 
 	//UFUNCTION(Server, Reliable)
@@ -172,9 +172,9 @@ public:
 	void MulticastRPC_SetQuickAddIndex(int32 AddIndex);
 	//강공격 인덱스 올리기
 	UFUNCTION(Server, Reliable)
-	void ServerPRC_SetHeavyAddIndex(int32 AddIndex);
+	void ServerPRC_SetHeavyAddIndex();
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticastRPC_SetHeavyAddIndex(int32 AddIndex);
+	void MulticastRPC_SetHeavyAddIndex();
 	//특수공격 인덱스 올리기
 	UFUNCTION(Server, Reliable)
 	void ServerPRC_SetUniqueAddIndex(int32 AddIndex);
@@ -187,7 +187,7 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_HeavyStrikeNext();
 	UFUNCTION(NetMulticast, Reliable)
-	void MulticastRPC_HeavyStrikeNext();
+	void MulticastRPC_HeavyStrikeNext(const struct FWeaponDataTable& CurrentData);
 
 	//콤보 리셋
 	UFUNCTION(Server, Reliable)
@@ -208,6 +208,12 @@ public:
 	//힛 판정
 	UFUNCTION(Server,Reliable)
 	void ServerRPC_HitEvent();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_OnWeaponComp();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_OffWeaponComp();
 
 
 

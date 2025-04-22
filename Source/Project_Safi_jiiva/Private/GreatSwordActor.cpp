@@ -23,8 +23,11 @@ AGreatSwordActor::AGreatSwordActor()
 		SwordMesh->SetStaticMesh(SwordMeshTool.Object);
 		SwordMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		SwordMesh->SetRelativeScale3D(FVector(0.7));
+		SetRootComponent(SwordMesh);
 		//SwordMesh->SetRelativeLocationAndRotation(FVector(0, -20, -20), FRotator(20, 0, 0));
 	}
+	bReplicates = true;
+	SetReplicateMovement(true);
 }
 
 void AGreatSwordActor::BeginPlay()
@@ -32,6 +35,8 @@ void AGreatSwordActor::BeginPlay()
 	Super::BeginPlay();
 	SwordMesh->SetCollisionProfileName(FName("Attack"));
 	SwordMesh->OnComponentBeginOverlap.AddDynamic(this, &AGreatSwordActor::OnBeginOverlap);
+	Hunter = Cast<AHunter>(GetOwner());
+
 }
 
 // Called every frame
@@ -48,13 +53,14 @@ void AGreatSwordActor::SetOwnerComponent_Implementation(UActorComponent* Compone
 
 void AGreatSwordActor::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	Damage= OwnerWeaponComp->SetDamage();
-	ACSafiJiiva* Ch = Cast<ACSafiJiiva>(OtherActor);
-	if(HitPawn.Num()<=0)
-		UGameplayStatics::ApplyDamage(OtherActor, Damage, nullptr, this, nullptr);
-	HitPawn.AddUnique(Ch);
-	PRINT_LOG(TEXT("%f"), Damage);
-
+	if(Hunter->HasAuthority()){
+		Damage= OwnerWeaponComp->SetDamage();
+		ACSafiJiiva* Ch = Cast<ACSafiJiiva>(OtherActor);
+		if(HitPawn.Num()<=0)
+			UGameplayStatics::ApplyDamage(OtherActor, Damage, nullptr, this, nullptr);
+		HitPawn.AddUnique(Ch);
+		PRINT_LOG(TEXT("%f"), Damage);
+	}
 }
 
 void AGreatSwordActor::ApplyDamage_Implementation(AActor* HitActor, float DamageMultiplier)

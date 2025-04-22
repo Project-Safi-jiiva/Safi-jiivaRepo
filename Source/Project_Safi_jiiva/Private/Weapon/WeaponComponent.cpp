@@ -31,6 +31,7 @@ UWeaponComponent::UWeaponComponent(){
 	ConstructorHelpers::FObjectFinder<UWeaponDataAsset> WeaponDataTableTool(AssetPaths::WeaponDataAsset);
 	WeaponDataTable = WeaponDataTableTool.Object;
 	SetIsReplicatedByDefault(true);
+
 }
 
 void UWeaponComponent::BeginPlay()
@@ -38,13 +39,15 @@ void UWeaponComponent::BeginPlay()
 	Super::BeginPlay();
 
 	LoadWeaponData();
-	SpawnWeaponActor();
+	if(Owner&&Owner->HasAuthority())
+		SpawnWeaponActor();
 }
 
 void UWeaponComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	checkCommand(DeltaTime);
+	if(Owner&&Owner->HasAuthority())
+		checkCommand(DeltaTime);
 }
 void UWeaponComponent::SetupInputBinding(class UEnhancedInputComponent* InputComponent)
 {
@@ -126,7 +129,9 @@ void UWeaponComponent::InputUniqueEnd()
 
 void UWeaponComponent::InputRoll()
 {
-	Owner->ServerRPC_Roll();
+	if(Owner&&Owner->IsLocallyControlled()&&AllowRoll)
+			Owner->ServerRPC_Roll();
+
 }
 
 void UWeaponComponent::LoadWeaponData()
@@ -220,7 +225,7 @@ void UWeaponComponent::checkCommand(float DeltaTime) {}
 
 void UWeaponComponent::QuickStrikeNext(){}
 
-void UWeaponComponent::HeavyStrikeNext(){}
+void UWeaponComponent::HeavyStrikeNext(const struct FWeaponDataTable& CurrentData){}
 
 void UWeaponComponent::JumpToNextCombo(){}
 
@@ -261,12 +266,14 @@ bool UWeaponComponent::SpawnNewWeaponActor(const FWeaponDataTable& WeaponData)
 	FVector SpawnLocation = Owner->GetActorLocation();
 	FRotator SpawnRotation = Owner->GetActorRotation();
 
+
 	EquippedWeapon = World->SpawnActor<AActor>(
 		WeaponData.WeaponActorClass,
 		SpawnLocation,
 		SpawnRotation,
 		SpawnParams
 	);
+	EquippedWeapon->SetOwner(Owner);
 
 	return EquippedWeapon != nullptr;
 }
@@ -336,19 +343,15 @@ void UWeaponComponent::IsCommandInputReset()
 
 void UWeaponComponent::WeaponCollitionOn()
 {
-
 }
 
 void UWeaponComponent::WeaponCollitionOff()
 {
-
 }
 
 float UWeaponComponent::SetDamage()
 {
-
 	FWeaponDataTable WeaponData = GetCurrentWeaponData();
-	//if (IsQuickAttack) {
 	Damage = (WeaponData.BaseDamage)*(WeaponData.QuickStrikeDamageMultipliers[GetQuickStrikeComboIndex()]);
 	if (IsHeavyAttack) {
 		Damage =(WeaponData.BaseDamage) * (WeaponData.HeavyStrikeDamageMultipliers[GetHeavyStrikeComboIndex()]);

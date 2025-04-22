@@ -27,7 +27,7 @@ protected:
 	virtual void QuickInputHolding() override;
 	virtual void QuickInputEnd() override;
 	virtual void HeavyInputHolding() override;
-	virtual void HeavyStrikeNext() override;
+	virtual void HeavyStrikeNext(const struct FWeaponDataTable& CurrentData) override;
 	virtual void HeavyInputEnd() override;
 	virtual void UniqueInputHolding() override;
 	virtual void UniqueInputEnd() override;
@@ -49,10 +49,12 @@ private:
 	void PlayMontage(UAnimMontage* Montage);
 
 	virtual void QuickAttack() override;
-	virtual void HeavyAttack() override;
+	virtual void HeavyAttack(const struct FWeaponDataTable& CrrentData) override;
 	virtual void UniqueAttack() override;
-	virtual void ChargeAttack() override;
+
+	virtual void ChargeAttack(const struct FWeaponDataTable& CurrentData={}) override;
 
 private:
 	void JumpToNextCombo();
+
 };

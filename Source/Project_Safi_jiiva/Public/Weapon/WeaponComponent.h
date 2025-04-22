@@ -10,6 +10,7 @@
 #include "WeaponDataAsset.h"
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/InputActionValue.h"
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h"
+#include "Project_Safi_jiiva.h"
 #include "WeaponComponent.generated.h"
 
 
@@ -60,7 +61,7 @@ public:
 	virtual void HeavyInputStart();
 	virtual void HeavyInputHolding();
 	virtual void HeavyInputEnd();
-	virtual void HeavyAttack() {};
+	virtual void HeavyAttack(const struct FWeaponDataTable& CrrentData) {};
 	virtual void UniqueAttack() {};
 	virtual void ChargeAttack() {};
 
@@ -77,7 +78,7 @@ protected:
 	virtual void checkCommand(float DeltaTime) override;
 public:
 	virtual void QuickStrikeNext() override;
-	virtual void HeavyStrikeNext();
+	virtual void HeavyStrikeNext(const struct FWeaponDataTable& CurrentData);
 	virtual void JumpToNextCombo() override;
 	virtual void CancelHandler() override;
 	//부모 상속
@@ -111,7 +112,7 @@ public:
 	class UInputAction* IA_UniqueStrike;
 	class UInputAction* IA_Roll;
 
-protected:
+public:
 	FWeaponDataTable GetCurrentWeaponData() const;
 
 private:
@@ -142,6 +143,7 @@ public:
 		public:
 		virtual void WeaponCollitionOn();
 		virtual void WeaponCollitionOff();
+
 		UFUNCTION()
 		float SetDamage();
 		float Damage=0.0f;
@@ -149,9 +151,15 @@ public:
 		//커맨드 판단 변수 선언
 		TMap<EWeaponType, FWeaponDataTable> WeaponDataMap;
 	public:
+		UFUNCTION()
+		void OnRep_StrikeCombo() {
+			PRINTLOG_NET(TEXT("HeavyStrikeComboIndex"), HeavyStrikeComboIndex);
+			HeavyStrikeComboIndex=GetHeavyStrikeComboIndex();
+		};
+
 		UPROPERTY(Replicated)
 		int32 QuickStrikeComboIndex = 0;
-		UPROPERTY(Replicated)
+		UPROPERTY(ReplicatedUsing=OnRep_StrikeCombo)
 		int32 HeavyStrikeComboIndex = 0;
 		UPROPERTY(Replicated)
 		int32 UniqueStrikeComboIndex = 0;
@@ -181,7 +189,7 @@ public:
 		UPROPERTY(Replicated)
 		bool IsUniqueAttack =false;
 		UPROPERTY(Replicated)
-		bool AllowRoll = false;
+		bool AllowRoll = true;
 		UPROPERTY(Replicated)
 		bool isTacle = false;
 		UPROPERTY(Replicated)
@@ -198,4 +206,6 @@ public:
 
 //////////////////////서버/////////////////////
 		void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
+
+		virtual void ChargeAttack(const struct FWeaponDataTable& CrrentData) {};
 };
