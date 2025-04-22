@@ -171,7 +171,6 @@ void UCSafiFSM::StartState()
 	me->isInBattle = true;
 
 	// 헌터 리스트 업데이트 해주고
-	// 원랜 탐지파트 상단에 있었음. 그런데 굳이 계속 리스트 갱신할 필요가 있나 싶어서 아래로.
 	UpdateHunterList();					
 
 	// 포효
@@ -192,7 +191,7 @@ void UCSafiFSM::IdleState()
 		return;
 	}
 
-	DecideAttackType();	// 공격 수행시 노티파이로 attackPos = 0;		- 미수행
+	DecideAttackType();
 
 	// 공격 판단부분도 Idle에서 수행
 	FRotator targetRot = SetTargetDir().Rotation();
@@ -200,15 +199,13 @@ void UCSafiFSM::IdleState()
 	float targetYaw = FMath::Abs(FMath::FindDeltaAngleDegrees(currentRot.Yaw, targetRot.Yaw));
 
 
-	// 이 부분은 따로 떼서 서버처리 하는게 나을듯 (각 차이 나면 모션 다르게 나올 수 있음.)
+
 	// 돌아야 하는 값이 60도 미만이라면 TargetRotationByAnim으로 회전
-
-	// 돌아야 한다면 플레이어 방향으로 회전, 아닐시 return; - TargetRotationByAnim 에서 return;
-
-
-	// 돌아야 하는 값이 60도 이상이라면 TargetRotationByAnim으로 회전
+	// 애니메이션으로 하는 회전은 한 번만 
+	// ㄴ>여러 번 허용하면 영원히 회전만 하게 될 때가 있음...머리로 바닥 긁는 회전공격 추가되면 수정하기
 
 
+	// 큰 회전각 처리
 	if (!isRot)
 	{
 		if (targetYaw >= 60.0f)
@@ -217,8 +214,10 @@ void UCSafiFSM::IdleState()
 		}
 	}
 
+	// 적은 회전각 처리
 	TargetRotation(); // 부드러운 회전
 
+	// 일정 회전각 아래로 내려가면 스냅해버리기
 	if (targetYaw <= 3.f)
 	{
 		me->SetActorRotation(targetRot); // 최종 방향 고정
@@ -231,7 +230,7 @@ void UCSafiFSM::IdleState()
 
 }
 
-void UCSafiFSM::DecideAttackType()	// SetAttackType으로 이름 바꾸고 근접공격 파트만 빼는것도 나쁘지 않을듯.
+void UCSafiFSM::DecideAttackType()
 {
 	FVector dir = SetTargetDir();
 
@@ -257,12 +256,17 @@ void UCSafiFSM::DecideAttackType()	// SetAttackType으로 이름 바꾸고 근접공격 파�
 	// 우선 공격 사거리 체크, 사거리보다 멀리 있다면 브레스
 	else if (dir.Size() < me->MeleeAttRange )
 	{
-		int iMelee = FMath::RandRange(AttBITE, AttBITE + 1);
-		while (BFattType == iMelee)
+		attType = AttBPRESS;
+
+		if (me->MeleeAttRange - me->BiteRange < dir.Size())
 		{
-			iMelee = FMath::RandRange(AttBITE, AttBITE + 1);
+			int iMelee = FMath::RandRange(AttBITE, AttBITE + 1);
+			while (BFattType == iMelee)
+			{
+				iMelee = FMath::RandRange(AttBITE, AttBITE + 1);
+			}
+			attType = iMelee;
 		}
-		attType = iMelee;
 	}
 
 	else
@@ -305,7 +309,6 @@ void UCSafiFSM::AttBreath()
 	float MaxDistance = me->MaxBreathRange; 
 	FVector End = Start + Forward * MaxDistance * 5000.f;
 
-	// 트레이스 파라미터
 	FCollisionQueryParams TraceParams;
 	TraceParams.AddIgnoredActor(me);
 	TraceParams.AddIgnoredComponent(me->GetMesh());
@@ -335,7 +338,8 @@ void UCSafiFSM::AttBreath()
 		AHunter* hunter = Cast<AHunter>(HitActor);
 		if (hunter)
 		{
-			//Hunter->SetDamage(_value);
+			UGameplayStatics::ApplyDamage(hunter, me->MeleeBiteDMG, nullptr, me, nullptr);
+
 		}
 		return; 
 	}
