@@ -155,8 +155,11 @@ public:	// 체력 등 스탯 계수
 	float hp = MAXHP;
 	float MeleeBiteDMG = 30.f;	// 물기 데미지
 
-	int RepellCount = 0;
-	int MAXRepellCount = 2;
+	int32 RepellCount = 0;
+	int32 MAXRepellCount = 2;
+	int32 SpecialCount = 0;
+	int32 MAXSpecialCount = 5;
+
 
 public:	// 사거리, 속도 등
 	float MeleeAttRange = 2000.f;
@@ -176,7 +179,7 @@ public: // 공격 위치
 public: // 상태 체크
 	bool isInBattle = false;			// 전투상태인가
 	// bool isFly = false;				// 비행 상태인가
-	// bool isImmune = false;			// 특정 상황에서는 상태이상 면역.
+	bool isImmune = false;				// 특정 상황에서는 상태이상 면역.
 
 	//======================== 상태이상 관련 //========================
 	bool isDisturbed = false;		// 상태이상에 걸렸는지 - 애니메이션 끊길 때 노티파이 삭제 대체용
@@ -190,6 +193,7 @@ public:// 공격 관련 노티파이 제어
 	bool isOnBreath = false;		// 브레스 사용중인지
 	bool isOnSearch = false;		// 탐색 중인지 (탐색용 콜리전 활성화)
 	bool isOnBodyPress = false;		// 바디프레스 사용중인지
+	bool isOnSpecial = false;
 
 
 public: // 라인 트레이스
