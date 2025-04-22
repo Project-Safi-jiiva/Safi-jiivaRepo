@@ -53,14 +53,14 @@ void UGreatSword::HeavyInputHolding()
 	Super::HeavyInputHolding();
 }
 
-void UGreatSword::HeavyStrikeNext()
+void UGreatSword::HeavyStrikeNext(const struct FWeaponDataTable& CurrentData)
 {
-	if (IsQuickAttack) return;
-	if (FCommandInput[1] <= 0)return;
-	Super::HeavyStrikeNext();
-	FWeaponDataTable CurrentData = GetCurrentWeaponData();
-	if (CurrentData.HeavyStrikeMontages.Num() > 0 && Owner) { PlayMontage(CurrentData.HeavyStrikeMontages[GetHeavyStrikeComboIndex()]); }
-	return;
+	if (!CurrentData.WeaponActorClass) {
+		PlayMontage(GetCurrentWeaponData().HeavyStrikeMontages[HeavyStrikeComboIndex]);
+	}
+	else {
+		PlayMontage(CurrentData.HeavyStrikeMontages[HeavyStrikeComboIndex]);
+	}
 }
 
 void UGreatSword::HeavyInputEnd()
@@ -93,10 +93,10 @@ void UGreatSword::checkCommand(float DeltaTime)
 			}
 		if (isCommandInput[0] && isCommandInput[1] && !isCommandInput[2]){
 			if (FCommandInput[0] >= 0.2&&IsAttacking){
-				//Owner->ServerRPC_HeavyAttack();
 
 				PlayMontage(CurrentData.HeavyStrikeMontages[1]);
-				Owner->ServerPRC_SetHeavyAddIndex(0);
+
+				Owner->ServerPRC_SetHeavyAddIndex();
 				if(GetQuickStrikeComboIndex()<2)
 					Owner->ServerRPC_SetQuickAddIndex(GetQuickStrikeComboIndex() + 1);
 				FCommandInput[0] = 0;
@@ -234,11 +234,11 @@ void UGreatSword::HeavyAttack(const struct FWeaponDataTable& CrrentData)
 	if (!isWeaponEquipped) return;
 	if (IsAttacking) return;
 	if (CrrentData.HeavyStrikeMontages.Num() > 0 && Owner) {
-			PRINTLOG_NET(TEXT("%d"), GetHeavyStrikeComboIndex());
 		if (!CrrentData.WeaponActorClass) {
 			PlayMontage(GetCurrentWeaponData().HeavyStrikeMontages[GetHeavyStrikeComboIndex()]);
 		}
 		else {
+			PRINTLOG_NET(TEXT("HeavyAttack : %d"), GetHeavyStrikeComboIndex());
 			PlayMontage(CrrentData.HeavyStrikeMontages[GetHeavyStrikeComboIndex()]);
 		}
 

@@ -225,7 +225,7 @@ void UWeaponComponent::checkCommand(float DeltaTime) {}
 
 void UWeaponComponent::QuickStrikeNext(){}
 
-void UWeaponComponent::HeavyStrikeNext(){}
+void UWeaponComponent::HeavyStrikeNext(const struct FWeaponDataTable& CurrentData){}
 
 void UWeaponComponent::JumpToNextCombo(){}
 
@@ -343,12 +343,10 @@ void UWeaponComponent::IsCommandInputReset()
 
 void UWeaponComponent::WeaponCollitionOn()
 {
-
 }
 
 void UWeaponComponent::WeaponCollitionOff()
 {
-
 }
 
 float UWeaponComponent::SetDamage()

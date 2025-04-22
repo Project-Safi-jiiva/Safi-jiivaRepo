@@ -27,7 +27,7 @@ protected:
 	virtual void QuickInputHolding() override;
 	virtual void QuickInputEnd() override;
 	virtual void HeavyInputHolding() override;
-	virtual void HeavyStrikeNext() override;
+	virtual void HeavyStrikeNext(const struct FWeaponDataTable& CurrentData) override;
 	virtual void HeavyInputEnd() override;
 	virtual void UniqueInputHolding() override;
 	virtual void UniqueInputEnd() override;

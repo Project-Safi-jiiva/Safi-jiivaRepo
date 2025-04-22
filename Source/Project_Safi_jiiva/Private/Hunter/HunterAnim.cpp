@@ -48,8 +48,8 @@ void UHunterAnim::NativeUpdateAnimation(float DeltaTime)
 
 void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload)
 {
-    //if (!Owner->IsLocallyControlled())return;
-    if (!Owner->HasAuthority())return;
+    if (!Owner->IsLocallyControlled())return;
+    //if (!Owner->HasAuthority())return;
     Owner->ServerRPC_SetIsJumpDelay(true);
     Owner->ServerRPC_SetIsAttacking(true);
     if (NotifyName == FName(TEXT("AttackEnd"))) { Owner->ServerRPC_SetIsAttacking(false); }
@@ -67,9 +67,9 @@ void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNo
 
     ////강공격 노티파이
     if (NotifyName == FName(TEXT("HeavyAttackAddIndex"))) {
-        Owner->ServerPRC_SetHeavyAddIndex(Owner->WeaponComp->GetHeavyStrikeComboIndex() + 1);
-        PRINTLOG_NET(TEXT("%d"), Owner->WeaponComp->GetHeavyStrikeComboIndex());
-
+        Owner->ServerPRC_SetHeavyAddIndex();
+        //Owner->ServerPRC_SetHeavyAddIndex();
+        //PRINTLOG_NET(TEXT("%d"), Owner->WeaponComp->GetHeavyStrikeComboIndex());
     }
     if (NotifyName == FName(TEXT("HeavyAttackStart"))) { Owner->ServerRPC_SetIsHeavyAttack(true); }
 

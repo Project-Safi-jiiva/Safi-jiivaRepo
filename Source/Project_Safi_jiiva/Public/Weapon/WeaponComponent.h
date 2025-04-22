@@ -10,6 +10,7 @@
 #include "WeaponDataAsset.h"
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/InputActionValue.h"
 #include "../../../../Plugins/EnhancedInput/Source/EnhancedInput/Public/EnhancedInputComponent.h"
+#include "Project_Safi_jiiva.h"
 #include "WeaponComponent.generated.h"
 
 
@@ -77,7 +78,7 @@ protected:
 	virtual void checkCommand(float DeltaTime) override;
 public:
 	virtual void QuickStrikeNext() override;
-	virtual void HeavyStrikeNext();
+	virtual void HeavyStrikeNext(const struct FWeaponDataTable& CurrentData);
 	virtual void JumpToNextCombo() override;
 	virtual void CancelHandler() override;
 	//부모 상속
@@ -150,9 +151,15 @@ public:
 		//커맨드 판단 변수 선언
 		TMap<EWeaponType, FWeaponDataTable> WeaponDataMap;
 	public:
+		UFUNCTION()
+		void OnRep_StrikeCombo() {
+			PRINTLOG_NET(TEXT("HeavyStrikeComboIndex"), HeavyStrikeComboIndex);
+			HeavyStrikeComboIndex=GetHeavyStrikeComboIndex();
+		};
+
 		UPROPERTY(Replicated)
 		int32 QuickStrikeComboIndex = 0;
-		UPROPERTY(Replicated)
+		UPROPERTY(ReplicatedUsing=OnRep_StrikeCombo)
 		int32 HeavyStrikeComboIndex = 0;
 		UPROPERTY(Replicated)
 		int32 UniqueStrikeComboIndex = 0;

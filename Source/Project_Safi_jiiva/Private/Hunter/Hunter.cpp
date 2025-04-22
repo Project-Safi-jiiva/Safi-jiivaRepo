@@ -316,15 +316,15 @@ void AHunter::MulticastRPC_SetQuickAddIndex_Implementation(int32 AddIndex)
 
 }
 
-void AHunter::ServerPRC_SetHeavyAddIndex_Implementation(int32 AddIndex)
+void AHunter::ServerPRC_SetHeavyAddIndex_Implementation()
 {
-	MulticastRPC_SetHeavyAddIndex(AddIndex);
+	MulticastRPC_SetHeavyAddIndex();
 }
 
-void AHunter::MulticastRPC_SetHeavyAddIndex_Implementation(int32 AddIndex)
+void AHunter::MulticastRPC_SetHeavyAddIndex_Implementation()
 {
-	WeaponComp->SetHeavyStrikeComboIndex(AddIndex);
-
+	WeaponComp->SetHeavyStrikeComboIndex(WeaponComp->GetHeavyStrikeComboIndex() + 1);
+	WeaponComp->OnRep_StrikeCombo();
 }
 void AHunter::ServerPRC_SetUniqueAddIndex_Implementation(int32 AddIndex)
 {
@@ -343,12 +343,14 @@ void AHunter::MulticastRPC_QuickStrikeNext_Implementation()
 
 void AHunter::ServerRPC_HeavyStrikeNext_Implementation()
 {
-	MulticastRPC_HeavyStrikeNext();
+	if (WeaponComp-> IsQuickAttack) return;
+	if (WeaponComp->FCommandInput[1] <= 0)return;
+	MulticastRPC_HeavyStrikeNext(WeaponComp->GetCurrentWeaponData());
 }
 
-void AHunter::MulticastRPC_HeavyStrikeNext_Implementation()
+void AHunter::MulticastRPC_HeavyStrikeNext_Implementation(const struct FWeaponDataTable& CurrentData)
 {
-	WeaponComp->HeavyStrikeNext();
+	WeaponComp->HeavyStrikeNext(CurrentData);
 }
 
 void AHunter::ServerRPC_ResetCombo_Implementation()
@@ -361,7 +363,6 @@ void AHunter::NetMulticastRPC_ResetCombo_Implementation()
 	WeaponComp->ResetCombo();
 
 }
-
 void AHunter::ServerRPC_Roll_Implementation()
 {
 	NetMulticastRPC_Roll();
@@ -371,7 +372,6 @@ void AHunter::NetMulticastRPC_Roll_Implementation()
 {
 	WeaponComp->Roll();
 }
-
 void AHunter::ServerRPC_JumpToNextCombo_Implementation()
 {
 	NetMulticastRPC_JumpToNextCombo();
@@ -408,5 +408,4 @@ void AHunter::ServerRPC_OnWeaponComp_Implementation() {
 }
 void AHunter::ServerRPC_OffWeaponComp_Implementation() {
 	WeaponComp->WeaponCollitionOff();
-
 }
