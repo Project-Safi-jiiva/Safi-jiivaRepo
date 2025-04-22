@@ -160,6 +160,7 @@ public:	// 체력 등 스탯 계수
 
 public:	// 사거리, 속도 등
 	float MeleeAttRange = 2000.f;
+	float BiteRange = 500.f;
 	float SearchRange = 5000.f;
 	float MaxBreathRange = 5000.f;
 

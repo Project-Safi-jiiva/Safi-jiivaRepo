@@ -171,7 +171,6 @@ void UCSafiFSM::StartState()
 	me->isInBattle = true;
 
 	// 헌터 리스트 업데이트 해주고
-	// 원랜 탐지파트 상단에 있었음. 그런데 굳이 계속 리스트 갱신할 필요가 있나 싶어서 아래로.
 	UpdateHunterList();					
 
 	// 포효
@@ -192,7 +191,7 @@ void UCSafiFSM::IdleState()
 		return;
 	}
 
-	DecideAttackType();	// 공격 수행시 노티파이로 attackPos = 0;		- 미수행
+	DecideAttackType();
 
 	// 공격 판단부분도 Idle에서 수행
 	FRotator targetRot = SetTargetDir().Rotation();
@@ -200,45 +199,38 @@ void UCSafiFSM::IdleState()
 	float targetYaw = FMath::Abs(FMath::FindDeltaAngleDegrees(currentRot.Yaw, targetRot.Yaw));
 
 
-	// 이 부분은 따로 떼서 서버처리 하는게 나을듯 (각 차이 나면 모션 다르게 나올 수 있음.)
+
 	// 돌아야 하는 값이 60도 미만이라면 TargetRotationByAnim으로 회전
+	// 애니메이션으로 하는 회전은 한 번만 
+	// ㄴ>여러 번 허용하면 영원히 회전만 하게 될 때가 있음...머리로 바닥 긁는 회전공격 추가되면 수정하기
 
 
-	// currentTime += GetWorld()->DeltaTimeSeconds;
-	// if (currentTime <= me->idleTime) { return; }
+	// 큰 회전각 처리
+	if (!isRot)
+	{
+		if (targetYaw >= 60.0f)
+		{
+			TargetRotationByAnim(); // 큰 각도 회전은 애니메이션으로 처리
+		}
+	}
 
-	// 돌아야 한다면 플레이어 방향으로 회전, 아닐시 return; - TargetRotationByAnim 에서 return;
+	// 적은 회전각 처리
+	TargetRotation(); // 부드러운 회전
 
-
-	// 돌아야 하는 값이 60도 이상이라면 TargetRotationByAnim으로 회전
-
-	// *** 뭘 하고싶었던거지... 재점검하기 ****
-	if (targetYaw <= 3.f && !isRot)
+	// 일정 회전각 아래로 내려가면 스냅해버리기
+	if (targetYaw <= 3.f)
 	{
 		me->SetActorRotation(targetRot); // 최종 방향 고정
-		isRot = false; // 회전 완료
 
 		ServerSetActState(ESafiState::Attack);
 
 		DecideAttackType();
 		OnAttackProcess();
-		return;
 	}
 
-	// 회전이 필요한 경우
-	if (targetYaw >= 60.0f && !isRot)
-	{
-		isRot = true;
-		TargetRotationByAnim(); // 큰 각도 회전은 애니메이션으로 처리
-	}
-	else if (isRot)
-	{
-		TargetRotation(); // 부드러운 회전
-	}
-	
 }
 
-void UCSafiFSM::DecideAttackType()	// SetAttackType으로 이름 바꾸고 근접공격 파트만 빼는것도 나쁘지 않을듯.
+void UCSafiFSM::DecideAttackType()
 {
 	FVector dir = SetTargetDir();
 
@@ -264,12 +256,17 @@ void UCSafiFSM::DecideAttackType()	// SetAttackType으로 이름 바꾸고 근접공격 파�
 	// 우선 공격 사거리 체크, 사거리보다 멀리 있다면 브레스
 	else if (dir.Size() < me->MeleeAttRange )
 	{
-		int iMelee = FMath::RandRange(AttBITE, AttBITE + 1);
-		while (BFattType == iMelee)
+		attType = AttBPRESS;
+
+		if (me->MeleeAttRange - me->BiteRange < dir.Size())
 		{
-			iMelee = FMath::RandRange(AttBITE, AttBITE + 1);
+			int iMelee = FMath::RandRange(AttBITE, AttBITE + 1);
+			while (BFattType == iMelee)
+			{
+				iMelee = FMath::RandRange(AttBITE, AttBITE + 1);
+			}
+			attType = iMelee;
 		}
-		attType = iMelee;
 	}
 
 	else
@@ -286,29 +283,6 @@ void UCSafiFSM::DecideAttackType()	// SetAttackType으로 이름 바꾸고 근접공격 파�
 	// ㄴ 여기에서 브레스 종류 결정하기
 }
 
-/*
-void UCSafiFSM::MoveState()
-{
-	currentTime += GetWorld()->DeltaTimeSeconds;
-
-	if (target != nullptr)
-	{
-		TargetRotation();
-		FVector dir = SearchTarget();
-		me->AddMovementInput(dir);
-	}
-
-	if (currentTime > me->idleTime)
-	{	
-		mState = ESafiState::Idle;
-		OnRep_SafiState();
-
-		currentTime = 0.f;
-	}
-
-}
-*/
-
 void UCSafiFSM::AttRoar()
 {
 	// me->isImmune = true;
@@ -319,16 +293,6 @@ void UCSafiFSM::AttRoar()
 	// 포효 공격판정 실행						- *** 이건 플레이어 함수 불러와야 할 듯?
 	// ㄴ> 여기서 하지 말고 노티파이로 할 것
 }
-
-/*
-void UCSafiFSM::AttMelee()
-{
-	// 노티파이로 isOnAttBite = true 활성화  - 수행완료
-	// isOnAttBite 상태라면 Collision_1 활성화, 비활성화 - 캐릭터 자체 틱으로 옮김  - 수행완료
-	// 노티파이로 isOnAttBite = false	- 수행완료
-
-}
-*/
 
 void UCSafiFSM::AttBreath()
 {
@@ -345,7 +309,6 @@ void UCSafiFSM::AttBreath()
 	float MaxDistance = me->MaxBreathRange; 
 	FVector End = Start + Forward * MaxDistance * 5000.f;
 
-	// 트레이스 파라미터
 	FCollisionQueryParams TraceParams;
 	TraceParams.AddIgnoredActor(me);
 	TraceParams.AddIgnoredComponent(me->GetMesh());
@@ -375,12 +338,11 @@ void UCSafiFSM::AttBreath()
 		AHunter* hunter = Cast<AHunter>(HitActor);
 		if (hunter)
 		{
-			//Hunter->SetDamage(_value);
+			UGameplayStatics::ApplyDamage(hunter, me->MeleeBiteDMG, nullptr, me, nullptr);
+
 		}
 		return; 
 	}
-
-
 
 }
 
@@ -473,7 +435,7 @@ void UCSafiFSM::EndAttackProcess()
 
 
 
-	//CanMeleeAttack();		// 공격 가능 대상 있다면 바로 공격
+	// DecideAttackType();		// 공격 가능 대상 있다면 바로 공격
 
 	//if 돌아야 한다면 플레이어 방향으로 회전, 아닐시 return;		- 수행완료
 	// ㄴ> 회전 적게해야할지 많이해야할지를 판단때려줌.				- 수행완료
@@ -565,11 +527,7 @@ void UCSafiFSM::TargetRotationByAnim()
 		ServerSetTurnState(ETurnState::TurnRight);
 	}
 
-	// 적이 해당 위치에 있다면 공격으로 전환 -> TrunState( Turn Tick에서 )		- 미수행
-
-
-	// 노티파이로 isOnSearch 꺼주기			- 수행완료
-	//	ㄴ OnAttackProcess도 같이			- 수행완료
+	isRot = true;
 }
 
 void UCSafiFSM::TargetKnockBackByAnim()
@@ -653,11 +611,6 @@ void UCSafiFSM::UpdateHunterList()
 
 	}
 }
-
-
-
-
-
 
 
 // ===================================== 서버용 ======================================================
