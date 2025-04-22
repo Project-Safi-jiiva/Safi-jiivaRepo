@@ -112,8 +112,13 @@ void AHunter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 float AHunter::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	if (WeaponComp->isTacle) return 0;
-	PRINT_LOG(TEXT("%f"),Damage);
-	ServerRPC_HitEvent();
+	UPrimitiveComponent* CauserComponent = Cast<UPrimitiveComponent>(DamageCauser);
+	if (!CauserComponent)
+	{
+		// DamageCauser가 액터인 경우, 콜리전 컴포넌트를 찾음
+		CauserComponent = DamageCauser->FindComponentByClass<UPrimitiveComponent>();
+		ServerRPC_HitEvent(CauserComponent);
+	}
 	return Damage;
 }
 
@@ -173,6 +178,7 @@ void AHunter::ServerRPC_Dash_Implementation()
 
 void AHunter::MulticastRPC_Dash_Implementation()
 {
+	if (!WeaponComp)return;
 	WeaponComp->Dash();
 	WeaponComp->ModifyWeaponMoveSpeed();
 }
@@ -184,6 +190,8 @@ void AHunter::ServerRPC_DashEnd_Implementation()
 
 void AHunter::MulticastRPC_DashEnd_Implementation()
 {
+	if (!WeaponComp)return;
+
 	WeaponComp->DashEnd();
 	WeaponComp->ModifyWeaponMoveSpeed();
 }
@@ -284,17 +292,18 @@ void AHunter::ServerRPC_SetIsHolding_Implementation(bool IsHolding) { WeaponComp
 void AHunter::ServerRPC_SetIsJumpDelay_Implementation(bool IsJumpDelay){WeaponComp->SetIsJumpDelay(IsJumpDelay);}
 
 void AHunter::ServerRPC_SetAllowRoll_Implementation(bool AllowRoll) { WeaponComp->SetAllowRoll(AllowRoll); }
-
+//무기 손에 붙이기
 void AHunter::ServerRPC_AttachWeaponToHand_Implementation()
 {
-	MulticastRPC_AttachWeaponToHand();
+
+		MulticastRPC_AttachWeaponToHand();
 }
 
 void AHunter::MulticastRPC_AttachWeaponToHand_Implementation()
 {
 	WeaponComp->AttachWeaponToHand();
 }
-
+//무기 등에 붙이기
 void AHunter::ServerRPC_AttachWeaponToOwner_Implementation()
 {
 	MulticastRPC_AttachWeaponToOwner();
@@ -316,14 +325,14 @@ void AHunter::MulticastRPC_SetQuickAddIndex_Implementation(int32 AddIndex)
 
 }
 
-void AHunter::ServerPRC_SetHeavyAddIndex_Implementation()
+void AHunter::ServerPRC_SetHeavyAddIndex_Implementation(int32 AddIndex)
 {
-	MulticastRPC_SetHeavyAddIndex();
+	MulticastRPC_SetHeavyAddIndex(AddIndex);
 }
 
-void AHunter::MulticastRPC_SetHeavyAddIndex_Implementation()
+void AHunter::MulticastRPC_SetHeavyAddIndex_Implementation(int32 AddIndex)
 {
-	WeaponComp->SetHeavyStrikeComboIndex(WeaponComp->GetHeavyStrikeComboIndex() + 1);
+	WeaponComp->SetHeavyStrikeComboIndex(AddIndex);
 	WeaponComp->OnRep_StrikeCombo();
 }
 void AHunter::ServerPRC_SetUniqueAddIndex_Implementation(int32 AddIndex)
@@ -356,6 +365,7 @@ void AHunter::MulticastRPC_HeavyStrikeNext_Implementation(const struct FWeaponDa
 void AHunter::ServerRPC_ResetCombo_Implementation()
 {
 	NetMulticastRPC_ResetCombo();
+
 }
 
 void AHunter::NetMulticastRPC_ResetCombo_Implementation()
@@ -382,14 +392,19 @@ void AHunter::NetMulticastRPC_JumpToNextCombo_Implementation()
 	WeaponComp->JumpToNextCombo();
 }
 
-void AHunter::ServerRPC_HitEvent_Implementation()
+void AHunter::ServerRPC_HitEvent_Implementation(UPrimitiveComponent* DamageCauserComponent)
+{
+	NetMulticastRPC_HitEvent(DamageCauserComponent);
+}
+
+void AHunter::NetMulticastRPC_HitEvent_Implementation(UPrimitiveComponent* DamageCauserComponent)
 {
 	MoveComp->MoveState = EMoveState::HIT;
 	isHit = true;
 	MoveComp->InputOff();
 	GetCapsuleComponent()->SetCollisionProfileName(FName("Pawn"));
 
-	MoveComp->KnockBack();
+	MoveComp->KnockBack(DamageCauserComponent);
 	WeaponComp->ResetCombo();
 	FTimerHandle Handler;
 	auto OnInput = [this]()
@@ -397,15 +412,33 @@ void AHunter::ServerRPC_HitEvent_Implementation()
 			MoveComp->InputOn(); MoveComp->MoveState = EMoveState::IDLE;
 			isHit = false;
 			GetCapsuleComponent()->SetCollisionProfileName(FName("Pawn2"));
+			if (!IsLocallyControlled())return;
+
+			ServerRPC_SetIsJumpDelay(false);
+			ServerRPC_SetIsQuickAttack(false);
+			ServerRPC_SetIsHeavyAttack(false);
+			ServerRPC_SetIsUniqueAttack(false);
+			ServerRPC_SetIsTacle(false);
+			ServerRPC_SetAllowRoll(true);
+			ServerRPC_SetIsAttacking(false);
 		};
 	GetWorld()->GetTimerManager().SetTimer(Handler, OnInput, 2.3, false);
-	ServerRPC_SetAllowRoll(true);
-	ServerRPC_SetIsAttacking(false);
-	ServerRPC_SetIsJumpDelay(false);
+
 }
+
 void AHunter::ServerRPC_OnWeaponComp_Implementation() {
 	WeaponComp->WeaponCollitionOn();
 }
 void AHunter::ServerRPC_OffWeaponComp_Implementation() {
 	WeaponComp->WeaponCollitionOff();
+}
+
+void AHunter::ServerRPC_CancelHandler_Implementation()
+{
+	NetMulticastRPC_CancelHandler(WeaponComp->GetCurrentWeaponData());
+}
+
+void AHunter::NetMulticastRPC_CancelHandler_Implementation(const struct FWeaponDataTable& CurrentData)
+{
+	WeaponComp->CancelHandler(CurrentData);
 }

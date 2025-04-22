@@ -67,7 +67,7 @@ void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNo
 
     ////강공격 노티파이
     if (NotifyName == FName(TEXT("HeavyAttackAddIndex"))) {
-        Owner->ServerPRC_SetHeavyAddIndex();
+        Owner->ServerPRC_SetHeavyAddIndex(Owner->WeaponComp->GetHeavyStrikeComboIndex() + 1);
         //Owner->ServerPRC_SetHeavyAddIndex();
         //PRINTLOG_NET(TEXT("%d"), Owner->WeaponComp->GetHeavyStrikeComboIndex());
     }
@@ -111,6 +111,8 @@ void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNo
         Owner->ServerRPC_SetAllowRoll(false);
     }
     if (NotifyName == FName(TEXT("AttackEnd"))) {
+        Owner->ServerRPC_SetQuickAddIndex(0);
+        Owner->ServerPRC_SetHeavyAddIndex(0);
         Owner->ServerRPC_SetIsJumpDelay(false);
         Owner->ServerRPC_SetIsQuickAttack(false);
         Owner->ServerRPC_SetIsHeavyAttack(false);

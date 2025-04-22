@@ -155,6 +155,10 @@ void UWeaponComponent::Dash()
 		return;
 	}
 	Owner->isRun = true;
+	if (!isWeaponEquipped)return;
+	if (IsAttacking) return;
+
+
 }
 
 void UWeaponComponent::DashEnd()
@@ -191,12 +195,15 @@ void UWeaponComponent::HeavyInputHolding() {
 void UWeaponComponent::HeavyInputEnd() {
 	FCommandInput[1] = 0;
 	isCommandInput[1] = false;
+	if (isJumpDelay) return;
+
 }
 /// <summary>
 /// //////////////////////////////////////
 /// </summary>
 
 void UWeaponComponent::ResetCombo() {
+	PRINTLOG_NET(TEXT("ResetCombo"));
 	SetQuickStrikeComboIndex(0);
 	SetHeavyStrikeComboIndex(0);
 	SetUniqueStrikeComboIndex(0);
@@ -229,7 +236,7 @@ void UWeaponComponent::HeavyStrikeNext(const struct FWeaponDataTable& CurrentDat
 
 void UWeaponComponent::JumpToNextCombo(){}
 
-void UWeaponComponent::CancelHandler(){}
+void UWeaponComponent::CancelHandler(const struct FWeaponDataTable& CurrentData) {}
 
 
 void UWeaponComponent::ModifyWeaponMoveSpeed()

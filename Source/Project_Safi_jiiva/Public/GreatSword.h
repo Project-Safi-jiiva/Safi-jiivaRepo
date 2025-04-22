@@ -39,7 +39,7 @@ protected:
 
 	virtual void ModifyWeaponMoveSpeed() override;
 
-	virtual void CancelHandler() override;
+	virtual void CancelHandler(const struct FWeaponDataTable& CurrentData) override;
 	virtual void Roll() override;
 
 	virtual void WeaponCollitionOn() override;

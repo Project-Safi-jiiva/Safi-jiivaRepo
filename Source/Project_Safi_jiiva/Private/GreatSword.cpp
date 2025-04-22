@@ -32,7 +32,7 @@ void UGreatSword::QuickStrikeNext()
 {
 	Super::QuickStrikeNext();
 	if (IsQuickAttack)return;
-	if (FCommandInput[0]<=0.2)return;
+	if (FCommandInput[0] <= 0.2)return;
 	Owner->ServerRPC_ChargeAttack();
 }
 
@@ -44,7 +44,7 @@ void UGreatSword::QuickInputHolding()
 void UGreatSword::QuickInputEnd()
 {
 	Super::QuickInputEnd();
-	if (isJumpDelay) return;
+
 	JumpToNextCombo();
 }
 
@@ -94,16 +94,16 @@ void UGreatSword::checkCommand(float DeltaTime)
 		if (isCommandInput[0] && isCommandInput[1] && !isCommandInput[2]){
 			if (FCommandInput[0] >= 0.2&&IsAttacking){
 
-				PlayMontage(CurrentData.HeavyStrikeMontages[1]);
+				Owner->ServerRPC_CancelHandler();
 
-				Owner->ServerPRC_SetHeavyAddIndex();
+				//Owner->ServerPRC_SetHeavyAddIndex();
 				if(GetQuickStrikeComboIndex()<2)
 					Owner->ServerRPC_SetQuickAddIndex(GetQuickStrikeComboIndex() + 1);
 				FCommandInput[0] = 0;
 				IsCommandInputReset();
 			}
 			else {
-				PlayMontage(CurrentData.UniqueStrikeMontages[0]);
+				Owner->ServerRPC_UniqueAttack();
 
 
 
@@ -122,17 +122,14 @@ void UGreatSword::ResetCombo()
 void UGreatSword::Dash()
 {
 	Super::Dash();
-	if (!isWeaponEquipped)return;
-	if (!IsAttacking) {
 		FWeaponDataTable CurrentData = GetCurrentWeaponData();
 		if (CurrentData.QuickStrikeMontages.Num() > 0 && Owner) {
 			if (isWeaponEquipped) {
 				PlayMontage(CurrentData.DrawMontage);
-				//if (Owner->HasAuthority())
 					isWeaponEquipped = false;
 			}
 		}
-	}
+
 }
 
 void UGreatSword::ModifyWeaponMoveSpeed()
@@ -147,7 +144,6 @@ void UGreatSword::ModifyWeaponMoveSpeed()
 
 void UGreatSword::JumpToNextCombo()
 {
-	PRINTLOG_NET(TEXT("isCommandInput %d"), isCommandInput[0]);
 	if (isCommandInput[0])return;
 	CurrentMontage = Anim->GetCurrentMontage(Owner);
 	if (Anim->Montage_IsPlaying(CurrentMontage)) {
@@ -156,15 +152,15 @@ void UGreatSword::JumpToNextCombo()
 	}
 }
 
-void UGreatSword::CancelHandler()
+void UGreatSword::CancelHandler(const struct FWeaponDataTable& CurrentData)
 {
-	if (!isHolding)return;
-	FWeaponDataTable CurrentData = GetCurrentWeaponData();
-	if (CurrentData.HeavyStrikeMontages.Num() > 0 && Owner)
-	{
+	if (!CurrentData.WeaponActorClass) {
+		PlayMontage(GetCurrentWeaponData().HeavyStrikeMontages[1]);
+	}
+	else {
 		PlayMontage(CurrentData.HeavyStrikeMontages[1]);
 	}
-	SetHeavyStrikeComboIndex(0);
+
 }
 
 void UGreatSword::Roll()
