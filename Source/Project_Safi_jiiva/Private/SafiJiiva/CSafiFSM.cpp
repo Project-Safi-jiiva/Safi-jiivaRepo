@@ -203,39 +203,58 @@ void UCSafiFSM::IdleState()
 	// 이 부분은 따로 떼서 서버처리 하는게 나을듯 (각 차이 나면 모션 다르게 나올 수 있음.)
 	// 돌아야 하는 값이 60도 미만이라면 TargetRotationByAnim으로 회전
 
-
-	// currentTime += GetWorld()->DeltaTimeSeconds;
-	// if (currentTime <= me->idleTime) { return; }
-
 	// 돌아야 한다면 플레이어 방향으로 회전, 아닐시 return; - TargetRotationByAnim 에서 return;
 
 
 	// 돌아야 하는 값이 60도 이상이라면 TargetRotationByAnim으로 회전
 
-	// *** 뭘 하고싶었던거지... 재점검하기 ****
-	if (targetYaw <= 3.f && !isRot)
+	// 회전이 필요한 경우
+	/*
+	if (targetYaw >= 60.0f && !isRot)
+	{
+		TargetRotationByAnim(); // 큰 각도 회전은 애니메이션으로 처리
+		isRot = true;
+	}
+	else
+	{
+		TargetRotation(); // 부드러운 회전
+
+		if (targetYaw <= 3.f && !isRot)
+		{
+			me->SetActorRotation(targetRot); // 최종 방향 고정
+
+			ServerSetActState(ESafiState::Attack);
+
+			DecideAttackType();
+			OnAttackProcess();
+
+			isRot = false; // 회전 완료
+			return;
+		}
+
+	}
+	*/
+
+	if (!isRot)
+	{
+		if (targetYaw >= 60.0f)
+		{
+			TargetRotationByAnim(); // 큰 각도 회전은 애니메이션으로 처리
+		}
+	}
+
+	TargetRotation(); // 부드러운 회전
+
+	if (targetYaw <= 3.f)
 	{
 		me->SetActorRotation(targetRot); // 최종 방향 고정
-		isRot = false; // 회전 완료
 
 		ServerSetActState(ESafiState::Attack);
 
 		DecideAttackType();
 		OnAttackProcess();
-		return;
 	}
 
-	// 회전이 필요한 경우
-	if (targetYaw >= 60.0f && !isRot)
-	{
-		isRot = true;
-		TargetRotationByAnim(); // 큰 각도 회전은 애니메이션으로 처리
-	}
-	else if (isRot)
-	{
-		TargetRotation(); // 부드러운 회전
-	}
-	
 }
 
 void UCSafiFSM::DecideAttackType()	// SetAttackType으로 이름 바꾸고 근접공격 파트만 빼는것도 나쁘지 않을듯.
@@ -379,8 +398,6 @@ void UCSafiFSM::AttBreath()
 		}
 		return; 
 	}
-
-
 
 }
 
@@ -565,6 +582,7 @@ void UCSafiFSM::TargetRotationByAnim()
 		ServerSetTurnState(ETurnState::TurnRight);
 	}
 
+	isRot = true;
 	// 적이 해당 위치에 있다면 공격으로 전환 -> TrunState( Turn Tick에서 )		- 미수행
 
 
