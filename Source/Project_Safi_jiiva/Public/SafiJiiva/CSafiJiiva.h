@@ -151,12 +151,12 @@ private:	// 함수용 변수들
 	float currentTime = 0.f;
 
 public:	// 체력 등 스탯 계수
-	float MAXHP = 1500.f;
+	float MAXHP = 50.f;
 	float hp = MAXHP;
 	float MeleeBiteDMG = 30.f;	// 물기 데미지
 
 	int RepellCount = 0;
-	int MAXRepellCount = 5;
+	int MAXRepellCount = 2;
 
 public:	// 사거리, 속도 등
 	float MeleeAttRange = 2000.f;

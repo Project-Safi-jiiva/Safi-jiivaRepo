@@ -16,6 +16,7 @@
 #include "Components/BoxComponent.h"
 #include "SafiJiiva/CSafiAnimInstance.h"
 #include "Kismet/GameplayStatics.h"
+#include "Project_Safi_jiiva.h"
 
 
 // Sets default values
@@ -344,7 +345,9 @@ void ACSafiJiiva::OnDamageSafi(float _value)
 
 float ACSafiJiiva::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
 {
+	PRINTLOG_NET(TEXT("DamageAmount : %f"), DamageAmount);
 	hp -= DamageAmount;
+	PRINTLOG_NET(TEXT("hp : %f"), hp);
 	RepellCount += 1;
 
 	if (hp > 0)
