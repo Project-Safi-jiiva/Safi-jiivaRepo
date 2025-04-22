@@ -47,14 +47,19 @@ void UCSafiAnimInstance::AnimNotify_Roar_END()
 
 	if( !me ){ return; }
 
-	FSM->mState = ESafiState::Idle;
-	//aState = FSM->mState;
-	FSM->OnRep_SafiState();
+
+	FSM->mDisturbState = EDisturbState::None;
+	FSM->OnRep_DisturbState();
 
 	me->isDisturbed = false;
 
+
 	// 노티파이 종료시 EndAttackProcess 호출
-	FSM->EndAttackProcess();
+	// FSM->EndAttackProcess();
+
+	FSM->mState = ESafiState::Idle;
+	//aState = FSM->mState;
+	FSM->OnRep_SafiState();
 
 }
 
@@ -63,6 +68,7 @@ void UCSafiAnimInstance::AnimNotify_AttBite_Start()
 	if (!me || !FSM) { return; }
 	me->isOnAttBite = true;
 }
+
 void UCSafiAnimInstance::AnimNotify_AttBite_End()
 {
 	if (!me || !FSM) { return; }
@@ -103,6 +109,7 @@ void UCSafiAnimInstance::AnimNotify_AttBreath_End()
 {
 	if (!me || !FSM) { return; }
 	me->isOnBreath = false;
+	FSM->isSetDir = false;
 }
 
 void UCSafiAnimInstance::AnimNotify_Attack_End()
