@@ -21,7 +21,7 @@ public:
 
 public:	//FSM State ฐüทร
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "FSM")
-	ESafiState aState = ESafiState::Start;
+	ESafiState aState = ESafiState::Idle;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "FSM")
 	EAttackState aAttState = EAttackState::None;
