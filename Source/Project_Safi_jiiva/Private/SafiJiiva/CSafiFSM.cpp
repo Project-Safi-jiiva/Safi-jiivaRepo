@@ -148,8 +148,6 @@ void UCSafiFSM::StartState()
 	// ======== 탐지 -> 포효 -> 개전 ========
 
 //탐지파트
-
-
 	// 기존 로직대로 타겟 하나 지정
 	AActor* actor = UGameplayStatics::GetActorOfClass(GetWorld(), AHunter::StaticClass());
 	if (!actor) { return; }
@@ -206,7 +204,6 @@ void UCSafiFSM::IdleState()
 	// 돌아야 하는 값이 60도 미만이라면 TargetRotationByAnim으로 회전
 	// 애니메이션으로 하는 회전은 한 번만 
 	// ㄴ>여러 번 허용하면 영원히 회전만 하게 될 때가 있음...머리로 바닥 긁는 회전공격 추가되면 수정하기
-
 
 	// 큰 회전각 처리
 	if (!isRot)

@@ -31,6 +31,7 @@ enum class EAttackNumber : uint8
 #define AttNMBREATH 6
 #define AttAIMBREATH 7
 
+#define SPECIAL 9
 #define AttBITE 10
 #define AttBPRESS 11
 
@@ -59,14 +60,19 @@ enum class EAttackState : uint8
 {
 	None 				UMETA(DisplayName = "None"),
 	Roar				UMETA(DisplayName = "Roar"),
+
 	MeleeAttLF			UMETA(DisplayName = "Melee_AttLF"),
 	MeleeAttRF			UMETA(DisplayName = "Melee_AttRF"),
 	MeleeAttLB			UMETA(DisplayName = "Melee_AttLB"),
 	MeleeAttRB			UMETA(DisplayName = "Melee_AttRB"),
-	MeleeBite			UMETA(DisplayName = "Melee_Bite"),
-	MeleeBPress			UMETA(DisplayName = "Melee_BodyPress"),
+
 	NormalBreath		UMETA(DisplayName = "Normal_Breath"),
-	AimedBreath			UMETA(DisplayName = "Aimed_Breath")
+	AimedBreath			UMETA(DisplayName = "Aimed_Breath"),
+
+	Special				UMETA(DisplayName = "Special"),
+
+	MeleeBite			UMETA(DisplayName = "Melee_Bite"),
+	MeleeBPress			UMETA(DisplayName = "Melee_BodyPress")
 };
 
 UENUM()
@@ -75,7 +81,7 @@ enum class ETurnState : uint8
 	None 				UMETA(DisplayName = "None"),
 	TurnLeft			UMETA(DisplayName = "Turn_Left"),
 	TurnRight			UMETA(DisplayName = "Turn_Right"),
-	// 사실 왼회전 우회전 모션 다 있긴 한데 지금은 중요해보이진 않아서 제외.
+	// 사실 왼뒤회전 우뒤회전 모션 다 있긴 한데 지금은 중요해보이진 않아서 제외.
 	TrunBack			UMETA(DisplayName = "Trun_Back")
 };
 
@@ -83,7 +89,7 @@ UENUM()
 enum class EDisturbState : uint8
 {
 	None 				UMETA(DisplayName = "None"),
-	// 헷갈린다. 맞는 방향 기준이다.
+	// 헷갈린다... 맞는 방향 기준이라고 생각하자.
 	KB_Left				UMETA(DisplayName = "KB_Left"),
 	KB_Right			UMETA(DisplayName = "KB_Right"),
 	KB_Forward			UMETA(DisplayName = "KB_Forward"),
