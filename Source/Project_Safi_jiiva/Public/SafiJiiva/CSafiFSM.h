@@ -185,6 +185,7 @@ public:
 	void TargetKnockBackByAnim();
 
 	FVector SetTargetDir();
+	FVector SetTargetDir2();
 	void SetTarget();
 	void UpdateHunterList();			// EndAttackList에서 갱신
 

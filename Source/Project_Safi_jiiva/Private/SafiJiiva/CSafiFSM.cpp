@@ -316,7 +316,7 @@ void UCSafiFSM::AttBreath()
 	{
 		FVector CalStart = me->FireArrowComp->GetComponentLocation();
 		//FVector Forward = (SetTargetDir() - Start).GetSafeNormal();
-		FVector CalForward = SetTargetDir();
+		FVector CalForward = SetTargetDir2();
 		// FVector Start = me->FireArrowComp->GetComponentLocation();
 		// FVector Forward = me->FireArrowComp->GetForwardVector();
 
@@ -372,7 +372,16 @@ void UCSafiFSM::OnAttackProcess()
 {
 	isRot = false;
 	me->isOnSearch = false;
-	FVector dir = SetTargetDir();
+
+	if (attType == AttBITE || attType == AttAIMBREATH)
+	{
+		SetTargetDir2();
+	}
+
+	else
+	{
+		SetTargetDir();
+	}
 
 
 // ======================== ½ºÀ§Ä¡ ======================== 
@@ -428,6 +437,9 @@ void UCSafiFSM::OnAttackProcess()
 		ServerSetAttState(EAttackState::MeleeBPress);
 		break;
 	} 
+
+
+
 
 
 // ========================================================
@@ -572,7 +584,7 @@ FVector UCSafiFSM::SetTargetDir()
 {
 	if (target == nullptr || me == nullptr) { return FVector::ZeroVector; }
 
-	FVector destination = FVector(target->GetActorLocation().X, target->GetActorLocation().Y, target->GetActorLocation().Z - 100.f );
+	FVector destination = target->GetActorLocation();
 	FVector dir = destination - me->GetActorLocation();
 
 	if (dir.Size() < me->SearchRange)
@@ -583,6 +595,21 @@ FVector UCSafiFSM::SetTargetDir()
 	return dir;
 }
  
+
+FVector UCSafiFSM::SetTargetDir2()
+{
+	if (target == nullptr || me == nullptr) { return FVector::ZeroVector; }
+
+	FVector destination = FVector(target->GetActorLocation().X, target->GetActorLocation().Y, target->GetActorLocation().Z - 100.f);
+	FVector dir = destination - me->GetActorLocation();
+
+	if (dir.Size() < me->SearchRange)
+	{
+		me->isInBattle = true;
+	}
+
+	return dir;
+}
 
 void UCSafiFSM::SetTarget()
 {
