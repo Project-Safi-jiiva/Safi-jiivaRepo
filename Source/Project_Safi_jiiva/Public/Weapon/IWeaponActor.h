@@ -33,4 +33,6 @@ public:
 
     UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
     void SetOwnerComponent(UActorComponent* Component);
+
+
 };

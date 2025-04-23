@@ -36,6 +36,9 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Mesh")
 	class UStaticMeshComponent* SwordMesh;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Particle")
+    class UParticleSystem* ParticleSystem;
+
 private:
 	float Damage=0.0f;
 	UPROPERTY()

@@ -62,6 +62,7 @@ private:
 
 	class USkeletalMeshComponent* SkeletalMeshComp;
 
+
 public:
 	UPROPERTY(Replicated)
 	bool isRun = false;

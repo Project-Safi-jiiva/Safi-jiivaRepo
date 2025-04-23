@@ -8,11 +8,14 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Hunter/MoveComponent.h"
 #include "GreatSwordActor.h"
+#include "AssetPath.h"
 
 // Sets default values for this component's properties
 UGreatSword::UGreatSword()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+
+
 	SetIsReplicatedByDefault(true);
 
 }

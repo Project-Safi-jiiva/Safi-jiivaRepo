@@ -28,4 +28,7 @@ namespace AssetPaths
 
     //무기 MESH
     constexpr const TCHAR* GREATSWORDMESH = TEXT("/Script/Engine.StaticMesh'/Game/LHW/Sword/GreatSword.GreatSword'");
+
+    //무기 파티클
+    constexpr const TCHAR* GREATSWORDMESHPARTICLE = TEXT("/Script/Engine.ParticleSystem'/Game/Stylized_Mobile_Effects/Particles/P_SwordSlash_1.P_SwordSlash_1'");
 }
