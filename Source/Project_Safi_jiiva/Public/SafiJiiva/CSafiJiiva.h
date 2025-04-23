@@ -151,6 +151,7 @@ private:	// 함수용 변수들
 	float currentTime = 0.f;
 
 public:	// 체력 등 스탯 계수
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Status)
 	float MAXHP = 50.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Status)
 	float hp = MAXHP;
