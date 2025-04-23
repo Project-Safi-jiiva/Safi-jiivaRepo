@@ -174,26 +174,26 @@ void AHunter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 void AHunter::ServerRPC_Dash_Implementation()
 {
 	MulticastRPC_Dash();
+
 }
 
 void AHunter::MulticastRPC_Dash_Implementation()
 {
-	if (!WeaponComp)return;
-	WeaponComp->Dash();
 	WeaponComp->ModifyWeaponMoveSpeed();
+	WeaponComp->Dash();
 }
 
 void AHunter::ServerRPC_DashEnd_Implementation()
 {
 	MulticastRPC_DashEnd();
+
+
 }
 
 void AHunter::MulticastRPC_DashEnd_Implementation()
 {
-	if (!WeaponComp)return;
-
-	WeaponComp->DashEnd();
 	WeaponComp->ModifyWeaponMoveSpeed();
+	WeaponComp->DashEnd();
 }
 
 //약공격 함수
@@ -261,7 +261,6 @@ void AHunter::MulticasrRPC_UniqueAttack_Implementation()
 
 void AHunter::ServerRPC_ChargeAttack_Implementation()
 {
-	//FWeaponDataTable CurrentData = ;
 	MulticasrRPC_ChargeAttack(WeaponComp->GetCurrentWeaponData());
 
 }
@@ -276,8 +275,13 @@ void AHunter::MulticasrRPC_ChargeAttack_Implementation(const struct FWeaponDataT
 
 //void AHunter::MulticastRPC_CommandInputReset_Implementation(){WeaponComp->IsCommandInputReset();}
 
-void AHunter::ServerRPC_SetIsAttacking_Implementation(bool IsAttack) { WeaponComp->SetIsAttacking(IsAttack); }
+void AHunter::ServerRPC_SetIsAttacking_Implementation(bool IsAttack) { MulticasrRPC_SetIsAttacking(IsAttack); }
 
+
+void AHunter::MulticasrRPC_SetIsAttacking_Implementation(bool IsAttack)
+{
+	WeaponComp->SetIsAttacking(IsAttack);
+}
 
 void AHunter::ServerRPC_SetIsQuickAttack_Implementation(bool IsQuick) { WeaponComp->SetIsQuickAttack(IsQuick); }
 
@@ -317,6 +321,7 @@ void AHunter::MulticastRPC_AttachWeaponToOwner_Implementation()
 void AHunter::ServerRPC_SetQuickAddIndex_Implementation(int32 AddIndex)
 {
 	MulticastRPC_SetQuickAddIndex(AddIndex);
+
 }
 
 void AHunter::MulticastRPC_SetQuickAddIndex_Implementation(int32 AddIndex)
@@ -327,13 +332,14 @@ void AHunter::MulticastRPC_SetQuickAddIndex_Implementation(int32 AddIndex)
 
 void AHunter::ServerPRC_SetHeavyAddIndex_Implementation(int32 AddIndex)
 {
+	PRINTLOG_NET(TEXT("%d"), AddIndex);
 	MulticastRPC_SetHeavyAddIndex(AddIndex);
+
 }
 
 void AHunter::MulticastRPC_SetHeavyAddIndex_Implementation(int32 AddIndex)
 {
 	WeaponComp->SetHeavyStrikeComboIndex(AddIndex);
-	WeaponComp->OnRep_StrikeCombo();
 }
 void AHunter::ServerPRC_SetUniqueAddIndex_Implementation(int32 AddIndex)
 {
@@ -384,7 +390,9 @@ void AHunter::NetMulticastRPC_Roll_Implementation()
 }
 void AHunter::ServerRPC_JumpToNextCombo_Implementation()
 {
+	if (WeaponComp->isCommandInput[0])return;
 	NetMulticastRPC_JumpToNextCombo();
+
 }
 
 void AHunter::NetMulticastRPC_JumpToNextCombo_Implementation()

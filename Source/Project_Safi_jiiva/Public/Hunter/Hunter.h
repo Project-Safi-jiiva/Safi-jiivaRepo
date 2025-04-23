@@ -131,6 +131,9 @@ public:
 	//공격 중인지 판단
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_SetIsAttacking(bool IsAttack);
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticasrRPC_SetIsAttacking(bool IsAttack);
+
 
 	//약공격 판단
 	UFUNCTION(Server, Reliable)

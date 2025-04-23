@@ -164,8 +164,7 @@ public:
 	public:
 		UFUNCTION()
 		void OnRep_StrikeCombo() {
-			PRINTLOG_NET(TEXT("HeavyStrikeComboIndex"), HeavyStrikeComboIndex);
-			HeavyStrikeComboIndex=GetHeavyStrikeComboIndex();
+			PRINTLOG_NET(TEXT("HeavyStrikeComboIndex : %d"), GetHeavyStrikeComboIndex());
 		};
 
 		UPROPERTY(Replicated)

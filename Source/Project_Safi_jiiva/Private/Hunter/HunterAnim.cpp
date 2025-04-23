@@ -48,10 +48,12 @@ void UHunterAnim::NativeUpdateAnimation(float DeltaTime)
 
 void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload)
 {
+
     if (!Owner->IsLocallyControlled())return;
     //if (!Owner->HasAuthority())return;
     Owner->ServerRPC_SetIsJumpDelay(true);
     Owner->ServerRPC_SetIsAttacking(true);
+
     if (NotifyName == FName(TEXT("AttackEnd"))) { Owner->ServerRPC_SetIsAttacking(false); }
     //노티파이 공통 부분
     if (NotifyName == FName(TEXT("ComboEnd"))) {
@@ -83,9 +85,9 @@ void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNo
 
     //중복 입력 방지 부분
     if (NotifyName == FName(TEXT("DelayEnd"))) {
-        Owner->ServerRPC_JumpToNextCombo();
-        Owner->ServerRPC_SetIsJumpDelay(false);
-        PRINTLOG_NET(TEXT("DelayEnd"));
+            Owner->ServerRPC_SetIsJumpDelay(false);
+            Owner->ServerRPC_JumpToNextCombo();
+
     }
     if (NotifyName == FName(TEXT("JumpDelay"))) {
             Owner->ServerRPC_SetIsJumpDelay(true);
@@ -121,6 +123,7 @@ void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNo
         Owner->ServerRPC_SetAllowRoll(true);
         Owner->ServerRPC_SetIsAttacking(false);
     }
+
 }
 
 void UHunterAnim::OnMontageNotifyEnd(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointNotifyPayload){
