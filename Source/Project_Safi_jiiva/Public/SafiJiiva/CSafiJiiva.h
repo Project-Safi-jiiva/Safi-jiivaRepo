@@ -152,19 +152,26 @@ private:	// 함수용 변수들
 
 public:	// 체력 등 스탯 계수
 	float MAXHP = 50.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Status)
 	float hp = MAXHP;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Status)
 	float MeleeBiteDMG = 30.f;	// 물기 데미지
 
 	int32 RepellCount = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Status)
 	int32 MAXRepellCount = 2;
 	int32 SpecialCount = 0;
 	int32 MAXSpecialCount = 5;
 
 
 public:	// 사거리, 속도 등
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Status)
 	float MeleeAttRange = 2000.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Status)
 	float BiteRange = 500.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Status)
 	float SearchRange = 5000.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Status)
 	float MaxBreathRange = 5000.f;
 
 	float RunSpeed = 400.f;
