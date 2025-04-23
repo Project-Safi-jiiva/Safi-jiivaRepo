@@ -122,13 +122,16 @@ void UGreatSword::ResetCombo()
 void UGreatSword::Dash()
 {
 	Super::Dash();
-		FWeaponDataTable CurrentData = GetCurrentWeaponData();
-		if (CurrentData.QuickStrikeMontages.Num() > 0 && Owner) {
-			if (isWeaponEquipped) {
-				PlayMontage(CurrentData.DrawMontage);
-					isWeaponEquipped = false;
-			}
+	if (!isWeaponEquipped)return;
+	if (IsAttacking) return;
+	FWeaponDataTable CurrentData = GetCurrentWeaponData();
+	if (CurrentData.QuickStrikeMontages.Num() > 0 && Owner) {
+		if (isWeaponEquipped) {
+			PlayMontage(CurrentData.DrawMontage);
+				isWeaponEquipped = false;
 		}
+	}
+
 
 }
 
@@ -147,11 +150,9 @@ void UGreatSword::JumpToNextCombo()
 	Super::JumpToNextCombo();
 	if (isCommandInput[0])return;
 	CurrentMontage = Anim->GetCurrentMontage(Owner);
-	//if (Anim->Montage_IsPlaying(CurrentMontage)) {
-		Anim->Montage_JumpToSection(FName("Attack"), CurrentMontage);
-		Owner->WeaponComp->SetHeavyStrikeComboIndex(0);
-		return;
-	//}
+	Anim->Montage_JumpToSection(FName("Attack"), CurrentMontage);
+	Owner->WeaponComp->SetHeavyStrikeComboIndex(0);
+	return;
 }
 
 void UGreatSword::CancelHandler(const struct FWeaponDataTable& CurrentData)
@@ -209,13 +210,11 @@ void UGreatSword::QuickAttack()
 	if (CurrentData.QuickStrikeMontages.Num() > 0 && Owner) {
 		 if (!isWeaponEquipped && Owner->GetVelocity().Size2D() <= 0) {
 			PlayMontage(CurrentData.SheatheMontage);
-			//if(Owner->HasAuthority())
 				isWeaponEquipped = true;
 			return;
 		}
 		 if (!isWeaponEquipped && Owner->GetVelocity().Size2D() > 0) {
 			PlayMontage(CurrentData.UniqueStrikeMontages[1]);
-			//if (Owner->HasAuthority())
 				isWeaponEquipped = true;
 			return;
 		}

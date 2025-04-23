@@ -80,7 +80,7 @@ void UWeaponComponent::InputDash()
 
 void UWeaponComponent::InputDashEnd()
 {
-	Owner->ServerRPC_QuickStart();
+	Owner->ServerRPC_DashEnd();
 }
 
 void UWeaponComponent::InputQuickStart()
@@ -145,20 +145,13 @@ void UWeaponComponent::LoadWeaponData()
 
 void UWeaponComponent::Dash()
 {
-	if (!Owner)return;
-	if (isWeaponEquipped) {
-		Owner->isRun = false;
-		return;
-	}
 	Owner->isRun = true;
-	if (!isWeaponEquipped)return;
-	if (IsAttacking) return;
 }
 
 void UWeaponComponent::DashEnd()
 {
-	if (isWeaponEquipped) return;
 	Owner->isRun = false;
+
 }
 void UWeaponComponent::QuickInputStart() {
 	isCommandInput[0] = false;
@@ -174,7 +167,6 @@ void UWeaponComponent::QuickInputHolding()
 void UWeaponComponent::QuickInputEnd() {
 	isCommandInput[0] = false;
 	FCommandInput[0] = 0;
-
 }
 
 void UWeaponComponent::HeavyInputStart() {
