@@ -172,6 +172,8 @@ void UGreatSword::CancelHandler(const struct FWeaponDataTable& CurrentData)
 void UGreatSword::Roll()
 {
 		AllowRoll = false;
+		if (Owner->GetStamina()<=50)return;
+		Owner->SetStamina(50);
 
 		FWeaponDataTable CurrentData = GetCurrentWeaponData();
 		PlayMontage(CurrentData.DodgeMontage);

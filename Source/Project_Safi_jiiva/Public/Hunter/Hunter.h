@@ -17,16 +17,14 @@ private:
 	const float MaxHP=200;
 	const float MaxStamina=200;
 
-	UPROPERTY(ReplicatedUsing = OnRep_HP)
+	UPROPERTY(Replicated)
 	float HP = MaxHP;
-
-	UFUNCTION()
-	void OnRep_HP();
-	UPROPERTY(ReplicatedUsing = OnRep_SP)
+public:
+	UPROPERTY(Replicated)
 	float Stamina = MaxStamina;
+	UPROPERTY(Replicated)
+	bool StaminaDelay=false;
 
-	UFUNCTION()
-	void OnRep_SP();
 
 public:
 	// Sets default values for this character's properties
@@ -86,6 +84,10 @@ public:
 	void NetLog();
 
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
+
+	void SetStamina(float StaminaCost);
+
+	float GetStamina();
 
 	///////////////////////////서버 함수//////////////////////////
 

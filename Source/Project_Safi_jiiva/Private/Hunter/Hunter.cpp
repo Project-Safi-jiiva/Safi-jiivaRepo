@@ -32,7 +32,6 @@ void AHunter::SetHP(float value)
 	float v = FMath::Clamp(GetHP() / 200, 0.0f, 1.0f);
 	if(MainWidget)
 		MainWidget->uiHp = v;
-	//OnRep_HP();
 }
 
 float AHunter::GetHP()
@@ -40,15 +39,6 @@ float AHunter::GetHP()
 	return HP;
 }
 
-void AHunter::OnRep_HP()
-{
-
-}
-
-void AHunter::OnRep_SP()
-{
-
-}
 
 // Sets default values
 AHunter::AHunter()
@@ -136,6 +126,7 @@ void AHunter::Tick(float DeltaTime)
 
 	if (Anim&& Anim->Montage_IsPlaying(nullptr)&&isHit)
 		Anim->Montage_Stop(0.1f);
+	SetStamina(0);
 
 }
 
@@ -215,8 +206,49 @@ void AHunter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	DOREPLIFETIME(AHunter, isHit);
 	DOREPLIFETIME(AHunter, HP);
 	DOREPLIFETIME(AHunter, Stamina);
+	DOREPLIFETIME(AHunter, StaminaDelay);
 
 }
+
+void AHunter::SetStamina(float StaminaCost)
+{
+	if (StaminaDelay)return;
+	if(StaminaCost<=0){
+		if (isRun) {
+			if (GetVelocity().Size() <= 0)return;
+			if (Stamina >= 0) {
+				Stamina -= 2;
+			}
+
+		}
+		else {
+			if (Stamina <= 200) {
+				Stamina += 2;
+			}
+			else {
+				Stamina = 200;
+			}
+		}
+	}
+	else {
+		Stamina -= StaminaCost;
+	}
+	if (Stamina <= 0) {
+		StaminaDelay = true;
+		FTimerHandle handler;
+		GetWorld()->GetTimerManager().SetTimer(handler, [&]() {StaminaDelay = false; }, 1, false);
+	}
+
+	float v = FMath::Clamp(Stamina / 200, 0.0f, 1.0f);
+	if (MainWidget)
+		MainWidget->uiSp = v;
+}
+
+float AHunter::GetStamina()
+{
+	return Stamina;
+}
+
 //대쉬 함수
 void AHunter::ServerRPC_Dash_Implementation()
 {
@@ -486,6 +518,7 @@ void AHunter::NetMulticastRPC_HitEvent_Implementation(UPrimitiveComponent* Damag
 			ServerRPC_SetIsTacle(false);
 			ServerRPC_SetAllowRoll(true);
 			ServerRPC_SetIsAttacking(false);
+			StaminaDelay = false;
 		};
 	GetWorld()->GetTimerManager().SetTimer(Handler, OnInput, 2.3, false);
 

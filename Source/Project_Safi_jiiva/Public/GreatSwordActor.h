@@ -46,4 +46,7 @@ private:
 	UPROPERTY()
 	class AHunter* Hunter;
 
+	UFUNCTION(Client, Reliable)
+	void ShowEffectClient(AActor* OtherActor,UPrimitiveComponent* OtherComp, bool bFromSweep, const FHitResult& SweepResult, UPrimitiveComponent* OverlappedComp);
+
 };
