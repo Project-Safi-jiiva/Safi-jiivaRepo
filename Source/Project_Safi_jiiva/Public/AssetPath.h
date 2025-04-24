@@ -10,6 +10,10 @@ namespace AssetPaths
     constexpr const TCHAR* HUNTER_ANIM = TEXT("/Script/Engine.AnimBlueprint'/Game/LHW/Gemma/ABP_Gemma.ABP_Gemma_C'");
     constexpr const TCHAR* HUNTER_IMC = TEXT("/Script/EnhancedInput.InputMappingContext'/Game/LHW/Input/IMC_Hunter.IMC_Hunter'");
 
+    //¸ÞÀÎ À§Á¬
+    constexpr const TCHAR* HUNTER_MAINWIDGET = TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/LHW/Blueprint/Widget/WBP_Main.WBP_Main_C'");
+
+
     //¹«ºê ÄÄÆ÷³ÍÆ®
     constexpr const TCHAR* IA_MOVE = TEXT("/Script/EnhancedInput.InputAction'/Game/LHW/Input/IA_Move.IA_Move'");
     constexpr const TCHAR* IA_TURN = TEXT("/Script/EnhancedInput.InputAction'/Game/LHW/Input/IA_Turn.IA_Turn'");

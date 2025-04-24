@@ -17,15 +17,24 @@ private:
 	const float MaxHP=200;
 	const float MaxStamina=200;
 
+	UPROPERTY(ReplicatedUsing = OnRep_HP)
 	float HP = MaxHP;
+
+	UFUNCTION()
+	void OnRep_HP();
+	UPROPERTY(ReplicatedUsing = OnRep_SP)
 	float Stamina = MaxStamina;
+
+	UFUNCTION()
+	void OnRep_SP();
 
 public:
 	// Sets default values for this character's properties
 	AHunter();
 public:
 	FInputBindingDeleagate InputBindingDeleagate;
-
+	void SetHP(float value);
+	float GetHP();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -61,6 +70,9 @@ private:
 	class UInputMappingContext* IMC_Hunter;
 
 	class USkeletalMeshComponent* SkeletalMeshComp;
+	TSubclassOf<class UHunterMainWidget> MainWidgetClass;
+
+	class UHunterMainWidget* MainWidget;
 
 
 public:
@@ -211,10 +223,10 @@ public:
 	void NetMulticastRPC_JumpToNextCombo();
 	//Èý ÆÇÁ¤
 	UFUNCTION(Server,Reliable)
-	void ServerRPC_HitEvent(UPrimitiveComponent* DamageCauserComponent);
+	void ServerRPC_HitEvent(UPrimitiveComponent* DamageCauserComponent ,float Damage);
 
 	UFUNCTION(NetMulticast, Reliable)
-	void NetMulticastRPC_HitEvent(UPrimitiveComponent* DamageCauserComponent);
+	void NetMulticastRPC_HitEvent(UPrimitiveComponent* DamageCauserComponent, float Damage);
 
 
 	UFUNCTION(Server, Reliable)
