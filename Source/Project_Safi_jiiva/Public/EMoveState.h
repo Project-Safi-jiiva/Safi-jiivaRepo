@@ -16,5 +16,6 @@ enum class EMoveState:uint8
 	TURN  UMETA(DisplayName = "TURN"),
 	HIT UMETA(DisplayName="HIT"),
 	STOP UMETA(DisplayName = "STOP"),
+	DIE UMETA(DisplayName="DIE"),
 	MAX
 };

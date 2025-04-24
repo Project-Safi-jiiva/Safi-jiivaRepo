@@ -23,6 +23,7 @@
 #include "GreatSword.h"
 #include "Components/CapsuleComponent.h"
 #include "Net/UnrealNetwork.h"
+#include "Hunter/HunterController.h"
 
 // Sets default values
 AHunter::AHunter()
@@ -111,6 +112,7 @@ void AHunter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 float AHunter::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+
 	if (WeaponComp->isTacle) return 0;
 	UPrimitiveComponent* CauserComponent = Cast<UPrimitiveComponent>(DamageCauser);
 	if (!CauserComponent)
@@ -119,6 +121,8 @@ float AHunter::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, 
 		CauserComponent = DamageCauser->FindComponentByClass<UPrimitiveComponent>();
 		ServerRPC_HitEvent(CauserComponent);
 	}
+	HP -= Damage;
+
 	return Damage;
 }
 
@@ -417,6 +421,15 @@ void AHunter::NetMulticastRPC_HitEvent_Implementation(UPrimitiveComponent* Damag
 	FTimerHandle Handler;
 	auto OnInput = [this]()
 		{
+			if (HP <= 0) {
+				MoveComp->MoveState = EMoveState::DIE;
+				AHunterController* PC = Cast<AHunterController>(GetController());
+				if (IsLocallyControlled()) {
+						PC->ServerRPC_RespawnPlayer();
+						WeaponComp->DestroyEquippedWeapon();
+				}
+				return;
+			}
 			MoveComp->InputOn(); MoveComp->MoveState = EMoveState::IDLE;
 			isHit = false;
 			GetCapsuleComponent()->SetCollisionProfileName(FName("Pawn2"));
