@@ -75,7 +75,6 @@ void UCSafiFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	FString logMsgstDisturbed = UEnum::GetValueAsString(mDisturbState);
 	GEngine->AddOnScreenDebugMessage(3, 1, FColor::Green, logMsgstDisturbed);
 
-	GEngine->AddOnScreenDebugMessage(4, 1, FColor::Emerald, FString::Printf(TEXT("hp: %f"), me->hp));
 
 	// FString logBFattType = FString::Printf(TEXT("BFattType: %d"), BFattType);
 	// GEngine->AddOnScreenDebugMessage(3, 1, FColor::Red, logBFattType);
@@ -84,8 +83,8 @@ void UCSafiFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	// GEngine->AddOnScreenDebugMessage(4, 1, FColor::Yellow, logattType);
 
 
-	// GEngine->AddOnScreenDebugMessage(3, 1, FColor::Emerald, FString::Printf(TEXT("distance: %f"),length));
-	// GEngine->AddOnScreenDebugMessage(4, 1, FColor::Emerald, FString::Printf(TEXT("targetYaw: %f"), targetYaw));
+	// GEngine->AddOnScreenDebugMessage(3, 1, FColor::Emerald, FString::Printf(TEXT("distance: %f"), length));
+	GEngine->AddOnScreenDebugMessage(4, 1, FColor::Emerald, FString::Printf(TEXT("targetYaw: %f"), targetYaw));
 	// ==========================================================================
 
 	// bool형 변수 상태 출력
@@ -311,22 +310,23 @@ void UCSafiFSM::AttBreath()
 {
 	// 브레스 사용중에만 실행
 	if (me->isOnBreath == false){ return; }
+	FVector ForStopVector;
 
 	if ( isSetDir == false)
 	{
-		FVector CalStart = me->FireArrowComp->GetComponentLocation();
+		
 		//FVector Forward = (SetTargetDir() - Start).GetSafeNormal();
-		FVector CalForward = SetTargetDir();
+		FVector CalForward = SetTargetDir2();
 		// FVector Start = me->FireArrowComp->GetComponentLocation();
 		// FVector Forward = me->FireArrowComp->GetForwardVector();
-
-		Start = CalStart;
+		
 		Forward = CalForward;
+		ForStopVector = me->FireArrowComp->GetComponentLocation();
 
 		isSetDir = true;
 	}
-
-
+	FVector CalStart = FVector(me->FireArrowComp->GetComponentLocation().X, ForStopVector.Y, ForStopVector.Z);
+	Start = CalStart;
 	float MaxDistance = me->MaxBreathRange; 
 	FVector End = Start + Forward * MaxDistance * 5000.f;
 
@@ -504,7 +504,13 @@ void UCSafiFSM::TargetRotation()
 	float targetYaw = FMath::Abs(FMath::FindDeltaAngleDegrees(CurrentRotation.Yaw, TargetRotation.Yaw));
 	if (targetYaw <= 3.f)
 	{
-		me->SetActorRotation(TargetRotation);
+		//	me->SetActorRotation(TargetRotation);
+		//	isRot = false;
+		//	OnAttackProcess();
+		//	return;
+
+		FinalRotation = TargetRotation; // 서버에서 결정된 회전 값
+		me->SetActorRotation(FinalRotation); // 서버에서 실제로 회전 적용
 		isRot = false;
 		OnAttackProcess();
 		return;
@@ -572,7 +578,7 @@ FVector UCSafiFSM::SetTargetDir()
 {
 	if (target == nullptr || me == nullptr) { return FVector::ZeroVector; }
 
-	FVector destination = FVector(target->GetActorLocation().X, target->GetActorLocation().Y, target->GetActorLocation().Z - 100.f );
+	FVector destination = FVector(target->GetActorLocation());
 	FVector dir = destination - me->GetActorLocation();
 
 	if (dir.Size() < me->SearchRange)
@@ -583,6 +589,21 @@ FVector UCSafiFSM::SetTargetDir()
 	return dir;
 }
  
+
+FVector UCSafiFSM::SetTargetDir2()
+{
+	if (target == nullptr || me == nullptr) { return FVector::ZeroVector; }
+
+	FVector destination = FVector(target->GetActorLocation().X, target->GetActorLocation().Y, target->GetActorLocation().Z - 100.f);
+	FVector dir = destination - me->GetActorLocation();
+
+	if (dir.Size() < me->SearchRange)
+	{
+		me->isInBattle = true;
+	}
+
+	return dir;
+}
 
 void UCSafiFSM::SetTarget()
 {
@@ -654,6 +675,11 @@ void UCSafiFSM::OnRep_TurnState()
 void UCSafiFSM::OnRep_DisturbState()
 {
 	if (Anim) Anim->aDisturbState = mDisturbState;
+}
+
+void UCSafiFSM::OnRep_FinalRotation()
+{
+	me->SetActorRotation(FinalRotation);
 }
 
 void UCSafiFSM::ServerSetActState_Implementation(ESafiState _newState)
@@ -755,5 +781,6 @@ void UCSafiFSM::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 	DOREPLIFETIME(UCSafiFSM, mAttState);
 	DOREPLIFETIME(UCSafiFSM, mTurnState);
 	DOREPLIFETIME(UCSafiFSM, mDisturbState);
+	DOREPLIFETIME(UCSafiFSM, FinalRotation);
 }
 

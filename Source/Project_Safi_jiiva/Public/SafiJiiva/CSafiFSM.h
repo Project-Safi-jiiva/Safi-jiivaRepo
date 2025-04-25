@@ -184,7 +184,14 @@ public:
 	void TargetRotationByAnim();		// 애니메이션으로 회전
 	void TargetKnockBackByAnim();
 
+public:	// 타겟 관련
+	UPROPERTY(ReplicatedUsing = OnRep_FinalRotation)
+	FRotator FinalRotation;
+
+
 	FVector SetTargetDir();
+	FVector SetTargetDir2();
+
 	void SetTarget();
 	void UpdateHunterList();			// EndAttackList에서 갱신
 
@@ -208,6 +215,9 @@ public:
 	void OnRep_TurnState();
 	UFUNCTION()
 	void OnRep_DisturbState();
+
+	UFUNCTION()
+	void OnRep_FinalRotation();
 
 // 얘는 서버
 	UFUNCTION(Server, Reliable)
