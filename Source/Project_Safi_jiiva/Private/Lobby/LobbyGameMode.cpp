@@ -3,3 +3,7 @@
 
 #include "Lobby/LobbyGameMode.h"
 
+ALobbyGameMode::ALobbyGameMode()
+{
+	bUseSeamlessTravel = false;
+}

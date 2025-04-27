@@ -5,6 +5,9 @@
 #include "Online/CoreOnlineFwd.h"
 #include "Project_Safi_jiiva.h"
 #include "../../../../Plugins/Online/OnlineSubsystem/Source/Public/Interfaces/OnlineSessionInterface.h"
+#include "../../../../Plugins/Online/OnlineBase/Source/Public/Online/OnlineSessionNames.h"
+#include "Lobby/PartyManager.h"
+#include "Hunter/HunterController.h"
 
 void UMHGameInstance::Init()
 {
@@ -13,12 +16,14 @@ void UMHGameInstance::Init()
 		//서브시스템으로부터 세션 인터페이스 가져오기
 		sessionInterface = subsys->GetSessionInterface();
 		sessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UMHGameInstance::OnCreateSessionComplete);
+		sessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UMHGameInstance::OnFindSessionsComplete);
+		sessionInterface->OnJoinSessionCompleteDelegates.AddUObject(this, &UMHGameInstance::OnJoinSessionComplete);
 	}
-	FTimerHandle handle;
-	GetWorld()->GetTimerManager().SetTimer(handle, [this]() {CreateMySession(4); }, 2, false);
+	PartyManager = NewObject<UPartyManager>(this);
+	mySessionName.Append(FString::Printf(TEXT("%_d_%d"), FMath::Rand32(), FDateTime::Now().GetMillisecond()));
 }
 
-void UMHGameInstance::CreateMySession(int32 playerCount)
+void UMHGameInstance::CreateMySession()
 {
 	// 세션설정 변수
 	FOnlineSessionSettings sessionSettings;
@@ -44,10 +49,11 @@ void UMHGameInstance::CreateMySession(int32 playerCount)
 	sessionSettings.bAllowJoinInProgress = true;
 
 	// 6. 세션에 참여할 수 있는 공개(public) 연결의 최대 허용 수
-	sessionSettings.NumPublicConnections = playerCount;
+	sessionSettings.NumPublicConnections = 4;
 
 	// 7. 커스텀 룸네임 설정
-	sessionSettings.Set(FName("ROOM_NAME"), FName("Dragon").ToString(), EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+	FString RandomRoomName = GenerateRandomRoomName(10); // 10자리 랜덤 문자열
+	sessionSettings.Set(FName("ROOM_NAME"), RandomRoomName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 
 	// 8. 호스트 네임 설정
 	sessionSettings.Set(FName("HOST_NAME"), mySessionName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
@@ -62,4 +68,135 @@ void UMHGameInstance::CreateMySession(int32 playerCount)
 void UMHGameInstance::OnCreateSessionComplete(FName SessionName, bool bWasSuccessful)
 {
 	PRINTLOG_NET(TEXT("SessionName : %s, bWasSuccessful : %d"), *SessionName.ToString(), bWasSuccessful);
+	if (bWasSuccessful)
+	{
+		// 파티에 자기 자신 추가
+		if (PartyManager)
+		{
+			FString MyPlayerName = SessionName.ToString(); // 나중에 실제 플레이어 이름 가져오면 바꿔야 함
+			AHunterController* MyPC = Cast<AHunterController>(GetWorld()->GetFirstPlayerController());
+			PartyManager->AddMember(MyPlayerName, MyPC);
+		}
+		GetWorld()->ServerTravel(TEXT("/Game/LHW/Map/KJY_TestMap?listen"));
+		UPartyManager* NewParty = NewObject<UPartyManager>(this);
+		PartyManagers.Add(SessionName, NewParty);
+		FString MyPlayerName = SessionName.ToString();
+		AHunterController* MyPC = Cast<AHunterController>(GetWorld()->GetFirstPlayerController());
+		NewParty->AddMember(MyPlayerName, MyPC);
+		OnCreateSessionCompleted.Broadcast();
+
+	}
+}
+
+void UMHGameInstance::FindOtherSession()
+{
+	sessionSearch = MakeShareable(new FOnlineSessionSearch());
+
+	// 1. 세션 검색 조건 설정
+	sessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
+
+	// 2. Lan 여부
+	sessionSearch->bIsLanQuery = IOnlineSubsystem::Get()->GetSubsystemName() == FName("NULL");
+
+	// 3. 최대 검색 세션 수
+	sessionSearch->MaxSearchResults = 10;
+
+	// 4. 세션검색
+	sessionInterface->FindSessions(0, sessionSearch.ToSharedRef());
+}
+
+void UMHGameInstance::OnFindSessionsComplete(bool bWasSuccessful)
+{
+	// 찾기 실패시
+	if (!bWasSuccessful)
+	{
+		PRINT_LOG(TEXT("Session search failed..."));
+		return;
+	}
+
+	// 세션검색결과 배열
+	auto results = sessionSearch->SearchResults;
+	PRINT_LOG(TEXT("Search Result Count : %d"), results.Num());
+
+		FSessionInfo sessionInfo;
+	for (int i = 0; i < results.Num(); ++i)
+	{
+		auto sr = results[i];
+
+		if (sr.IsValid() == false) continue;
+
+		// 세션정보 구조체선언
+		sessionInfo.index = i;
+
+		sr.Session.SessionSettings.Get(FName("ROOM_NAME"), sessionInfo.roomName);
+
+		sr.Session.SessionSettings.Get(FName("HOST_NAME"), sessionInfo.hostName);
+		// 입장가능한 플레이어 수
+		int32 maxPlayerCount = sr.Session.SessionSettings.NumPublicConnections;
+		// 현재 입장한 플레이어 수 ( 최대 - 현재 입장 가능한 수 )
+		// NumOpenPublicConnections 스팀에서만 정상적으로 값이 들어온다.
+		int32 currentPlayerCount = maxPlayerCount - sr.Session.NumOpenPublicConnections;
+		sessionInfo.playerCount = FString::Printf(TEXT("(%d/%d)"), currentPlayerCount, maxPlayerCount);
+		// 핑정보 (스팀에서는 9999로 나온다)
+		int32 pingSpeed = sr.PingInMs;
+		PRINT_LOG(TEXT("%s"), *sessionInfo.ToString());
+
+	}
+		onSearchCompleted.Broadcast(sessionInfo);
+}
+
+FString UMHGameInstance::GenerateRandomRoomName(int32 Length /*= 8*/)
+{
+	const FString Characters = TEXT("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
+	FString RandomString;
+
+	for (int32 i = 0; i < Length; ++i)
+	{
+		int32 RandomIndex = FMath::RandRange(0, Characters.Len() - 1);
+		RandomString.AppendChar(Characters[RandomIndex]);
+	}
+
+	return RandomString;
+}
+
+void UMHGameInstance::JoinSelectedSession(int32 index)
+{
+	auto sr = sessionSearch->SearchResults;
+
+	sr[index].Session.SessionSettings.bUseLobbiesIfAvailable = true;
+	sr[index].Session.SessionSettings.bUsesPresence = true;
+
+	sessionInterface->JoinSession(0, FName(mySessionName), sr[index]);
+}
+
+void UMHGameInstance::OnJoinSessionComplete(FName sessionName, EOnJoinSessionCompleteResult::Type result)
+{
+	if (result == EOnJoinSessionCompleteResult::Success)
+	{
+		auto pc = Cast<AHunterController>(GetWorld()->GetFirstPlayerController());
+
+		FString url;
+		sessionInterface->GetResolvedConnectString(sessionName, url);
+
+		PRINT_LOG(TEXT("Join URL : %s"), *url);
+
+		//if (!url.IsEmpty())
+		//{
+		//	UPartyManager* Party = GetPartyManager(sessionName);
+		//	if (!Party)
+		//	{
+		//		Party = NewObject<UPartyManager>(this);
+		//		PartyManagers.Add(sessionName, Party);
+		//	}
+		//	FString MyPlayerName = sessionName.ToString();
+		//	Party->AddMember(MyPlayerName, pc);
+			pc->ClientTravel(url, ETravelType::TRAVEL_Absolute);
+		//	OnJoinSessionCompleted.Broadcast();
+
+		//}
+	}
+	else
+	{
+		PRINT_LOG(TEXT("Join Session failed : %d"), result);
+	}
 }

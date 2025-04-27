@@ -5,11 +5,36 @@
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
 #include "OnlineSessionSettings.h"
+#include "../../../../Plugins/Online/OnlineSubsystem/Source/Public/Interfaces/OnlineSessionInterface.h"
 #include "MHGameInstance.generated.h"
 
+USTRUCT(BlueprintType)
+struct FSessionInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly)
+	FString roomName;
+	UPROPERTY(BlueprintReadOnly)
+	FString hostName;
+	UPROPERTY(BlueprintReadOnly)
+	FString playerCount;
+	UPROPERTY(BlueprintReadOnly)
+	int32 pingSpeed;
+	UPROPERTY(BlueprintReadOnly)
+	int32 index;
+
+	inline FString ToString()
+	{
+		return FString::Printf(TEXT("[%d] %s : %s - %s, %dms"), index, *roomName, *hostName, *playerCount, pingSpeed);
+	}
+};
 /**
  *
  */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSearchSignature, const FSessionInfo&, sessionInfo);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCreateSessionCompleted);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnJoinSessionCompleted);
 UCLASS()
 class PROJECT_SAFI_JIIVA_API UMHGameInstance : public UGameInstance
 {
@@ -17,14 +42,39 @@ class PROJECT_SAFI_JIIVA_API UMHGameInstance : public UGameInstance
 public:
 	virtual void Init() override;
 
+	FSearchSignature onSearchCompleted;
+
+	FOnCreateSessionCompleted OnCreateSessionCompleted;
+	FOnJoinSessionCompleted OnJoinSessionCompleted;
 public:
 	IOnlineSessionPtr sessionInterface;
 
-	void CreateMySession(int32 playerCount);
+	void CreateMySession();
 
 	// 세션 호스트 이름
-	FString mySessionName = "reppy";
+	FString mySessionName = "Hunter";
 
 	UFUNCTION()
 	void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);
+
+	// 방검색
+	TSharedPtr<FOnlineSessionSearch> sessionSearch;
+
+	void FindOtherSession();
+
+	void OnFindSessionsComplete(bool bWasSuccessful);
+	FString GenerateRandomRoomName(int32 Length = 8);
+
+	//세션 입장
+	void JoinSelectedSession(int32 index);
+
+	// 세션입장 콜백
+	void OnJoinSessionComplete(FName sessionName, EOnJoinSessionCompleteResult::Type result);
+
+	//UPROPERTY()
+    //UPartyManager* GetPartyManager(const FName SessionName);
+	UPROPERTY()
+	class UPartyManager* PartyManager; // PartyManager 인스턴스
+	TMap<FName, UPartyManager*> PartyManagers;
+
 };

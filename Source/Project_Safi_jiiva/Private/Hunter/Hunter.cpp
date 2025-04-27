@@ -39,7 +39,6 @@ float AHunter::GetHP()
 	return HP;
 }
 
-
 // Sets default values
 AHunter::AHunter()
 {

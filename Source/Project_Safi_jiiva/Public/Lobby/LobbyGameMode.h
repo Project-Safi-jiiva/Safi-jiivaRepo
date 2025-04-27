@@ -13,5 +13,6 @@ UCLASS()
 class PROJECT_SAFI_JIIVA_API ALobbyGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
+	ALobbyGameMode();
 	
 };
