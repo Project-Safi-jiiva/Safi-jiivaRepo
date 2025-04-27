@@ -188,7 +188,6 @@ public:	// 타겟 관련
 	UPROPERTY(ReplicatedUsing = OnRep_FinalRotation)
 	FRotator FinalRotation;
 
-
 	FVector SetTargetDir();
 	FVector SetTargetDir2();
 
@@ -200,7 +199,7 @@ public:
 
 	bool isSetDir = false;			// 처음 한번만 방향 설정'
 
-
+	TSet<AActor*> HitActors;		// 브레스 1회 타격용
 	FVector Start;
 	FVector Forward;
 	
@@ -232,7 +231,7 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerSetDisturbState( EDisturbState _newDistState );
 
-	//UFUNCTION(Server, Reliable)
-	//FVector SetRotation(FRotator _value );
+	UFUNCTION(Server, Reliable)
+	FVector SetRotation(FRotator _value);
 
 };

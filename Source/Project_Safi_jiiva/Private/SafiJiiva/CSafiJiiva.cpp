@@ -140,10 +140,16 @@ ACSafiJiiva::ACSafiJiiva()
 	AttPosRB->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
 
 	SkeletalMeshComp->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
-	
-	bReplicates = true;
+
 
 #pragma endregion BeginOverlap
+
+	bReplicates = true;
+	SetReplicates(true);
+	SetReplicateMovement(true); // 위치와 회전 레플리케이션 활성화
+
+	// 필요에 따라 추가 설정
+	PrimaryActorTick.bCanEverTick = true;
 }
 
 // Called when the game starts or when spawned

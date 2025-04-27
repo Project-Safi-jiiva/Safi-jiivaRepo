@@ -217,12 +217,12 @@ void UCSafiFSM::IdleState()
 	TargetRotation(); // 부드러운 회전
 
 	// 일정 회전각 아래로 내려가면 스냅해버리기
-	if (targetYaw <= 3.f)
+	if (targetYaw <= 6.f)
 	{
 	// 여기여기여기여기
 		
 		me->SetActorRotation(targetRot); // 최종 방향 고정
-		//FVector SetRotation(targetRot);
+		FVector SetRotation(targetRot);
 
 		ServerSetActState(ESafiState::Attack);
 
@@ -316,7 +316,7 @@ void UCSafiFSM::AttBreath()
 	{
 		
 		//FVector Forward = (SetTargetDir() - Start).GetSafeNormal();
-		FVector CalForward = SetTargetDir2();
+		FVector CalForward = SetTargetDir();
 		// FVector Start = me->FireArrowComp->GetComponentLocation();
 		// FVector Forward = me->FireArrowComp->GetForwardVector();
 		
@@ -325,44 +325,59 @@ void UCSafiFSM::AttBreath()
 
 		isSetDir = true;
 	}
-	FVector CalStart = FVector(me->FireArrowComp->GetComponentLocation().X, ForStopVector.Y, ForStopVector.Z);
+
+	FVector CalStart = FVector(me->FireArrowComp->GetComponentLocation()/*.X, ForStopVector.Y, ForStopVector.Z*/);
 	Start = CalStart;
 	float MaxDistance = me->MaxBreathRange; 
-	FVector End = Start + Forward * MaxDistance * 5000.f;
+	FVector End = Start + Forward * MaxDistance;
 
 	FCollisionQueryParams TraceParams;
 	TraceParams.AddIgnoredActor(me);
 	TraceParams.AddIgnoredComponent(me->GetMesh());
 
-	FHitResult Hit;
+	TArray<FHitResult> Hits;
 
-	bool bHit = GetWorld()->SweepSingleByChannel( Hit,Start,End,FQuat::Identity, ECC_GameTraceChannel4, FCollisionShape::MakeSphere(50.f), TraceParams );
+	bool bHit = GetWorld()->SweepMultiByChannel(Hits,Start,End,FQuat::Identity, ECC_Pawn, FCollisionShape::MakeSphere(200.f), TraceParams );
 
 
 // ================== 디버그용 =====================================
 
-	DrawDebugSphere(GetWorld(), Start, 50.f, 12, FColor::Green, false, 0.05f);
-	DrawDebugLine(GetWorld(), Start, bHit ? Hit.Location : End, FColor::Red, false, 2.0f);
+	DrawDebugSphere(GetWorld(), Start, 200.f, 12, FColor::Green, false, 0.05f);
+	DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.0f);
+
+// ================== 디버그용 =====================================
+
+
 	if (bHit)
 	{
-		DrawDebugSphere(GetWorld(), Hit.Location, 50.f, 12, FColor::Blue, false, 2.0f);
-	}
+	//	UE_LOG(LogTemp, Warning, TEXT("Sweep 결과 Hit 수: %d"), Hits.Num());
+	//
+	//	for (const FHitResult& HitResult : Hits)
+	//	{
+	//		if (HitResult.GetActor())
+	//		{
+	//			UE_LOG(LogTemp, Warning, TEXT("Hit한 Actor: %s"), *HitResult.GetActor()->GetName());
+	//		}
+	//	}
 
-// ================== 디버그용 =====================================
-
-	// 충돌한 대상이 있는지 체크
-	if (!bHit){ return; }
-
-	AActor* HitActor = Hit.GetActor();
-	if (!HitActor)
-	{ 
-		AHunter* hunter = Cast<AHunter>(HitActor);
-		if (hunter)
+		for (const FHitResult& HitResult : Hits)
 		{
-			UGameplayStatics::ApplyDamage(hunter, me->MeleeBiteDMG, nullptr, me, nullptr);
+			AActor* HitActor = HitResult.GetActor();
+			if (HitActor)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Hit한 Actor: %s"), *HitResult.GetActor()->GetName());
 
+				AHunter* Hunter = Cast<AHunter>(HitActor);
+				if (Hunter)
+				{
+					//if(!HitActors.Contains(HitActor))
+					//{
+					UGameplayStatics::ApplyDamage(Hunter, me->MeleeBiteDMG, nullptr, me, nullptr);
+					//HitActors.Add(HitActor);
+					//}
+				}
+			}
 		}
-		return; 
 	}
 
 }
@@ -594,7 +609,7 @@ FVector UCSafiFSM::SetTargetDir2()
 {
 	if (target == nullptr || me == nullptr) { return FVector::ZeroVector; }
 
-	FVector destination = FVector(target->GetActorLocation().X, target->GetActorLocation().Y, target->GetActorLocation().Z - 100.f);
+	FVector destination = FVector(target->GetActorLocation().X, target->GetActorLocation().Y, target->GetActorLocation().Z );
 	FVector dir = destination - me->GetActorLocation();
 
 	if (dir.Size() < me->SearchRange)
@@ -609,6 +624,8 @@ void UCSafiFSM::SetTarget()
 {
 	// 헌터 리스트 갱신, 타겟 리스트로 목록 받아옴
 	UpdateHunterList();
+	HitActors.Empty();		// 브레스 공격목록 비우기
+
 	// 리스트가 비어있는지 확인
 	if (HunterList.IsEmpty()) { return; }
 
@@ -714,10 +731,19 @@ void UCSafiFSM::ServerSetDisturbState_Implementation(EDisturbState _newDistState
 
 
 
-// FVector UCSafiFSM::SetRotation_Implementation(FRotator _value)
-// {
-// 	me->SetActorRotation(_value);
-// }
+
+FVector UCSafiFSM::SetRotation_Implementation(FRotator _value)
+{
+	if (!me)
+	{
+		UE_LOG(LogTemp, Error, TEXT("SetRotation_Implementation: me is null! Owner: %s"),
+			GetOwner() ? *GetOwner()->GetName() : TEXT("None"));
+		return;
+	}
+
+	FinalRotation = _value; // 레플리케이션된 변수에 설정
+	me->SetActorRotation(_value); // 서버에서 즉시 적용
+}
 
 void UCSafiFSM::SetActState(ESafiState _newState)
 {
@@ -783,4 +809,3 @@ void UCSafiFSM::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 	DOREPLIFETIME(UCSafiFSM, mDisturbState);
 	DOREPLIFETIME(UCSafiFSM, FinalRotation);
 }
-
