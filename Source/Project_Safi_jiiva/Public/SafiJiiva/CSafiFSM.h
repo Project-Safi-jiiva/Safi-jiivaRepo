@@ -232,6 +232,6 @@ public:
 	void ServerSetDisturbState( EDisturbState _newDistState );
 
 	UFUNCTION(Server, Reliable)
-	FVector SetRotation(FRotator _value);
+	void SetRotation(FRotator _value);
 
 };

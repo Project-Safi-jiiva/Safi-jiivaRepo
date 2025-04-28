@@ -222,7 +222,7 @@ void UCSafiFSM::IdleState()
 	// 여기여기여기여기
 		
 		me->SetActorRotation(targetRot); // 최종 방향 고정
-		FVector SetRotation(targetRot);
+		SetRotation(targetRot);
 
 		ServerSetActState(ESafiState::Attack);
 
@@ -359,7 +359,6 @@ void UCSafiFSM::AttBreath()
 	//			UE_LOG(LogTemp, Warning, TEXT("Hit한 Actor: %s"), *HitResult.GetActor()->GetName());
 	//		}
 	//	}
-
 		for (const FHitResult& HitResult : Hits)
 		{
 			AActor* HitActor = HitResult.GetActor();
@@ -389,6 +388,11 @@ void UCSafiFSM::OnAttackProcess()
 	me->isOnSearch = false;
 	FVector dir = SetTargetDir();
 
+
+	if (me->SpecialCount > me->MAXSpecialCount)
+	{
+		attType = SPECIAL;
+	}
 
 // ======================== 스위치 ======================== 
 // 
@@ -433,6 +437,11 @@ void UCSafiFSM::OnAttackProcess()
 		//mAttState = EAttackState::AimedBreath;
 		ServerSetAttState(EAttackState::AimedBreath);
 		break;
+//========================== 스페셜 부분 ==========================
+	case SPECIAL:
+		//mAttState = EAttackState::AimedBreath;
+		ServerSetAttState(EAttackState::Special);
+		break;
 //========================== 근접공격 부분 ==========================
 	case AttBITE:
 		//mAttState = EAttackState::MeleeBite;
@@ -462,6 +471,7 @@ void UCSafiFSM::OnAttackProcess()
 void UCSafiFSM::EndAttackProcess()
 {
 	// 타겟 리스트 갱신
+
 	SetTarget();
 
 	ServerSetAttState(EAttackState::None);
@@ -469,6 +479,16 @@ void UCSafiFSM::EndAttackProcess()
 
 	me->isOnSearch = true;	// 공격할 때 꺼주기	- OnAttackProcess에 false 해줌
 
+
+	if (me->SpecialCount > me->MAXSpecialCount)
+	{
+		me->SpecialCount = 0;
+	}
+
+	else
+	{
+		me->SpecialCount += 1;
+	}
 
 
 	// DecideAttackType();		// 공격 가능 대상 있다면 바로 공격
@@ -523,7 +543,7 @@ void UCSafiFSM::TargetRotation()
 		//	isRot = false;
 		//	OnAttackProcess();
 		//	return;
-
+		//.
 		FinalRotation = TargetRotation; // 서버에서 결정된 회전 값
 		me->SetActorRotation(FinalRotation); // 서버에서 실제로 회전 적용
 		isRot = false;
@@ -729,10 +749,7 @@ void UCSafiFSM::ServerSetDisturbState_Implementation(EDisturbState _newDistState
 	OnRep_DisturbState();
 }
 
-
-
-
-FVector UCSafiFSM::SetRotation_Implementation(FRotator _value)
+void UCSafiFSM::SetRotation_Implementation(FRotator _value)
 {
 	if (!me)
 	{
@@ -741,8 +758,8 @@ FVector UCSafiFSM::SetRotation_Implementation(FRotator _value)
 		return;
 	}
 
-	FinalRotation = _value; // 레플리케이션된 변수에 설정
-	me->SetActorRotation(_value); // 서버에서 즉시 적용
+	FinalRotation = _value;
+	me->SetActorRotation(_value);
 }
 
 void UCSafiFSM::SetActState(ESafiState _newState)
