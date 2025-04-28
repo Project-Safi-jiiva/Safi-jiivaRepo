@@ -11,17 +11,22 @@ void USessionButtonWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+	UMHGameInstance* MHGI = Cast<UMHGameInstance>(GetWorld()->GetGameInstance());
 	btn_Session->OnClicked.AddDynamic(this, &USessionButtonWidget::JoinSession);
+	OnJoinSessionRequested.AddDynamic(MHGI, &UMHGameInstance::HandleJoinSessionRequested);
 }
 
 void USessionButtonWidget::Set(const FSessionInfo& InSessionInfo)
 {
 	SessionNumber = InSessionInfo.index;
+	WidgetInSessionInfo = InSessionInfo;
 }
 
 void USessionButtonWidget::JoinSession()
 {
 	QuestBoardWidget->SessionNumber = SessionNumber;
 	QuestBoardWidget->WidgetSwitcher->SetActiveWidgetIndex(4);
-
+	WidgetInSessionInfo.roomName;
+	OnJoinSessionRequested.Broadcast(SessionNumber, WidgetInSessionInfo.roomName);
 }
+

@@ -6,8 +6,8 @@
 #include "Project_Safi_jiiva.h"
 #include "../../../../Plugins/Online/OnlineSubsystem/Source/Public/Interfaces/OnlineSessionInterface.h"
 #include "../../../../Plugins/Online/OnlineBase/Source/Public/Online/OnlineSessionNames.h"
-#include "Lobby/PartyManager.h"
 #include "Hunter/HunterController.h"
+#include "Lobby/MHGameStateBase.h"
 
 void UMHGameInstance::Init()
 {
@@ -19,7 +19,6 @@ void UMHGameInstance::Init()
 		sessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UMHGameInstance::OnFindSessionsComplete);
 		sessionInterface->OnJoinSessionCompleteDelegates.AddUObject(this, &UMHGameInstance::OnJoinSessionComplete);
 	}
-	PartyManager = NewObject<UPartyManager>(this);
 	mySessionName.Append(FString::Printf(TEXT("%_d_%d"), FMath::Rand32(), FDateTime::Now().GetMillisecond()));
 }
 
@@ -70,19 +69,23 @@ void UMHGameInstance::OnCreateSessionComplete(FName SessionName, bool bWasSucces
 	PRINTLOG_NET(TEXT("SessionName : %s, bWasSuccessful : %d"), *SessionName.ToString(), bWasSuccessful);
 	if (bWasSuccessful)
 	{
+		if(!LobbyGameState and GetWorld())
+			LobbyGameState = Cast<AMHGameStateBase>(GetWorld()->GetGameState());
+
+		FUniqueNetIdPtr netID = GetWorld()->GetFirstLocalPlayerFromController()->GetUniqueNetIdForPlatformUser().GetUniqueNetId();
 		// 파티에 자기 자신 추가
-		if (PartyManager)
+		FPartyMember Host;
+		Host.PlayerName = mySessionName;
+		Host.PlayerNetId = netID;
+
+		FString RoomName;
+		if (!sessionInterface->GetSessionSettings(SessionName)->Get(FName("ROOM_NAME"), RoomName))
 		{
-			FString MyPlayerName = SessionName.ToString(); // 나중에 실제 플레이어 이름 가져오면 바꿔야 함
-			AHunterController* MyPC = Cast<AHunterController>(GetWorld()->GetFirstPlayerController());
-			PartyManager->AddMember(MyPlayerName, MyPC);
+			PRINT_LOG(TEXT("Failed to get ROOM_NAME for session: %s"), *SessionName.ToString());
+			return;
 		}
-		GetWorld()->ServerTravel(TEXT("/Game/LHW/Map/KJY_TestMap?listen"));
-		UPartyManager* NewParty = NewObject<UPartyManager>(this);
-		PartyManagers.Add(SessionName, NewParty);
-		FString MyPlayerName = SessionName.ToString();
-		AHunterController* MyPC = Cast<AHunterController>(GetWorld()->GetFirstPlayerController());
-		NewParty->AddMember(MyPlayerName, MyPC);
+		LobbyGameState->CreateParty(RoomName, Host);
+		//GetWorld()->ServerTravel(TEXT("/Game/LHW/Map/KJY_TestMap?listen"));
 		OnCreateSessionCompleted.Broadcast();
 
 	}
@@ -141,8 +144,8 @@ void UMHGameInstance::OnFindSessionsComplete(bool bWasSuccessful)
 		int32 pingSpeed = sr.PingInMs;
 		PRINT_LOG(TEXT("%s"), *sessionInfo.ToString());
 
-	}
 		onSearchCompleted.Broadcast(sessionInfo);
+	}
 }
 
 FString UMHGameInstance::GenerateRandomRoomName(int32 Length /*= 8*/)
@@ -173,30 +176,35 @@ void UMHGameInstance::OnJoinSessionComplete(FName sessionName, EOnJoinSessionCom
 {
 	if (result == EOnJoinSessionCompleteResult::Success)
 	{
-		auto pc = Cast<AHunterController>(GetWorld()->GetFirstPlayerController());
-
+		if (!LobbyGameState and GetWorld())
+			LobbyGameState = Cast<AMHGameStateBase>(GetWorld()->GetGameState());
+		AHunterController* pc = Cast<AHunterController>(GetWorld()->GetFirstPlayerController());
 		FString url;
 		sessionInterface->GetResolvedConnectString(sessionName, url);
+		FUniqueNetIdPtr netID = GetWorld()->GetFirstLocalPlayerFromController()->GetUniqueNetIdForPlatformUser().GetUniqueNetId();
 
-		PRINT_LOG(TEXT("Join URL : %s"), *url);
+		FPartyMember Member;
+		Member.PlayerName = netID->ToString();
+		Member.PlayerNetId = netID; // FUniqueNetIdPtr를 직접 사용
 
-		//if (!url.IsEmpty())
-		//{
-		//	UPartyManager* Party = GetPartyManager(sessionName);
-		//	if (!Party)
-		//	{
-		//		Party = NewObject<UPartyManager>(this);
-		//		PartyManagers.Add(sessionName, Party);
-		//	}
-		//	FString MyPlayerName = sessionName.ToString();
-		//	Party->AddMember(MyPlayerName, pc);
-			pc->ClientTravel(url, ETravelType::TRAVEL_Absolute);
-		//	OnJoinSessionCompleted.Broadcast();
-
-		//}
+		FString RoomName;
+		if (!sessionInterface->GetSessionSettings(sessionName)->Get(FName("ROOM_NAME"), RoomName))
+		{
+			PRINTLOG_NET(TEXT("Failed to get ROOM_NAME : %s"),*sessionName.ToString());
+			return;
+		}
+		LobbyGameState->AddPlayerToParty(PendingRoomName, Member);
+		//pc->ClientTravel(url, ETravelType::TRAVEL_Absolute);
 	}
 	else
 	{
 		PRINT_LOG(TEXT("Join Session failed : %d"), result);
 	}
+}
+
+void UMHGameInstance::HandleJoinSessionRequested(int32 SessionIndex, const FString& RoomName)
+{
+		PRINT_LOG(TEXT("HandleJoinSessionRequested: Index=%d, RoomName=%s"), SessionIndex, *RoomName);
+		PendingSessionIndex = SessionIndex;
+		PendingRoomName = RoomName;
 }

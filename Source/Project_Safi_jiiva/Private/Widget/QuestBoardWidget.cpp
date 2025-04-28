@@ -79,6 +79,7 @@ void UQuestBoardWidget::SetSessionNumber(int32 Number)
 
 void UQuestBoardWidget::AddSlotWidget(const struct FSessionInfo& InSessionInfo)
 {
+	PRINTLOG_NET(TEXT("InSessionInfo : %s"),*InSessionInfo.hostName);
 	auto slot = CreateWidget<USessionButtonWidget>(this, SessionButtonWidgetClass);
 	slot->QuestBoardWidget = this;
 	slot->Set(InSessionInfo);

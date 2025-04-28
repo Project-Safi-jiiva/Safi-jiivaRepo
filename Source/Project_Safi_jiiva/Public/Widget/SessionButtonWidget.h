@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Lobby/MHGameInstance.h"
 #include "SessionButtonWidget.generated.h"
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnJoinSessionRequested, int32, SessionIndex, const FString&, RoomName);
 
 /**
  *
@@ -22,6 +23,8 @@ public:
 
 	void Set(const FSessionInfo& InSessionInfo);
 	int32 SessionNumber;
+	FSessionInfo WidgetInSessionInfo;
+	FOnJoinSessionRequested OnJoinSessionRequested;
 
 	UFUNCTION()
 	void JoinSession();

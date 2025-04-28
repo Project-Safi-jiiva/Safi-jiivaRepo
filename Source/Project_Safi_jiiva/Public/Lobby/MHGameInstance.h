@@ -46,6 +46,7 @@ public:
 
 	FOnCreateSessionCompleted OnCreateSessionCompleted;
 	FOnJoinSessionCompleted OnJoinSessionCompleted;
+
 public:
 	IOnlineSessionPtr sessionInterface;
 
@@ -71,10 +72,14 @@ public:
 	// 세션입장 콜백
 	void OnJoinSessionComplete(FName sessionName, EOnJoinSessionCompleteResult::Type result);
 
-	//UPROPERTY()
-    //UPartyManager* GetPartyManager(const FName SessionName);
-	UPROPERTY()
-	class UPartyManager* PartyManager; // PartyManager 인스턴스
-	TMap<FName, UPartyManager*> PartyManagers;
 
+
+// PartyManager 액터
+	UPROPERTY()
+    class AMHGameStateBase* LobbyGameState;
+	UFUNCTION()
+    void HandleJoinSessionRequested(int32 SessionIndex, const FString& RoomName);
+
+	int32 PendingSessionIndex;
+	FString PendingRoomName;
 };
