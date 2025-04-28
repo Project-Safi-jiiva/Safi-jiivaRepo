@@ -53,27 +53,27 @@ void UCSafiFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 #pragma region LogMessageState
 
 	/// ==================================== 에러 테스트용 계산 ====================================
+
 	FVector dir = SetTargetDir();
 	FRotator targetRot = dir.Rotation();
 	FRotator currentRot = me->GetActorRotation();
 	float length = dir.Size();
 	float targetYaw = FMath::Abs(FMath::FindDeltaAngleDegrees(currentRot.Yaw, targetRot.Yaw));
 
-
 	/// ============================================================================================
 
 
-	FString logMsgState = UEnum::GetValueAsString(mState);
-	GEngine->AddOnScreenDebugMessage(0, 1, FColor::Yellow, logMsgState);
-
-	FString logMsgAtt = UEnum::GetValueAsString(mAttState);
-	GEngine->AddOnScreenDebugMessage(1, 1, FColor::Green, logMsgAtt);
-
-	FString logMsgTurn = UEnum::GetValueAsString(mTurnState);
-	GEngine->AddOnScreenDebugMessage(2, 1, FColor::Yellow, logMsgTurn);
-
-	FString logMsgstDisturbed = UEnum::GetValueAsString(mDisturbState);
-	GEngine->AddOnScreenDebugMessage(3, 1, FColor::Green, logMsgstDisturbed);
+	// FString logMsgState = UEnum::GetValueAsString(mState);
+	// GEngine->AddOnScreenDebugMessage(0, 1, FColor::Yellow, logMsgState);
+	// 
+	// FString logMsgAtt = UEnum::GetValueAsString(mAttState);
+	// GEngine->AddOnScreenDebugMessage(1, 1, FColor::Green, logMsgAtt);
+	// 
+	// FString logMsgTurn = UEnum::GetValueAsString(mTurnState);
+	// GEngine->AddOnScreenDebugMessage(2, 1, FColor::Yellow, logMsgTurn);
+	// 
+	// FString logMsgstDisturbed = UEnum::GetValueAsString(mDisturbState);
+	// GEngine->AddOnScreenDebugMessage(3, 1, FColor::Green, logMsgstDisturbed);
 
 
 	// FString logBFattType = FString::Printf(TEXT("BFattType: %d"), BFattType);
@@ -84,12 +84,13 @@ void UCSafiFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 
 
 	// GEngine->AddOnScreenDebugMessage(3, 1, FColor::Emerald, FString::Printf(TEXT("distance: %f"), length));
-	GEngine->AddOnScreenDebugMessage(4, 1, FColor::Emerald, FString::Printf(TEXT("targetYaw: %f"), targetYaw));
+	// GEngine->AddOnScreenDebugMessage(4, 1, FColor::Emerald, FString::Printf(TEXT("targetYaw: %f"), targetYaw));
 	// ==========================================================================
 
 	// bool형 변수 상태 출력
 
 // isInBattle 상태 출력 (True일 때 빨간색)
+/*
 	FColor inBattleColor = me->isInBattle ? FColor::Red : FColor::White;
 	FString logMsgInBattle = FString::Printf(TEXT("isInBattle: %s"), me->isInBattle ? TEXT("True") : TEXT("False"));
 	GEngine->AddOnScreenDebugMessage(5, 1, inBattleColor, logMsgInBattle);
@@ -114,7 +115,7 @@ void UCSafiFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	FColor collisionColor = me->AttCollisionBite->IsCollisionEnabled() ? FColor::Red : FColor::White;
 	FString logMsgCollision = FString::Printf(TEXT("Collision_1 is enabled: %s"), me->AttCollisionBite->IsCollisionEnabled() ? TEXT("True") : TEXT("False"));
 	GEngine->AddOnScreenDebugMessage(11, 1, collisionColor, logMsgCollision);
-
+*/
 #pragma endregion
 
 	//state 변경
@@ -134,7 +135,7 @@ void UCSafiFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 		case EAttackState::Roar			: { }	break;
 
 		case EAttackState::MeleeBite	: { }	break;
-		case EAttackState::MeleeBPress	: {  }	break;
+		case EAttackState::MeleeBPress	: { }	break;
 
 		case EAttackState::NormalBreath : { AttBreath(); }	break;
 		case EAttackState::AimedBreath	: { AttBreath(); }	break;
@@ -350,13 +351,13 @@ void UCSafiFSM::AttBreath()
 
 	if (bHit)
 	{
-	//	UE_LOG(LogTemp, Warning, TEXT("Sweep 결과 Hit 수: %d"), Hits.Num());
+	//	UE_LOG(LogTemp, Warning, TEXT("Sweep Hit Num: %d"), Hits.Num());
 	//
 	//	for (const FHitResult& HitResult : Hits)
 	//	{
 	//		if (HitResult.GetActor())
 	//		{
-	//			UE_LOG(LogTemp, Warning, TEXT("Hit한 Actor: %s"), *HitResult.GetActor()->GetName());
+	//			UE_LOG(LogTemp, Warning, TEXT("Hit Actor Name: %s"), *HitResult.GetActor()->GetName());
 	//		}
 	//	}
 		for (const FHitResult& HitResult : Hits)
@@ -389,7 +390,7 @@ void UCSafiFSM::OnAttackProcess()
 	FVector dir = SetTargetDir();
 
 
-	if (me->SpecialCount > me->MAXSpecialCount)
+	if (me->SpecialCount >= me->MAXSpecialCount)
 	{
 		attType = SPECIAL;
 	}
@@ -479,23 +480,11 @@ void UCSafiFSM::EndAttackProcess()
 
 	me->isOnSearch = true;	// 공격할 때 꺼주기	- OnAttackProcess에 false 해줌
 
+	// 스페셜 카운트가 맥스치보다 클 경우 초기화
+	if (me->SpecialCount > me->MAXSpecialCount){ me->SpecialCount = 0; }
 
-	if (me->SpecialCount > me->MAXSpecialCount)
-	{
-		me->SpecialCount = 0;
-	}
-
-	else
-	{
-		me->SpecialCount += 1;
-	}
-
-
-	// DecideAttackType();		// 공격 가능 대상 있다면 바로 공격
-
-	//if 돌아야 한다면 플레이어 방향으로 회전, 아닐시 return;		- 수행완료
-	// ㄴ> 회전 적게해야할지 많이해야할지를 판단때려줌.				- 수행완료
-	// ㄴ> Idle에서 수행.											- 수행완료
+	// 아닐 경우 증가.
+	else { me->SpecialCount += 1; }
 
 	BFattType = attType;
 }
@@ -515,7 +504,6 @@ void UCSafiFSM::OnDisturbedProcess()
 	if (me->isDead == true)
 	{
 		ServerSetDisturbState(EDisturbState::Dead);
-
 		return;								// Dead 일경우 하위 상황 판단할 필요가 없음
 	}
 
@@ -537,13 +525,12 @@ void UCSafiFSM::TargetRotation()
 	FRotator CurrentRotation = me->GetActorRotation();
 
 	float targetYaw = FMath::Abs(FMath::FindDeltaAngleDegrees(CurrentRotation.Yaw, TargetRotation.Yaw));
-	if (targetYaw <= 3.f)
+	if (targetYaw <= 6.f)
 	{
 		//	me->SetActorRotation(TargetRotation);
 		//	isRot = false;
 		//	OnAttackProcess();
 		//	return;
-		//.
 		FinalRotation = TargetRotation; // 서버에서 결정된 회전 값
 		me->SetActorRotation(FinalRotation); // 서버에서 실제로 회전 적용
 		isRot = false;
@@ -614,22 +601,6 @@ FVector UCSafiFSM::SetTargetDir()
 	if (target == nullptr || me == nullptr) { return FVector::ZeroVector; }
 
 	FVector destination = FVector(target->GetActorLocation());
-	FVector dir = destination - me->GetActorLocation();
-
-	if (dir.Size() < me->SearchRange)
-	{
-		me->isInBattle = true;
-	}
-
-	return dir;
-}
- 
-
-FVector UCSafiFSM::SetTargetDir2()
-{
-	if (target == nullptr || me == nullptr) { return FVector::ZeroVector; }
-
-	FVector destination = FVector(target->GetActorLocation().X, target->GetActorLocation().Y, target->GetActorLocation().Z );
 	FVector dir = destination - me->GetActorLocation();
 
 	if (dir.Size() < me->SearchRange)

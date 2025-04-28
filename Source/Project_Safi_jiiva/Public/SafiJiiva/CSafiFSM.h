@@ -189,7 +189,7 @@ public:	// 타겟 관련
 	FRotator FinalRotation;
 
 	FVector SetTargetDir();
-	FVector SetTargetDir2();
+
 
 	void SetTarget();
 	void UpdateHunterList();			// EndAttackList에서 갱신
