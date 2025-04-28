@@ -222,7 +222,7 @@ void UCSafiFSM::IdleState()
 	// 여기여기여기여기
 		
 		me->SetActorRotation(targetRot); // 최종 방향 고정
-		FVector SetRotation(targetRot);
+		SetRotation(targetRot);
 
 		ServerSetActState(ESafiState::Attack);
 
@@ -389,6 +389,7 @@ void UCSafiFSM::OnAttackProcess()
 	me->isOnSearch = false;
 	FVector dir = SetTargetDir();
 
+	attType=SPECIAL;
 
 // ======================== 스위치 ======================== 
 // 
@@ -423,6 +424,10 @@ void UCSafiFSM::OnAttackProcess()
 	case AttMELEE_LB:
 		//mAttState = EAttackState::MeleeAttLB;
 		ServerSetAttState(EAttackState::MeleeAttLB);
+		break;
+//========================== 스페셜 부분 ==========================
+	case SPECIAL:
+		ServerSetAttState(EAttackState::Special);
 		break;
 //========================== 브레스 부분 ==========================
 	case AttNMBREATH:
@@ -517,7 +522,7 @@ void UCSafiFSM::TargetRotation()
 	FRotator CurrentRotation = me->GetActorRotation();
 
 	float targetYaw = FMath::Abs(FMath::FindDeltaAngleDegrees(CurrentRotation.Yaw, TargetRotation.Yaw));
-	if (targetYaw <= 3.f)
+	if (targetYaw <= 6.f)
 	{
 		//	me->SetActorRotation(TargetRotation);
 		//	isRot = false;
@@ -732,7 +737,7 @@ void UCSafiFSM::ServerSetDisturbState_Implementation(EDisturbState _newDistState
 
 
 
-FVector UCSafiFSM::SetRotation_Implementation(FRotator _value)
+void UCSafiFSM::SetRotation_Implementation(FRotator _value)
 {
 	if (!me)
 	{
