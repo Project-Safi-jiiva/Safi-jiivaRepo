@@ -180,7 +180,7 @@ public:	// 사거리, 속도 등
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Status)
 	float SearchRange = 5000.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Status)
-	float MaxBreathRange = 5000.f;
+	float MaxBreathRange = 8000.f;
 
 	float RunSpeed = 400.f;
 	float WalkSpeed = 100.f;

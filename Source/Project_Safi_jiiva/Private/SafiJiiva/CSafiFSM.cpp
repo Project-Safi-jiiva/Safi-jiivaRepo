@@ -340,7 +340,6 @@ void UCSafiFSM::AttBreath()
 
 	bool bHit = GetWorld()->SweepMultiByChannel(Hits,Start,End,FQuat::Identity, ECC_Pawn, FCollisionShape::MakeSphere(200.f), TraceParams );
 
-
 // ================== 디버그용 =====================================
 
 	DrawDebugSphere(GetWorld(), Start, 200.f, 12, FColor::Green, false, 0.05f);
@@ -348,18 +347,8 @@ void UCSafiFSM::AttBreath()
 
 // ================== 디버그용 =====================================
 
-
 	if (bHit)
 	{
-	//	UE_LOG(LogTemp, Warning, TEXT("Sweep Hit Num: %d"), Hits.Num());
-	//
-	//	for (const FHitResult& HitResult : Hits)
-	//	{
-	//		if (HitResult.GetActor())
-	//		{
-	//			UE_LOG(LogTemp, Warning, TEXT("Hit Actor Name: %s"), *HitResult.GetActor()->GetName());
-	//		}
-	//	}
 		for (const FHitResult& HitResult : Hits)
 		{
 			AActor* HitActor = HitResult.GetActor();
@@ -527,12 +516,8 @@ void UCSafiFSM::TargetRotation()
 	float targetYaw = FMath::Abs(FMath::FindDeltaAngleDegrees(CurrentRotation.Yaw, TargetRotation.Yaw));
 	if (targetYaw <= 6.f)
 	{
-		//	me->SetActorRotation(TargetRotation);
-		//	isRot = false;
-		//	OnAttackProcess();
-		//	return;
-		FinalRotation = TargetRotation; // 서버에서 결정된 회전 값
-		me->SetActorRotation(FinalRotation); // 서버에서 실제로 회전 적용
+		FinalRotation = TargetRotation;			// 서버에서 결정된 회전 값
+		me->SetActorRotation(FinalRotation);	// 서버에서 실제로 회전 적용
 		isRot = false;
 		OnAttackProcess();
 		return;
@@ -658,7 +643,7 @@ void UCSafiFSM::UpdateHunterList()
 
 		if (IsValid(hunter))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Hunter Found: %s"), *hunter->GetName());
+			//UE_LOG(LogTemp, Warning, TEXT("Hunter Found: %s"), *hunter->GetName());
 			HunterList.Add(hunter);
 		}
 
@@ -744,6 +729,7 @@ void UCSafiFSM::SetActState(ESafiState _newState)
 		mState = _newState;
 		// 뭔가의 추가 내용
 	}
+
 	else
 	{
 		ServerSetActState(_newState);
@@ -758,6 +744,7 @@ void UCSafiFSM::SetAttState(EAttackState _newAttState)
 		mAttState = _newAttState;
 		// 뭔가의 추가 내용
 	}
+
 	else
 	{
 		ServerSetAttState(_newAttState);
@@ -784,6 +771,7 @@ void UCSafiFSM::SetDisturbState(EDisturbState _newDistState)
 		mDisturbState = _newDistState;
 		// 뭔가의 추가 내용
 	}
+
 	else
 	{
 		ServerSetDisturbState(_newDistState);

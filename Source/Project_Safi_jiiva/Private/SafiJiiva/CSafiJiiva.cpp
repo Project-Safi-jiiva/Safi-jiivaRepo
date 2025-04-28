@@ -291,6 +291,7 @@ bool ACSafiJiiva::CheckHitLineTrace(FVector _startPos, FVector& _curPos)
 	FHitResult HitInfo;
 	FCollisionQueryParams params;
 	// TArray<AActor*> ignoreActor;
+
 	params.AddIgnoredActor(this);
 
 	bool bHit = GetWorld()->LineTraceSingleByChannel(HitInfo, _startPos, _curPos, ECC_Visibility, params);

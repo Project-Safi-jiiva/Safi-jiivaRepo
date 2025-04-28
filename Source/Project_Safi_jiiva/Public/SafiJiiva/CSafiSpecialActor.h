@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Hunter/Hunter.h"
 #include "CSafiSpecialActor.generated.h"
 
 UCLASS()
@@ -24,20 +25,30 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 public:
+	UPROPERTY()
+	class ACSafiJiiva* me;
+
 	float currentTime = 0.f;
 	float defaultSpeed = 400.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Status)
-	float MaxTime = 2.5f;
+	float MaxTime = 2.1f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Status)
 	float speed = defaultSpeed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Status)
-	float PlusSpeed = 80.f;
+	float PlusSpeed = 50.f;
 
 public:
 	bool bOnSpawn = false;
+	void KillingTime();
 	void SetbOnSpawn();
 	void ReturnToBase();
+
+public:
+	UPROPERTY()
+	TArray<AHunter*>HunterList;
+
+	void UpdateHunterList();
 };
