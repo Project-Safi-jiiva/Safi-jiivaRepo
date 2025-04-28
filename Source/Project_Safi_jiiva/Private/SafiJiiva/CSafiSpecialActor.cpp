@@ -29,10 +29,11 @@ void ACSafiSpecialActor::Tick(float DeltaTime)
 		FVector P = GetActorLocation();
 		
 		speed += PlusSpeed;
-		P.Z -= speed * DeltaTime;  // 또는 원하는 만큼 값을 설정
+		P.Z -= speed * DeltaTime;		// 수직 하강하도록 하기.
 		this->SetActorLocation(P);
 		if (currentTime > MaxTime)
 		{
+			currentTime = 0.f;
 			ReturnToBase();
 		}
 	}
@@ -46,7 +47,7 @@ void ACSafiSpecialActor::SetbOnSpawn()
 
 void ACSafiSpecialActor::ReturnToBase()
 {
-	speed = 800.f;
+	speed = defaultSpeed;
 	bOnSpawn = false;
 	SetActorLocation(FVector(8000.f));
 }

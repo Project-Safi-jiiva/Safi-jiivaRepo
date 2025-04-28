@@ -481,7 +481,7 @@ void UCSafiFSM::EndAttackProcess()
 	me->isOnSearch = true;	// 공격할 때 꺼주기	- OnAttackProcess에 false 해줌
 
 	// 스페셜 카운트가 맥스치보다 클 경우 초기화
-	if (me->SpecialCount > me->MAXSpecialCount){ me->SpecialCount = 0; }
+	if (me->SpecialCount >= me->MAXSpecialCount){ me->SpecialCount = 0; }
 
 	// 아닐 경우 증가.
 	else { me->SpecialCount += 1; }
@@ -635,6 +635,9 @@ void UCSafiFSM::SetTarget()
 			TargetList.Add(Hunter);
 		}
 	}
+
+	if (TargetList.Num() == 0){ return; }
+
 	int32 RandTarget = FMath::RandRange(0, TargetList.Num()-1);
 	target = TargetList[RandTarget];
 
