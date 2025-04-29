@@ -199,7 +199,7 @@ public:
 
 	bool isSetDir = false;			// 처음 한번만 방향 설정'
 
-	TSet<AActor*> HitActors;		// 브레스 1회 타격용
+	TArray<AActor*> HitActors;		// 브레스 1회 타격용
 	FVector Start;
 	FVector Forward;
 	
