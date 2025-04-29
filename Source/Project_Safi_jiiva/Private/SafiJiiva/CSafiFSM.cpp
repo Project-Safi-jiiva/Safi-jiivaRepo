@@ -354,16 +354,16 @@ void UCSafiFSM::AttBreath()
 			AActor* HitActor = HitResult.GetActor();
 			if (HitActor)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("HitÇÑ Actor: %s"), *HitResult.GetActor()->GetName());
+				UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s"), *HitResult.GetActor()->GetName());
 
 				AHunter* Hunter = Cast<AHunter>(HitActor);
 				if (Hunter)
 				{
-					//if(!HitActors.Contains(HitActor))
-					//{
+					if (!HitActors.Contains(HitActor))
+					{
 					UGameplayStatics::ApplyDamage(Hunter, me->MeleeBiteDMG, nullptr, me, nullptr);
-					//HitActors.Add(HitActor);
-					//}
+					HitActors.Add(HitActor);
+					}
 				}
 			}
 		}

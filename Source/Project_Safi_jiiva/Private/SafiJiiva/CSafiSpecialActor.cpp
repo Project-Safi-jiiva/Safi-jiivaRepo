@@ -50,7 +50,9 @@ void ACSafiSpecialActor::Tick(float DeltaTime)
 
 void ACSafiSpecialActor::KillingTime()
 {
-	FVector Start = FVector(GetActorLocation().X, GetActorLocation().Y, 800.f);
+	FVector Start = FVector(GetActorLocation().X, GetActorLocation().Y, 400.f);
+
+	UpdateHunterList();
 
 	for (AHunter* Hunter : HunterList)
 	{
@@ -58,19 +60,68 @@ void ACSafiSpecialActor::KillingTime()
 
 		FVector End = Hunter->GetActorLocation();
 
-		FHitResult Hit;
+		//FHitResult Hit;
 		FCollisionQueryParams Params;
 
 		Params.AddIgnoredActor(this); 
+
+		TArray<FHitResult> Hits;
+
+		bool bHit = GetWorld()->SweepMultiByChannel(Hits, Start, End, FQuat::Identity, ECC_Pawn, FCollisionShape::MakeSphere(10.f), Params);
+
+		DrawDebugLine(GetWorld(), Start, End, bHit ? FColor::Red : FColor::Blue, false, 2.0f, 0, 3.0f);
+
+
+		for (const FHitResult& HitResult : Hits)
+		{
+			AActor* HitActor = HitResult.GetActor();
+			if (HitActor)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Hit Actor22222: %s"), *HitResult.GetActor()->GetName());
+
+				AActor* Hunters = Cast<AHunter>(HitActor);
+
+				// 헌터가 아닌게 맞으면 처리중지
+				if (HitActor != Hunters)
+				{
+					//UE_LOG(LogTemp, Warning, TEXT("Hit something else: %s"), *Hits.GetActor()->GetName());
+					continue;
+				}
+				// 아니면 헌터일테니 데미지
+				else
+				{
+					UE_LOG(LogTemp, Log, TEXT("Successfully hit hunter: %s"), *Hunters->GetName());
+					UGameplayStatics::ApplyDamage(Hunters, 200, nullptr, me, nullptr);
+				}
+
+			}
+		}
+		/*
+		if (bHit)
+		{
+			// 헌터가 아닌게 맞으면 처리중지
+			if (Hit.GetActor() != Hunter)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Hit something else: %s"), *Hit.GetActor()->GetName());
+				continue;
+			}
+			// 아니면 헌터일테니 데미지
+			else
+			{
+				UE_LOG(LogTemp, Log, TEXT("Successfully hit hunter: %s"), *Hunter->GetName());
+				UGameplayStatics::ApplyDamage(Hunter, 200, nullptr, me, nullptr);
+			}
+
+		}
+		*/
+
+		/*
 		bool bHit = GetWorld()->LineTraceSingleByChannel( Hit, Start, End, ECC_Pawn, Params );
 
 		DrawDebugLine(GetWorld(), Start, End, bHit ? FColor::Red : FColor::Blue, false, 2.0f, 0, 3.0f);
 
 		if (bHit)
 		{
-
-			UE_LOG(LogTemp, Warning, TEXT("Why Not"), *Hit.GetActor()->GetName());
-
 			// 헌터가 아닌게 맞으면 처리중지
 			if (Hit.GetActor() != Hunter)	
 			{
@@ -85,7 +136,7 @@ void ACSafiSpecialActor::KillingTime()
 			}
 
 		}
-
+		*/
 	}
 
 }
