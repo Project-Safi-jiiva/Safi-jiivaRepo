@@ -110,6 +110,7 @@ void UCSafiAnimInstance::AnimNotify_AttBreath_End()
 	if (!me || !FSM) { return; }
 	me->isOnBreath = false;
 	FSM->isSetDir = false;
+	FSM->HitActors.Empty();
 }
 
 void UCSafiAnimInstance::AnimNotify_Attack_End()
@@ -117,6 +118,7 @@ void UCSafiAnimInstance::AnimNotify_Attack_End()
 	if (!me || !FSM) { return; }
 	FSM->EndAttackProcess();
 	me->HitPawn.Empty();
+	FSM->HitActors.Empty();
 	me->attackPos = 0;
 }
 
@@ -136,10 +138,10 @@ void UCSafiAnimInstance::AnimNotify_Search_End()
 	FSM->OnRep_SafiState();
 
 	me->HitPawn.Empty();	// È¤½Ã ¸ô¶ó¼­...?
+	FSM->HitActors.Empty();
 }
 
 void UCSafiAnimInstance::AnimNotify_Att_Special_Spawn()
 {
 	me->SetSpecial();
-	UE_LOG(LogTemp, Warning, TEXT("Spawn Test11111111"));
 }
