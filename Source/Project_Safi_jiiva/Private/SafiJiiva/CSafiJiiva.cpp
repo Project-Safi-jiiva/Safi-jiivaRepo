@@ -17,6 +17,7 @@
 #include "SafiJiiva/CSafiAnimInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "Project_Safi_jiiva.h"
+#include "SafiJiiva/CSafiSpecialActor.h"
 
 
 // Sets default values
@@ -140,10 +141,16 @@ ACSafiJiiva::ACSafiJiiva()
 	AttPosRB->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
 
 	SkeletalMeshComp->OnComponentBeginOverlap.AddDynamic(this, &ACSafiJiiva::OnOverlapBegin);
-	
-	bReplicates = true;
+
 
 #pragma endregion BeginOverlap
+
+	bReplicates = true;
+	SetReplicates(true);
+	SetReplicateMovement(true); // 위치와 회전 레플리케이션 활성화
+
+	// 필요에 따라 추가 설정
+	PrimaryActorTick.bCanEverTick = true;
 }
 
 // Called when the game starts or when spawned
@@ -151,6 +158,7 @@ void ACSafiJiiva::BeginPlay()
 {
 	Super::BeginPlay();
 
+	SpecialBox = GetWorld()->SpawnActor<ACSafiSpecialActor>(SpecialFactory, FTransform(FRotator(0, 0, 0), FVector(8000), FVector(1.0f, 1.0f, 1.0f)));
 }
 
 // Called every frame
@@ -283,6 +291,7 @@ bool ACSafiJiiva::CheckHitLineTrace(FVector _startPos, FVector& _curPos)
 	FHitResult HitInfo;
 	FCollisionQueryParams params;
 	// TArray<AActor*> ignoreActor;
+
 	params.AddIgnoredActor(this);
 
 	bool bHit = GetWorld()->LineTraceSingleByChannel(HitInfo, _startPos, _curPos, ECC_Visibility, params);
@@ -290,7 +299,7 @@ bool ACSafiJiiva::CheckHitLineTrace(FVector _startPos, FVector& _curPos)
 	if ( bHit && HitInfo.GetActor()->GetActorNameOrLabel().Contains("Hunter"))
 	{
 		// 충돌체크
-		UE_LOG(LogTemp, Error, TEXT("TEST"));
+		//UE_LOG(LogTemp, Error, TEXT("TEST"));
 	}
 
 	return bHit;
@@ -613,6 +622,13 @@ void ACSafiJiiva::InitBoxes()
 
 
 }
+
+void ACSafiJiiva::SetSpecial()
+{
+	SpecialBox->SetActorLocation(FireArrowComp->GetComponentLocation());	// 입 위치
+	SpecialBox->SetbOnSpawn();
+}
+
 // ===================================================콜리전 세팅 ===================================================
 
 
@@ -628,31 +644,31 @@ void ACSafiJiiva::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, clas
 	if (OverlappedComp == AttCollisionBite)
 	{
 		//target->SetDamage(MeleeBiteDMG);
-		UE_LOG(LogTemp,Warning,TEXT("Bite_Test"));
+
 	}
 
 	else if (OverlappedComp == AttPosLF)		// 왼쪽
 	{
 		attackPos = AttMELEE_LF;
-		UE_LOG(LogTemp, Warning, TEXT("Hit LF"));
+
 	}
 
 	else if (OverlappedComp == AttPosRF)		// 오른쪽
 	{
 		attackPos = AttMELEE_RF;
-		UE_LOG(LogTemp, Warning, TEXT("Hit RF"));
+
 	}
 
 	else if (OverlappedComp == AttPosLB)		// 왼쪽 뒤
 	{
 		attackPos = AttMELEE_LB;
-		UE_LOG(LogTemp, Warning, TEXT("Hit LB"));
+
 	}
 
 	else if (OverlappedComp == AttPosRB)		// 오른쪽 뒤
 	{
 		attackPos = AttMELEE_RB;
-		UE_LOG(LogTemp, Warning, TEXT("Hit RB"));
+
 	}
 #pragma endregion Hand
 
@@ -670,7 +686,7 @@ void ACSafiJiiva::OnAttackOverlapBegin(class UPrimitiveComponent* OverlappedComp
 	{
 		//if (HitPawn.Num() <= 0)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("DMG_Test"));
+			//UE_LOG(LogTemp, Warning, TEXT("DMG_Test"));
 			// 임시 데미지 MeleeBiteDMG
 			UGameplayStatics::ApplyDamage(OtherActor, MeleeBiteDMG, nullptr, this, nullptr);
 			HitPawn.AddUnique(target);

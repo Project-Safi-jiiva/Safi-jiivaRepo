@@ -146,8 +146,14 @@ public:	// 소켓 추가 파트
 	class UBoxComponent* AttPosRB;
 #pragma endregion Collision_Att
 
+public:	//스페셜 소환용
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class ACSafiSpecialActor> SpecialFactory;
 
-private:	// 함수용 변수들
+	class ACSafiSpecialActor* SpecialBox;
+
+
+private: // 함수용 변수들
 	float currentTime = 0.f;
 
 public:	// 체력 등 스탯 계수
@@ -162,7 +168,8 @@ public:	// 체력 등 스탯 계수
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Status)
 	int32 MAXRepellCount = 2;
 	int32 SpecialCount = 0;
-	int32 MAXSpecialCount = 5;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Status)
+	int32 MAXSpecialCount = 2;
 
 
 public:	// 사거리, 속도 등
@@ -173,7 +180,7 @@ public:	// 사거리, 속도 등
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Status)
 	float SearchRange = 5000.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Status)
-	float MaxBreathRange = 5000.f;
+	float MaxBreathRange = 8000.f;
 
 	float RunSpeed = 400.f;
 	float WalkSpeed = 100.f;
@@ -182,7 +189,7 @@ public:	// 사거리, 속도 등
 
 public: // 공격 위치
 	// 왼쪽 = 2, 오른쪽 = 3, 오른쪽 뒤 = 4
-	int attackPos =	0;	
+	int32 attackPos =	0;	
 
 public: // 상태 체크
 	bool isInBattle = false;			// 전투상태인가
@@ -216,8 +223,10 @@ public:
 	void SetSpeed(float _value);
 	//void OnDamageSafi(float _value);
 	void KillSafi_Test();
-
 	void InitBoxes();
+
+public:	// 스페셜 관련 함수
+	void SetSpecial();
 
 public:	// 충돌처리
 

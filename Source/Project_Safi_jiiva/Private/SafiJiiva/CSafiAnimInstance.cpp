@@ -137,3 +137,9 @@ void UCSafiAnimInstance::AnimNotify_Search_End()
 
 	me->HitPawn.Empty();	// È¤½Ã ¸ô¶ó¼­...?
 }
+
+void UCSafiAnimInstance::AnimNotify_Att_Special_Spawn()
+{
+	me->SetSpecial();
+	UE_LOG(LogTemp, Warning, TEXT("Spawn Test11111111"));
+}

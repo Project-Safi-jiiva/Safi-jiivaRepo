@@ -80,8 +80,10 @@ public:	// AnimNotify 관련 -------- UFUNCTION() 잊지말것!!!
 	UFUNCTION()
 	void AnimNotify_Attack_End();	// 공격 종료시 사용하는 범용함수. EndAttackProcess 호출
 
-
 	UFUNCTION()
 	void AnimNotify_Search_End();
+
+	UFUNCTION()
+	void AnimNotify_Att_Special_Spawn();
 
 };

@@ -184,7 +184,13 @@ public:
 	void TargetRotationByAnim();		// 애니메이션으로 회전
 	void TargetKnockBackByAnim();
 
+public:	// 타겟 관련
+	UPROPERTY(ReplicatedUsing = OnRep_FinalRotation)
+	FRotator FinalRotation;
+
 	FVector SetTargetDir();
+
+
 	void SetTarget();
 	void UpdateHunterList();			// EndAttackList에서 갱신
 
@@ -193,7 +199,7 @@ public:
 
 	bool isSetDir = false;			// 처음 한번만 방향 설정'
 
-
+	TSet<AActor*> HitActors;		// 브레스 1회 타격용
 	FVector Start;
 	FVector Forward;
 	
@@ -209,6 +215,9 @@ public:
 	UFUNCTION()
 	void OnRep_DisturbState();
 
+	UFUNCTION()
+	void OnRep_FinalRotation();
+
 // 얘는 서버
 	UFUNCTION(Server, Reliable)
 	void ServerSetActState( ESafiState _newState );
@@ -222,7 +231,7 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerSetDisturbState( EDisturbState _newDistState );
 
-	//UFUNCTION(Server, Reliable)
-	//FVector SetRotation(FRotator _value );
+	UFUNCTION(Server, Reliable)
+	void SetRotation(FRotator _value);
 
 };

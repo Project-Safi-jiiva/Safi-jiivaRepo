@@ -53,29 +53,28 @@ void UCSafiFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 #pragma region LogMessageState
 
 	/// ==================================== 에러 테스트용 계산 ====================================
+
 	FVector dir = SetTargetDir();
 	FRotator targetRot = dir.Rotation();
 	FRotator currentRot = me->GetActorRotation();
 	float length = dir.Size();
 	float targetYaw = FMath::Abs(FMath::FindDeltaAngleDegrees(currentRot.Yaw, targetRot.Yaw));
 
-
 	/// ============================================================================================
 
 
-	FString logMsgState = UEnum::GetValueAsString(mState);
-	GEngine->AddOnScreenDebugMessage(0, 1, FColor::Yellow, logMsgState);
+	// FString logMsgState = UEnum::GetValueAsString(mState);
+	// GEngine->AddOnScreenDebugMessage(0, 1, FColor::Yellow, logMsgState);
+	// 
+	// FString logMsgAtt = UEnum::GetValueAsString(mAttState);
+	// GEngine->AddOnScreenDebugMessage(1, 1, FColor::Green, logMsgAtt);
+	// 
+	// FString logMsgTurn = UEnum::GetValueAsString(mTurnState);
+	// GEngine->AddOnScreenDebugMessage(2, 1, FColor::Yellow, logMsgTurn);
+	// 
+	// FString logMsgstDisturbed = UEnum::GetValueAsString(mDisturbState);
+	// GEngine->AddOnScreenDebugMessage(3, 1, FColor::Green, logMsgstDisturbed);
 
-	FString logMsgAtt = UEnum::GetValueAsString(mAttState);
-	GEngine->AddOnScreenDebugMessage(1, 1, FColor::Green, logMsgAtt);
-
-	FString logMsgTurn = UEnum::GetValueAsString(mTurnState);
-	GEngine->AddOnScreenDebugMessage(2, 1, FColor::Yellow, logMsgTurn);
-
-	FString logMsgstDisturbed = UEnum::GetValueAsString(mDisturbState);
-	GEngine->AddOnScreenDebugMessage(3, 1, FColor::Green, logMsgstDisturbed);
-
-	GEngine->AddOnScreenDebugMessage(4, 1, FColor::Emerald, FString::Printf(TEXT("hp: %f"), me->hp));
 
 	// FString logBFattType = FString::Printf(TEXT("BFattType: %d"), BFattType);
 	// GEngine->AddOnScreenDebugMessage(3, 1, FColor::Red, logBFattType);
@@ -84,13 +83,14 @@ void UCSafiFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	// GEngine->AddOnScreenDebugMessage(4, 1, FColor::Yellow, logattType);
 
 
-	// GEngine->AddOnScreenDebugMessage(3, 1, FColor::Emerald, FString::Printf(TEXT("distance: %f"),length));
+	// GEngine->AddOnScreenDebugMessage(3, 1, FColor::Emerald, FString::Printf(TEXT("distance: %f"), length));
 	// GEngine->AddOnScreenDebugMessage(4, 1, FColor::Emerald, FString::Printf(TEXT("targetYaw: %f"), targetYaw));
 	// ==========================================================================
 
 	// bool형 변수 상태 출력
 
 // isInBattle 상태 출력 (True일 때 빨간색)
+/*
 	FColor inBattleColor = me->isInBattle ? FColor::Red : FColor::White;
 	FString logMsgInBattle = FString::Printf(TEXT("isInBattle: %s"), me->isInBattle ? TEXT("True") : TEXT("False"));
 	GEngine->AddOnScreenDebugMessage(5, 1, inBattleColor, logMsgInBattle);
@@ -115,7 +115,7 @@ void UCSafiFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	FColor collisionColor = me->AttCollisionBite->IsCollisionEnabled() ? FColor::Red : FColor::White;
 	FString logMsgCollision = FString::Printf(TEXT("Collision_1 is enabled: %s"), me->AttCollisionBite->IsCollisionEnabled() ? TEXT("True") : TEXT("False"));
 	GEngine->AddOnScreenDebugMessage(11, 1, collisionColor, logMsgCollision);
-
+*/
 #pragma endregion
 
 	//state 변경
@@ -135,7 +135,7 @@ void UCSafiFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 		case EAttackState::Roar			: { }	break;
 
 		case EAttackState::MeleeBite	: { }	break;
-		case EAttackState::MeleeBPress	: {  }	break;
+		case EAttackState::MeleeBPress	: { }	break;
 
 		case EAttackState::NormalBreath : { AttBreath(); }	break;
 		case EAttackState::AimedBreath	: { AttBreath(); }	break;
@@ -218,12 +218,12 @@ void UCSafiFSM::IdleState()
 	TargetRotation(); // 부드러운 회전
 
 	// 일정 회전각 아래로 내려가면 스냅해버리기
-	if (targetYaw <= 3.f)
+	if (targetYaw <= 6.f)
 	{
 	// 여기여기여기여기
 		
 		me->SetActorRotation(targetRot); // 최종 방향 고정
-		//FVector SetRotation(targetRot);
+		SetRotation(targetRot);
 
 		ServerSetActState(ESafiState::Attack);
 
@@ -311,58 +311,62 @@ void UCSafiFSM::AttBreath()
 {
 	// 브레스 사용중에만 실행
 	if (me->isOnBreath == false){ return; }
+	FVector ForStopVector;
 
 	if ( isSetDir == false)
 	{
-		FVector CalStart = me->FireArrowComp->GetComponentLocation();
+		
 		//FVector Forward = (SetTargetDir() - Start).GetSafeNormal();
 		FVector CalForward = SetTargetDir();
 		// FVector Start = me->FireArrowComp->GetComponentLocation();
 		// FVector Forward = me->FireArrowComp->GetForwardVector();
-
-		Start = CalStart;
+		
 		Forward = CalForward;
+		ForStopVector = me->FireArrowComp->GetComponentLocation();
 
 		isSetDir = true;
 	}
 
-
+	FVector CalStart = FVector(me->FireArrowComp->GetComponentLocation()/*.X, ForStopVector.Y, ForStopVector.Z*/);
+	Start = CalStart;
 	float MaxDistance = me->MaxBreathRange; 
-	FVector End = Start + Forward * MaxDistance * 5000.f;
+	FVector End = Start + Forward * MaxDistance;
 
 	FCollisionQueryParams TraceParams;
 	TraceParams.AddIgnoredActor(me);
 	TraceParams.AddIgnoredComponent(me->GetMesh());
 
-	FHitResult Hit;
+	TArray<FHitResult> Hits;
 
-	bool bHit = GetWorld()->SweepSingleByChannel( Hit,Start,End,FQuat::Identity, ECC_GameTraceChannel4, FCollisionShape::MakeSphere(50.f), TraceParams );
-
+	bool bHit = GetWorld()->SweepMultiByChannel(Hits,Start,End,FQuat::Identity, ECC_Pawn, FCollisionShape::MakeSphere(200.f), TraceParams );
 
 // ================== 디버그용 =====================================
 
-	DrawDebugSphere(GetWorld(), Start, 50.f, 12, FColor::Green, false, 0.05f);
-	DrawDebugLine(GetWorld(), Start, bHit ? Hit.Location : End, FColor::Red, false, 2.0f);
+	DrawDebugSphere(GetWorld(), Start, 200.f, 12, FColor::Green, false, 0.05f);
+	DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.0f);
+
+// ================== 디버그용 =====================================
+
 	if (bHit)
 	{
-		DrawDebugSphere(GetWorld(), Hit.Location, 50.f, 12, FColor::Blue, false, 2.0f);
-	}
-
-// ================== 디버그용 =====================================
-
-	// 충돌한 대상이 있는지 체크
-	if (!bHit){ return; }
-
-	AActor* HitActor = Hit.GetActor();
-	if (!HitActor)
-	{ 
-		AHunter* hunter = Cast<AHunter>(HitActor);
-		if (hunter)
+		for (const FHitResult& HitResult : Hits)
 		{
-			UGameplayStatics::ApplyDamage(hunter, me->MeleeBiteDMG, nullptr, me, nullptr);
+			AActor* HitActor = HitResult.GetActor();
+			if (HitActor)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Hit한 Actor: %s"), *HitResult.GetActor()->GetName());
 
+				AHunter* Hunter = Cast<AHunter>(HitActor);
+				if (Hunter)
+				{
+					//if(!HitActors.Contains(HitActor))
+					//{
+					UGameplayStatics::ApplyDamage(Hunter, me->MeleeBiteDMG, nullptr, me, nullptr);
+					//HitActors.Add(HitActor);
+					//}
+				}
+			}
 		}
-		return; 
 	}
 
 }
@@ -375,8 +379,13 @@ void UCSafiFSM::OnAttackProcess()
 	FVector dir = SetTargetDir();
 
 
+	if (me->SpecialCount >= me->MAXSpecialCount)
+	{
+		attType = SPECIAL;
+	}
+
 // ======================== 스위치 ======================== 
-// 
+// //
 	// attType에 따라 mAttState를 변경만 해준다.
 	switch (attType)
 	{
@@ -418,6 +427,11 @@ void UCSafiFSM::OnAttackProcess()
 		//mAttState = EAttackState::AimedBreath;
 		ServerSetAttState(EAttackState::AimedBreath);
 		break;
+//========================== 스페셜 부분 ==========================
+	case SPECIAL:
+		//mAttState = EAttackState::AimedBreath;
+		ServerSetAttState(EAttackState::Special);
+		break;
 //========================== 근접공격 부분 ==========================
 	case AttBITE:
 		//mAttState = EAttackState::MeleeBite;
@@ -447,6 +461,7 @@ void UCSafiFSM::OnAttackProcess()
 void UCSafiFSM::EndAttackProcess()
 {
 	// 타겟 리스트 갱신
+
 	SetTarget();
 
 	ServerSetAttState(EAttackState::None);
@@ -454,13 +469,11 @@ void UCSafiFSM::EndAttackProcess()
 
 	me->isOnSearch = true;	// 공격할 때 꺼주기	- OnAttackProcess에 false 해줌
 
+	// 스페셜 카운트가 맥스치보다 클 경우 초기화
+	if (me->SpecialCount >= me->MAXSpecialCount){ me->SpecialCount = 0; }
 
-
-	// DecideAttackType();		// 공격 가능 대상 있다면 바로 공격
-
-	//if 돌아야 한다면 플레이어 방향으로 회전, 아닐시 return;		- 수행완료
-	// ㄴ> 회전 적게해야할지 많이해야할지를 판단때려줌.				- 수행완료
-	// ㄴ> Idle에서 수행.											- 수행완료
+	// 아닐 경우 증가.
+	else { me->SpecialCount += 1; }
 
 	BFattType = attType;
 }
@@ -480,7 +493,6 @@ void UCSafiFSM::OnDisturbedProcess()
 	if (me->isDead == true)
 	{
 		ServerSetDisturbState(EDisturbState::Dead);
-
 		return;								// Dead 일경우 하위 상황 판단할 필요가 없음
 	}
 
@@ -502,9 +514,10 @@ void UCSafiFSM::TargetRotation()
 	FRotator CurrentRotation = me->GetActorRotation();
 
 	float targetYaw = FMath::Abs(FMath::FindDeltaAngleDegrees(CurrentRotation.Yaw, TargetRotation.Yaw));
-	if (targetYaw <= 3.f)
+	if (targetYaw <= 6.f)
 	{
-		me->SetActorRotation(TargetRotation);
+		FinalRotation = TargetRotation;			// 서버에서 결정된 회전 값
+		me->SetActorRotation(FinalRotation);	// 서버에서 실제로 회전 적용
 		isRot = false;
 		OnAttackProcess();
 		return;
@@ -572,7 +585,7 @@ FVector UCSafiFSM::SetTargetDir()
 {
 	if (target == nullptr || me == nullptr) { return FVector::ZeroVector; }
 
-	FVector destination = FVector(target->GetActorLocation().X, target->GetActorLocation().Y, target->GetActorLocation().Z - 100.f );
+	FVector destination = FVector(target->GetActorLocation());
 	FVector dir = destination - me->GetActorLocation();
 
 	if (dir.Size() < me->SearchRange)
@@ -582,12 +595,13 @@ FVector UCSafiFSM::SetTargetDir()
 
 	return dir;
 }
- 
 
 void UCSafiFSM::SetTarget()
 {
 	// 헌터 리스트 갱신, 타겟 리스트로 목록 받아옴
 	UpdateHunterList();
+	HitActors.Empty();		// 브레스 공격목록 비우기
+
 	// 리스트가 비어있는지 확인
 	if (HunterList.IsEmpty()) { return; }
 
@@ -606,6 +620,9 @@ void UCSafiFSM::SetTarget()
 			TargetList.Add(Hunter);
 		}
 	}
+
+	if (TargetList.Num() == 0){ return; }
+
 	int32 RandTarget = FMath::RandRange(0, TargetList.Num()-1);
 	target = TargetList[RandTarget];
 
@@ -626,7 +643,7 @@ void UCSafiFSM::UpdateHunterList()
 
 		if (IsValid(hunter))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Hunter Found: %s"), *hunter->GetName());
+			//UE_LOG(LogTemp, Warning, TEXT("Hunter Found: %s"), *hunter->GetName());
 			HunterList.Add(hunter);
 		}
 
@@ -654,6 +671,11 @@ void UCSafiFSM::OnRep_TurnState()
 void UCSafiFSM::OnRep_DisturbState()
 {
 	if (Anim) Anim->aDisturbState = mDisturbState;
+}
+
+void UCSafiFSM::OnRep_FinalRotation()
+{
+	me->SetActorRotation(FinalRotation);
 }
 
 void UCSafiFSM::ServerSetActState_Implementation(ESafiState _newState)
@@ -686,12 +708,18 @@ void UCSafiFSM::ServerSetDisturbState_Implementation(EDisturbState _newDistState
 	OnRep_DisturbState();
 }
 
+void UCSafiFSM::SetRotation_Implementation(FRotator _value)
+{
+	if (!me)
+	{
+		UE_LOG(LogTemp, Error, TEXT("SetRotation_Implementation: me is null! Owner: %s"),
+			GetOwner() ? *GetOwner()->GetName() : TEXT("None"));
+		return;
+	}
 
-
-// FVector UCSafiFSM::SetRotation_Implementation(FRotator _value)
-// {
-// 	me->SetActorRotation(_value);
-// }
+	FinalRotation = _value;
+	me->SetActorRotation(_value);
+}
 
 void UCSafiFSM::SetActState(ESafiState _newState)
 {
@@ -701,6 +729,7 @@ void UCSafiFSM::SetActState(ESafiState _newState)
 		mState = _newState;
 		// 뭔가의 추가 내용
 	}
+
 	else
 	{
 		ServerSetActState(_newState);
@@ -715,6 +744,7 @@ void UCSafiFSM::SetAttState(EAttackState _newAttState)
 		mAttState = _newAttState;
 		// 뭔가의 추가 내용
 	}
+
 	else
 	{
 		ServerSetAttState(_newAttState);
@@ -741,6 +771,7 @@ void UCSafiFSM::SetDisturbState(EDisturbState _newDistState)
 		mDisturbState = _newDistState;
 		// 뭔가의 추가 내용
 	}
+
 	else
 	{
 		ServerSetDisturbState(_newDistState);
@@ -755,5 +786,5 @@ void UCSafiFSM::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 	DOREPLIFETIME(UCSafiFSM, mAttState);
 	DOREPLIFETIME(UCSafiFSM, mTurnState);
 	DOREPLIFETIME(UCSafiFSM, mDisturbState);
+	DOREPLIFETIME(UCSafiFSM, FinalRotation);
 }
-
