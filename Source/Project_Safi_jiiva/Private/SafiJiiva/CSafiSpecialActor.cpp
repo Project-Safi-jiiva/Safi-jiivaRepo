@@ -50,7 +50,7 @@ void ACSafiSpecialActor::Tick(float DeltaTime)
 
 void ACSafiSpecialActor::KillingTime()
 {
-	FVector Start = FVector(GetActorLocation().X, GetActorLocation().Y, GetActorLocation().Z + 200.f);
+	FVector Start = FVector(GetActorLocation().X, GetActorLocation().Y, 800.f);
 
 	for (AHunter* Hunter : HunterList)
 	{

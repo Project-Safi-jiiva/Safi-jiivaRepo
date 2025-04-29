@@ -32,7 +32,7 @@ public:
 	float defaultSpeed = 400.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Status)
-	float MaxTime = 2.1f;
+	float MaxTime = 2.2f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Status)
 	float speed = defaultSpeed;
