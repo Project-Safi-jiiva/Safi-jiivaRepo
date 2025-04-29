@@ -17,15 +17,22 @@ private:
 	const float MaxHP=200;
 	const float MaxStamina=200;
 
+	UPROPERTY(Replicated)
 	float HP = MaxHP;
+public:
+	UPROPERTY(Replicated)
 	float Stamina = MaxStamina;
+	UPROPERTY(Replicated)
+	bool StaminaDelay=false;
+
 
 public:
 	// Sets default values for this character's properties
 	AHunter();
 public:
 	FInputBindingDeleagate InputBindingDeleagate;
-
+	void SetHP(float value);
+	float GetHP();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -61,6 +68,9 @@ private:
 	class UInputMappingContext* IMC_Hunter;
 
 	class USkeletalMeshComponent* SkeletalMeshComp;
+	TSubclassOf<class UHunterMainWidget> MainWidgetClass;
+
+	class UHunterMainWidget* MainWidget;
 
 
 public:
@@ -74,6 +84,10 @@ public:
 	void NetLog();
 
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
+
+	void SetStamina(float StaminaCost);
+
+	float GetStamina();
 
 	///////////////////////////서버 함수//////////////////////////
 
@@ -211,10 +225,10 @@ public:
 	void NetMulticastRPC_JumpToNextCombo();
 	//힛 판정
 	UFUNCTION(Server,Reliable)
-	void ServerRPC_HitEvent(UPrimitiveComponent* DamageCauserComponent);
+	void ServerRPC_HitEvent(UPrimitiveComponent* DamageCauserComponent ,float Damage);
 
 	UFUNCTION(NetMulticast, Reliable)
-	void NetMulticastRPC_HitEvent(UPrimitiveComponent* DamageCauserComponent);
+	void NetMulticastRPC_HitEvent(UPrimitiveComponent* DamageCauserComponent, float Damage);
 
 
 	UFUNCTION(Server, Reliable)

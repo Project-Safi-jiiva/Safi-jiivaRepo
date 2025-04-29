@@ -145,7 +145,11 @@ void UWeaponComponent::LoadWeaponData()
 
 void UWeaponComponent::Dash()
 {
-	Owner->isRun = true;
+	if(Owner->GetStamina()>=0)
+		Owner->isRun = true;
+	else
+		Owner->isRun = false;
+
 }
 
 void UWeaponComponent::DashEnd()

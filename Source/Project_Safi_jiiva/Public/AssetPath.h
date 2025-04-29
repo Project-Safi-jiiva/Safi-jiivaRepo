@@ -10,6 +10,10 @@ namespace AssetPaths
     constexpr const TCHAR* HUNTER_ANIM = TEXT("/Script/Engine.AnimBlueprint'/Game/LHW/Gemma/ABP_Gemma.ABP_Gemma_C'");
     constexpr const TCHAR* HUNTER_IMC = TEXT("/Script/EnhancedInput.InputMappingContext'/Game/LHW/Input/IMC_Hunter.IMC_Hunter'");
 
+    //메인 위젯
+    constexpr const TCHAR* HUNTER_MAINWIDGET = TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/LHW/Blueprint/Widget/WBP_Main.WBP_Main_C'");
+
+
     //무브 컴포넌트
     constexpr const TCHAR* IA_MOVE = TEXT("/Script/EnhancedInput.InputAction'/Game/LHW/Input/IA_Move.IA_Move'");
     constexpr const TCHAR* IA_TURN = TEXT("/Script/EnhancedInput.InputAction'/Game/LHW/Input/IA_Turn.IA_Turn'");
@@ -30,5 +34,5 @@ namespace AssetPaths
     constexpr const TCHAR* GREATSWORDMESH = TEXT("/Script/Engine.StaticMesh'/Game/LHW/Sword/GreatSword.GreatSword'");
 
     //무기 파티클
-    constexpr const TCHAR* GREATSWORDMESHPARTICLE = TEXT("/Script/Engine.ParticleSystem'/Game/Stylized_Mobile_Effects/Particles/P_SwordSlash_1.P_SwordSlash_1'");
+    constexpr const TCHAR* GREATSWORDMESHPARTICLE = TEXT("/Script/Engine.ParticleSystem'/Game/LHW/VFX/Stylized_Mobile_Effects/Particles/P_SwordSlash_1.P_SwordSlash_1'");
 }

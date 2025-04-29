@@ -23,6 +23,21 @@
 #include "GreatSword.h"
 #include "Components/CapsuleComponent.h"
 #include "Net/UnrealNetwork.h"
+#include "Hunter/HunterController.h"
+#include "Widget/HunterMainWidget.h"
+
+void AHunter::SetHP(float value)
+{
+	HP = value;
+	float v = FMath::Clamp(GetHP() / 200, 0.0f, 1.0f);
+	if(MainWidget)
+		MainWidget->uiHp = v;
+}
+
+float AHunter::GetHP()
+{
+	return HP;
+}
 
 // Sets default values
 AHunter::AHunter()
@@ -39,6 +54,8 @@ AHunter::AHunter()
 	ConstructorHelpers::FClassFinder<UHunterAnim> AB_Hunter(AssetPaths::HUNTER_ANIM);
 
 	ConstructorHelpers::FObjectFinder<UInputMappingContext> IMC_HunterTool(AssetPaths::HUNTER_IMC);
+	static ConstructorHelpers::FClassFinder<UHunterMainWidget> WidgetClassFinder(AssetPaths::HUNTER_MAINWIDGET);
+	MainWidgetClass = WidgetClassFinder.Class;
 
 	if (AB_Hunter.Succeeded()) {
 		GetMesh()->SetAnimInstanceClass(AB_Hunter.Class);
@@ -86,6 +103,19 @@ void AHunter::BeginPlay()
 	if (subSys)
 		subSys->AddMappingContext(IMC_Hunter, 0);
 	}
+
+			if (IsLocallyControlled()){
+				if (MainWidget) return;
+		// 위젯 생성
+		MainWidget = CreateWidget<UHunterMainWidget>(GetWorld(), MainWidgetClass);
+			// 소유자 액터 설정
+			MainWidget->OwningActor = this;
+
+			// 뷰포트에 추가
+
+			MainWidget->AddToViewport();
+			}
+			SetHP(MaxHP);
 }
 
 void AHunter::Tick(float DeltaTime)
@@ -95,6 +125,7 @@ void AHunter::Tick(float DeltaTime)
 
 	if (Anim&& Anim->Montage_IsPlaying(nullptr)&&isHit)
 		Anim->Montage_Stop(0.1f);
+	SetStamina(0);
 
 }
 
@@ -111,14 +142,18 @@ void AHunter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 float AHunter::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+
 	if (WeaponComp->isTacle) return 0;
 	UPrimitiveComponent* CauserComponent = Cast<UPrimitiveComponent>(DamageCauser);
 	if (!CauserComponent)
 	{
 		// DamageCauser가 액터인 경우, 콜리전 컴포넌트를 찾음
 		CauserComponent = DamageCauser->FindComponentByClass<UPrimitiveComponent>();
-		ServerRPC_HitEvent(CauserComponent);
+			ServerRPC_HitEvent(CauserComponent, Damage);
 	}
+
+
+
 	return Damage;
 }
 
@@ -168,8 +203,51 @@ void AHunter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AHunter, isRun);
 	DOREPLIFETIME(AHunter, isHit);
+	DOREPLIFETIME(AHunter, HP);
+	DOREPLIFETIME(AHunter, Stamina);
+	DOREPLIFETIME(AHunter, StaminaDelay);
 
 }
+
+void AHunter::SetStamina(float StaminaCost)
+{
+	if (StaminaDelay)return;
+	if(StaminaCost<=0){
+		if (isRun) {
+			if (GetVelocity().Size() <= 0)return;
+			if (Stamina >= 0) {
+				Stamina -= 2;
+			}
+
+		}
+		else {
+			if (Stamina <= 200) {
+				Stamina += 2;
+			}
+			else {
+				Stamina = 200;
+			}
+		}
+	}
+	else {
+		Stamina -= StaminaCost;
+	}
+	if (Stamina <= 0) {
+		StaminaDelay = true;
+		FTimerHandle handler;
+		GetWorld()->GetTimerManager().SetTimer(handler, [&]() {StaminaDelay = false; }, 1, false);
+	}
+
+	float v = FMath::Clamp(Stamina / 200, 0.0f, 1.0f);
+	if (MainWidget)
+		MainWidget->uiSp = v;
+}
+
+float AHunter::GetStamina()
+{
+	return Stamina;
+}
+
 //대쉬 함수
 void AHunter::ServerRPC_Dash_Implementation()
 {
@@ -332,7 +410,6 @@ void AHunter::MulticastRPC_SetQuickAddIndex_Implementation(int32 AddIndex)
 
 void AHunter::ServerPRC_SetHeavyAddIndex_Implementation(int32 AddIndex)
 {
-	PRINTLOG_NET(TEXT("%d"), AddIndex);
 	MulticastRPC_SetHeavyAddIndex(AddIndex);
 
 }
@@ -400,13 +477,15 @@ void AHunter::NetMulticastRPC_JumpToNextCombo_Implementation()
 	WeaponComp->JumpToNextCombo();
 }
 
-void AHunter::ServerRPC_HitEvent_Implementation(UPrimitiveComponent* DamageCauserComponent)
+void AHunter::ServerRPC_HitEvent_Implementation(UPrimitiveComponent* DamageCauserComponent, float Damage)
 {
-	NetMulticastRPC_HitEvent(DamageCauserComponent);
+	NetMulticastRPC_HitEvent(DamageCauserComponent, Damage);
+
 }
 
-void AHunter::NetMulticastRPC_HitEvent_Implementation(UPrimitiveComponent* DamageCauserComponent)
+void AHunter::NetMulticastRPC_HitEvent_Implementation(UPrimitiveComponent* DamageCauserComponent, float Damage)
 {
+	SetHP(GetHP() - Damage);
 	MoveComp->MoveState = EMoveState::HIT;
 	isHit = true;
 	MoveComp->InputOff();
@@ -417,6 +496,15 @@ void AHunter::NetMulticastRPC_HitEvent_Implementation(UPrimitiveComponent* Damag
 	FTimerHandle Handler;
 	auto OnInput = [this]()
 		{
+			if (HP <= 0) {
+				MoveComp->MoveState = EMoveState::DIE;
+				AHunterController* PC = Cast<AHunterController>(GetController());
+				if (IsLocallyControlled()) {
+						PC->ServerRPC_RespawnPlayer();
+						WeaponComp->DestroyEquippedWeapon();
+				}
+				return;
+			}
 			MoveComp->InputOn(); MoveComp->MoveState = EMoveState::IDLE;
 			isHit = false;
 			GetCapsuleComponent()->SetCollisionProfileName(FName("Pawn2"));
@@ -429,6 +517,7 @@ void AHunter::NetMulticastRPC_HitEvent_Implementation(UPrimitiveComponent* Damag
 			ServerRPC_SetIsTacle(false);
 			ServerRPC_SetAllowRoll(true);
 			ServerRPC_SetIsAttacking(false);
+			StaminaDelay = false;
 		};
 	GetWorld()->GetTimerManager().SetTimer(Handler, OnInput, 2.3, false);
 
