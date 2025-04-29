@@ -73,10 +73,7 @@ void UMHGameInstance::OnCreateSessionComplete(FName SessionName, bool bWasSucces
 			LobbyGameState = Cast<AMHGameStateBase>(GetWorld()->GetGameState());
 
 		FUniqueNetIdPtr netID = GetWorld()->GetFirstLocalPlayerFromController()->GetUniqueNetIdForPlatformUser().GetUniqueNetId();
-		// 파티에 자기 자신 추가
-		FPartyMember Host;
-		Host.PlayerName = mySessionName;
-		Host.PlayerNetId = netID;
+
 
 		FString RoomName;
 		if (!sessionInterface->GetSessionSettings(SessionName)->Get(FName("ROOM_NAME"), RoomName))
@@ -84,10 +81,8 @@ void UMHGameInstance::OnCreateSessionComplete(FName SessionName, bool bWasSucces
 			PRINT_LOG(TEXT("Failed to get ROOM_NAME for session: %s"), *SessionName.ToString());
 			return;
 		}
-		LobbyGameState->CreateParty(RoomName, Host);
-		//GetWorld()->ServerTravel(TEXT("/Game/LHW/Map/KJY_TestMap?listen"));
+		GetWorld()->ServerTravel(TEXT("/Game/LHW/Map/KJY_TestMap?listen"));
 		OnCreateSessionCompleted.Broadcast();
-
 	}
 }
 
@@ -183,9 +178,7 @@ void UMHGameInstance::OnJoinSessionComplete(FName sessionName, EOnJoinSessionCom
 		sessionInterface->GetResolvedConnectString(sessionName, url);
 		FUniqueNetIdPtr netID = GetWorld()->GetFirstLocalPlayerFromController()->GetUniqueNetIdForPlatformUser().GetUniqueNetId();
 
-		FPartyMember Member;
-		Member.PlayerName = netID->ToString();
-		Member.PlayerNetId = netID; // FUniqueNetIdPtr를 직접 사용
+
 
 		FString RoomName;
 		if (!sessionInterface->GetSessionSettings(sessionName)->Get(FName("ROOM_NAME"), RoomName))
@@ -193,8 +186,7 @@ void UMHGameInstance::OnJoinSessionComplete(FName sessionName, EOnJoinSessionCom
 			PRINTLOG_NET(TEXT("Failed to get ROOM_NAME : %s"),*sessionName.ToString());
 			return;
 		}
-		LobbyGameState->AddPlayerToParty(PendingRoomName, Member);
-		//pc->ClientTravel(url, ETravelType::TRAVEL_Absolute);
+		pc->ClientTravel(url, ETravelType::TRAVEL_Absolute);
 	}
 	else
 	{
