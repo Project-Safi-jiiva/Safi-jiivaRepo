@@ -49,4 +49,13 @@ private:
 	UFUNCTION(Client, Reliable)
 	void ShowEffectClient(AActor* OtherActor,UPrimitiveComponent* OtherComp, bool bFromSweep, const FHitResult& SweepResult, UPrimitiveComponent* OverlappedComp);
 
+	//사운드
+	class USoundCue* HitSound;
+
+	//타격감 함수
+	void ApplyHitStop();
+	void ResetHitStop();
+
+	FTimerHandle HitStopTimerHandle;
+
 };

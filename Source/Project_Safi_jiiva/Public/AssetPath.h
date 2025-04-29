@@ -35,4 +35,9 @@ namespace AssetPaths
 
     //무기 파티클
     constexpr const TCHAR* GREATSWORDMESHPARTICLE = TEXT("/Script/Engine.ParticleSystem'/Game/LHW/VFX/Stylized_Mobile_Effects/Particles/P_SwordSlash_1.P_SwordSlash_1'");
+
+    //타격 사운드
+    constexpr const TCHAR* HIT_SOUND = TEXT("/Script/Engine.SoundCue'/Game/LHW/Sound/SwordHit_Cue.SwordHit_Cue'");
+
+
 }

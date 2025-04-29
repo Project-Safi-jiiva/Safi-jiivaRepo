@@ -232,8 +232,6 @@ public:
 	//Èý ÆÇÁ¤
 	void HitEvent(UPrimitiveComponent* DamageCauserComponent ,float Damage);
 
-
-
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_OnWeaponComp();
 
@@ -251,6 +249,9 @@ public:
 	void InitUIWidget();
 
 	void SetStatus();
+
+	//½Ã°£ ¸ØÃß±â
+	float DelayTime = 1.3;
 
 
 

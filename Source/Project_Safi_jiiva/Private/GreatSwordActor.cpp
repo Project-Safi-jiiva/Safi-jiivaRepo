@@ -15,6 +15,9 @@
 #include "Components/BoxComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Components/BoxComponent.h"
+#include "Sound/SoundCue.h"
+#include "Camera/CameraComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 
 AGreatSwordActor::AGreatSwordActor()
 {
@@ -30,11 +33,14 @@ AGreatSwordActor::AGreatSwordActor()
 		SetRootComponent(SwordMesh);
 	}
 	ConstructorHelpers::FObjectFinder<UParticleSystem>Particle(AssetPaths::GREATSWORDMESHPARTICLE);
+    ConstructorHelpers::FObjectFinder<USoundCue>Sound(AssetPaths::HIT_SOUND);
+    HitSound = Sound.Object;
 
 	ParticleSystem = Particle.Object;
 	bReplicates = true;
     SetReplicates(true);
 	SetReplicateMovement(true);
+
 }
 
 void AGreatSwordActor::BeginPlay()
@@ -96,6 +102,8 @@ void AGreatSwordActor::ShowEffectClient_Implementation(AActor* OtherActor,UPrimi
         ParticleTransform.SetLocation(SurfacePoint);
         ParticleTransform.SetRotation(Direction.Rotation().Quaternion()); // 표면 방향으로 회전
         ParticleTransform.SetScale3D(FVector(1.0f));
+        UGameplayStatics::PlaySoundAtLocation(this, HitSound, SurfacePoint);
+        ApplyHitStop();
     }
     else
     {
@@ -117,6 +125,57 @@ void AGreatSwordActor::ShowEffectClient_Implementation(AActor* OtherActor,UPrimi
         ParticleComp->SetWorldScale3D(FVector(1.5f, 1.5f, 1.5f)); // 1.5배 크기로 설정
     }
 
+}
+
+void AGreatSwordActor::ApplyHitStop()
+{
+    CustomTimeDilation = 0.1f;
+    if (Hunter->IsLocallyControlled())
+    {
+        // 로컬 클라이언트에서만 시간 멈춤 적용
+        // 캐릭터와 카메라에 CustomTimeDilation 설정
+        CustomTimeDilation = 0.1f;
+        if (Hunter->CameraComponent)
+        {
+           Hunter->CustomTimeDilation = 0.1f;
+        }
+        if (Hunter->GetMesh())
+        {
+            Hunter->CustomTimeDilation = 0.1f;
+        }
+
+        // 사운드 재생 (느린 피치로)
+        if (HitSound)
+        {
+            UGameplayStatics::PlaySound2D(GetWorld(), HitSound, 1.0f, 0.5f); // 피치 0.5로 느리게
+        }
+
+        // 타이머로 일정 시간 후 복구
+        GetWorld()->GetTimerManager().SetTimer(
+            HitStopTimerHandle,
+            this,
+            &AGreatSwordActor::ResetHitStop,
+            Hunter->DelayTime,
+            false
+        );
+    }
+}
+
+void AGreatSwordActor::ResetHitStop()
+{
+    if (Hunter->IsLocallyControlled())
+    {
+        // 시간 속도 복구
+        CustomTimeDilation = 1.0f;
+        if (Hunter->CameraComponent)
+        {
+            Hunter->CustomTimeDilation = 1.0f;
+        }
+        if (Hunter->GetMesh())
+        {
+            Hunter->CustomTimeDilation = 1.0f;
+        }
+    }
 }
 
 void AGreatSwordActor::ApplyDamage_Implementation(AActor* HitActor, float DamageMultiplier)
