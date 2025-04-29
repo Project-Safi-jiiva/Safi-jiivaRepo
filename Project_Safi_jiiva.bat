@@ -1,1 +1,1 @@
-"C:\Program Files\Epic Games\UE_5.5\Engine\Binaries\Win64\UnrealEditor.exe" "D:\GitHub\Safi-jiivaRepo\Project_Safi_jiiva.uproject" -game -map=/Game/ForMap/TriMap2 -ResX=600 -ResY=400 -WinX=0 -WinY=100 -log
+"C:\Program Files\Epic Games\UE_5.5\Engine\Binaries\Win64\UnrealEditor.exe" "D:\GitHub\Safi-jiivaRepo\Project_Safi_jiiva.uproject" -game -map="LobbyMap" -ResX=600 -ResY=400 -WinX=0 -WinY=100 -log
