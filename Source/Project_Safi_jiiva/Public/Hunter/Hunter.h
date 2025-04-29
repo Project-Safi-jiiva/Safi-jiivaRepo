@@ -75,7 +75,7 @@ private:
 
 	class USkeletalMeshComponent* SkeletalMeshComp;
 	TSubclassOf<class UHunterMainWidget> MainWidgetClass;
-
+	UPROPERTY()
 	class UHunterMainWidget* MainWidget;
 
 
@@ -249,6 +249,8 @@ public:
 	virtual void PossessedBy(AController* NewController) override;
 
 	void InitUIWidget();
+
+	void SetStatus();
 
 
 

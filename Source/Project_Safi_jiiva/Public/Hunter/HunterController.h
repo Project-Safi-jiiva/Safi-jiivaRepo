@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "Widget/HunterMainWidget.h"
 #include "HunterController.generated.h"
 
 /**
@@ -26,6 +27,9 @@ public:
 	TSubclassOf<class UHunterMainWidget> mainUIWidget;
 	// mainUIWidget 으로 부터 만들어진 인스턴스
 	UPROPERTY()
-	class UHunterMainWidget* mainUI;
+	UHunterMainWidget* mainUI;
+
+	UFUNCTION(Client, Reliable)
+    void ClientRPC_InitUIWidget();
 
 };

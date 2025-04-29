@@ -82,6 +82,7 @@ void UMHGameInstance::OnCreateSessionComplete(FName SessionName, bool bWasSucces
 			return;
 		}
 		GetWorld()->ServerTravel(TEXT("/Game/ForMap/TriMap2?listen"));
+		//GetWorld()->ServerTravel(TEXT("/Game/LHW/Map/KJY_TestMap?listen"));
 		OnCreateSessionCompleted.Broadcast();
 	}
 }

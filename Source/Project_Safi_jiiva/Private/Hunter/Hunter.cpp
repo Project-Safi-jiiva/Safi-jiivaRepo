@@ -40,10 +40,15 @@ float AHunter::GetHP()
 
 void AHunter::OnRep_HP()
 {
-	PRINTLOG_NET(TEXT("HP : %f"), HP);
-	float v = FMath::Clamp(hp / 200, 0.0f, 1.0f);
-	if(MainWidget)
-		MainWidget->uiHp = v;
+		PRINTLOG_NET(TEXT("HP : %f"), HP);
+		if (IsLocallyControlled()) {
+			PRINTLOG_NET(TEXT("HP : %f"), HP);
+			float v = FMath::Clamp(hp / 200, 0.0f, 1.0f);
+			if (MainWidget)
+				MainWidget->uiHp = v;
+			else
+				PRINTLOG_NET(TEXT("mainwidget null!"));
+		}
 }
 
 // Sets default values
@@ -103,14 +108,14 @@ void AHunter::BeginPlay()
 	Super::BeginPlay();
 	ChangeWeapon(EWeaponType::GREATSWORD);
 	Anim = Cast<UHunterAnim>(GetMesh()->GetAnimInstance());
-	APlayerController* PC = Cast<APlayerController>(GetController());
+	AHunterController* PC = Cast<AHunterController>(GetController());
 	if(PC){
 	UEnhancedInputLocalPlayerSubsystem* subSys = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer());
 
 	if (subSys)
 		subSys->AddMappingContext(IMC_Hunter, 0);
 	}
-	//if (IsLocallyControlled() && HasAuthority() == false)
+	if (IsLocallyControlled() && HasAuthority() == false)
 	{
 		// UI 위젯 초기화
 		InitUIWidget();
@@ -125,6 +130,7 @@ void AHunter::Tick(float DeltaTime)
 	if (Anim&& Anim->Montage_IsPlaying(nullptr)&&isHit)
 		Anim->Montage_Stop(0.1f);
 	SetStamina(0);
+
 
 }
 
@@ -148,8 +154,8 @@ float AHunter::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, 
 	{
 		// DamageCauser가 액터인 경우, 콜리전 컴포넌트를 찾음
 		CauserComponent = DamageCauser->FindComponentByClass<UPrimitiveComponent>();
-		//if(IsLocallyControlled())
-			HitEvent(CauserComponent, Damage);
+		PRINTLOG_NET(TEXT("SERVER?"));
+		HitEvent(CauserComponent, Damage);
 	}
 
 
@@ -257,8 +263,10 @@ void AHunter::ServerRPC_Dash_Implementation()
 
 void AHunter::MulticastRPC_Dash_Implementation()
 {
+	if(WeaponComp){
 	WeaponComp->ModifyWeaponMoveSpeed();
 	WeaponComp->Dash();
+	}
 }
 
 void AHunter::ServerRPC_DashEnd_Implementation()
@@ -270,6 +278,8 @@ void AHunter::ServerRPC_DashEnd_Implementation()
 
 void AHunter::MulticastRPC_DashEnd_Implementation()
 {
+	if (!WeaponComp) return;
+
 	WeaponComp->ModifyWeaponMoveSpeed();
 	WeaponComp->DashEnd();
 }
@@ -277,17 +287,23 @@ void AHunter::MulticastRPC_DashEnd_Implementation()
 //약공격 함수
 void AHunter::ServerRPC_QuickStart_Implementation()
 {
+	if (!WeaponComp) return;
+
 	WeaponComp->QuickInputStart();
 }
 
 void AHunter::ServerRPC_QuickHolding_Implementation()
 {
+	if (!WeaponComp) return;
+
 	WeaponComp->QuickInputHolding();
 
 }
 
 void AHunter::ServerRPC_QuickEnd_Implementation()
 {
+	if (!WeaponComp) return;
+
 	WeaponComp->QuickInputEnd();
 }
 
@@ -298,32 +314,44 @@ void AHunter::ServerRPC_QuickAttack_Implementation()
 
 void AHunter::MulticasrRPC_QuickAttack_Implementation()
 {
+	if (!WeaponComp) return;
+
 	WeaponComp->QuickAttack();
 }
 
 void AHunter::ServerRPC_HeavyStart_Implementation()
 {
+	if (!WeaponComp) return;
+
 	WeaponComp->HeavyInputStart();
 }
 
 void AHunter::ServerRPC_HeavyHolding_Implementation()
 {
+	if (!WeaponComp) return;
+
 	WeaponComp->HeavyInputHolding();
 }
 
 void AHunter::ServerRPC_HeavyEnd_Implementation()
 {
+	if (!WeaponComp) return;
+
 	WeaponComp->HeavyInputEnd();
 }
 
 //강공격 함수
 void AHunter::ServerRPC_HeavyAttack_Implementation()
 {
+	if (!WeaponComp) return;
+
 	MulticasrRPC_HeavyAttack(WeaponComp->GetCurrentWeaponData());
 }
 
 void AHunter::MulticasrRPC_HeavyAttack_Implementation(const struct FWeaponDataTable& CurrentData)
 {
+	if (!WeaponComp) return;
+
 	WeaponComp->HeavyAttack(CurrentData);
 }
 //특수공격 함수
@@ -334,17 +362,23 @@ void AHunter::ServerRPC_UniqueAttack_Implementation()
 
 void AHunter::MulticasrRPC_UniqueAttack_Implementation()
 {
+	if (!WeaponComp) return;
+
 	WeaponComp->UniqueAttack();
 }
 
 void AHunter::ServerRPC_ChargeAttack_Implementation()
 {
+	if (!WeaponComp) return;
+
 	MulticasrRPC_ChargeAttack(WeaponComp->GetCurrentWeaponData());
 
 }
 
 void AHunter::MulticasrRPC_ChargeAttack_Implementation(const struct FWeaponDataTable& CurrentData)
 {
+	if (!WeaponComp) return;
+
 	WeaponComp->ChargeAttack(CurrentData);
 }
 
@@ -358,6 +392,8 @@ void AHunter::ServerRPC_SetIsAttacking_Implementation(bool IsAttack) { Multicasr
 
 void AHunter::MulticasrRPC_SetIsAttacking_Implementation(bool IsAttack)
 {
+	if (!WeaponComp) return;
+
 	WeaponComp->SetIsAttacking(IsAttack);
 }
 
@@ -543,8 +579,8 @@ void AHunter::PossessedBy(AController* NewController)
 	if (IsLocallyControlled())
 	{
 		InitUIWidget();
-
-
+		hp = MaxHP;
+		OnRep_HP();
 	}
 	PRINTLOG_NET(TEXT("End"));
 
@@ -557,24 +593,56 @@ void AHunter::InitUIWidget()
 	auto PC = Cast<AHunterController>(Controller);
 	if (PC == nullptr)
 	{
+		PRINTLOG_NET(TEXT("PlayerController is null"));
 		return;
 	}
 
-	if (PC->mainUIWidget)
+	if (PC->mainUIWidget == nullptr)
 	{
-		if (PC->mainUI == nullptr)
+		PRINTLOG_NET(TEXT("mainUIWidget is null"));
+		// mainUIWidget이 null이면 클래스 로드 시도
+		static ConstructorHelpers::FClassFinder<UHunterMainWidget> WidgetClassFinder(AssetPaths::HUNTER_MAINWIDGET);
+		if (WidgetClassFinder.Succeeded())
 		{
-			PC->mainUI = Cast<UHunterMainWidget>(CreateWidget(GetWorld(), PC->mainUIWidget));
+			PC->mainUIWidget = WidgetClassFinder.Class;
 		}
-		MainWidget = PC->mainUI;
-		MainWidget->AddToViewport();
-			float h = FMath::Clamp(MaxHP / 200, 0.0f, 1.0f);
-			float s = FMath::Clamp(MaxStamina / 200, 0.0f, 1.0f);
-			hp = MaxHP;
-			MainWidget->uiHp = 1.0f;
-			MainWidget->uiSp = 1.0f;
+		else
+		{
+			PRINTLOG_NET(TEXT("Failed to load mainUIWidget class"));
+			return;
+		}
 	}
 
+	if (PC->mainUI == nullptr)
+	{
+		PRINTLOG_NET(TEXT("Creating new mainUI"));
+		PC->mainUI = Cast<UHunterMainWidget>(CreateWidget(GetWorld(), PC->mainUIWidget));
+		if (PC->mainUI == nullptr)
+		{
+			PRINTLOG_NET(TEXT("Failed to create mainUI"));
+			return;
+		}
+	}
 
+	MainWidget = PC->mainUI;
+	if (MainWidget)
+	{
+		PRINTLOG_NET(TEXT("MainWidget initialized successfully"));
+		MainWidget->AddToViewport();
+		hp = MaxHP;
+		SetStatus();
+	}
+	else
+	{
+		PRINTLOG_NET(TEXT("MainWidget is null after initialization"));
+	}
+}
+
+void AHunter::SetStatus()
+{
+	float h = FMath::Clamp(MaxHP / 200, 0.0f, 1.0f);
+	float s = FMath::Clamp(MaxStamina / 200, 0.0f, 1.0f);
+	MainWidget->uiHp = 1.0f;
+	MainWidget->uiSp = 1.0f;
 }
 
