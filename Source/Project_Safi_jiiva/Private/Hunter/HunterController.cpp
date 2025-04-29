@@ -14,13 +14,13 @@ void AHunterController::ServerRPC_RespawnPlayer_Implementation()
 {
     auto player = GetPawn();
     if (player) {
-
+        UnPossess();
+        player->Destroy();
+        gm->RestartPlayer(this);
         GetWorld()->GetTimerManager().ClearTimer(RespawnTimerHandle); // 기존 타이머 제거
         GetWorld()->GetTimerManager().SetTimer(RespawnTimerHandle, [=,this]() {
             if (IsValid(this) && IsValid(player) && gm) {
-                UnPossess();
-                player->Destroy();
-                gm->RestartPlayer(this);
+
             }
 
             }, 2, false);

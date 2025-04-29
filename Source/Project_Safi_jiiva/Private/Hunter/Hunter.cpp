@@ -28,15 +28,22 @@
 
 void AHunter::SetHP(float value)
 {
-	HP = value;
-	float v = FMath::Clamp(GetHP() / 200, 0.0f, 1.0f);
-	if(MainWidget)
-		MainWidget->uiHp = v;
+	hp = value;
+	OnRep_HP();
+
 }
 
 float AHunter::GetHP()
 {
-	return HP;
+	return hp;
+}
+
+void AHunter::OnRep_HP()
+{
+	PRINTLOG_NET(TEXT("HP : %f"), HP);
+	float v = FMath::Clamp(hp / 200, 0.0f, 1.0f);
+	if(MainWidget)
+		MainWidget->uiHp = v;
 }
 
 // Sets default values
@@ -103,19 +110,11 @@ void AHunter::BeginPlay()
 	if (subSys)
 		subSys->AddMappingContext(IMC_Hunter, 0);
 	}
-
-			if (IsLocallyControlled()){
-				if (MainWidget) return;
-		// 위젯 생성
-		MainWidget = CreateWidget<UHunterMainWidget>(GetWorld(), MainWidgetClass);
-			// 소유자 액터 설정
-			MainWidget->OwningActor = this;
-
-			// 뷰포트에 추가
-
-			MainWidget->AddToViewport();
-			}
-			SetHP(MaxHP);
+	//if (IsLocallyControlled() && HasAuthority() == false)
+	{
+		// UI 위젯 초기화
+		InitUIWidget();
+	}
 }
 
 void AHunter::Tick(float DeltaTime)
@@ -149,7 +148,8 @@ float AHunter::TakeDamage(float Damage, struct FDamageEvent const& DamageEvent, 
 	{
 		// DamageCauser가 액터인 경우, 콜리전 컴포넌트를 찾음
 		CauserComponent = DamageCauser->FindComponentByClass<UPrimitiveComponent>();
-			ServerRPC_HitEvent(CauserComponent, Damage);
+		//if(IsLocallyControlled())
+			HitEvent(CauserComponent, Damage);
 	}
 
 
@@ -203,7 +203,7 @@ void AHunter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AHunter, isRun);
 	DOREPLIFETIME(AHunter, isHit);
-	DOREPLIFETIME(AHunter, HP);
+	DOREPLIFETIME(AHunter, hp);
 	DOREPLIFETIME(AHunter, Stamina);
 	DOREPLIFETIME(AHunter, StaminaDelay);
 
@@ -477,15 +477,10 @@ void AHunter::NetMulticastRPC_JumpToNextCombo_Implementation()
 	WeaponComp->JumpToNextCombo();
 }
 
-void AHunter::ServerRPC_HitEvent_Implementation(UPrimitiveComponent* DamageCauserComponent, float Damage)
+void AHunter::HitEvent(UPrimitiveComponent* DamageCauserComponent, float Damage)
 {
-	NetMulticastRPC_HitEvent(DamageCauserComponent, Damage);
+	HP -= Damage;
 
-}
-
-void AHunter::NetMulticastRPC_HitEvent_Implementation(UPrimitiveComponent* DamageCauserComponent, float Damage)
-{
-	SetHP(GetHP() - Damage);
 	MoveComp->MoveState = EMoveState::HIT;
 	isHit = true;
 	MoveComp->InputOff();
@@ -500,8 +495,8 @@ void AHunter::NetMulticastRPC_HitEvent_Implementation(UPrimitiveComponent* Damag
 				MoveComp->MoveState = EMoveState::DIE;
 				AHunterController* PC = Cast<AHunterController>(GetController());
 				if (IsLocallyControlled()) {
-						PC->ServerRPC_RespawnPlayer();
-						WeaponComp->DestroyEquippedWeapon();
+					PC->ServerRPC_RespawnPlayer();
+					WeaponComp->DestroyEquippedWeapon();
 				}
 				return;
 			}
@@ -520,7 +515,6 @@ void AHunter::NetMulticastRPC_HitEvent_Implementation(UPrimitiveComponent* Damag
 			StaminaDelay = false;
 		};
 	GetWorld()->GetTimerManager().SetTimer(Handler, OnInput, 2.3, false);
-
 }
 
 void AHunter::ServerRPC_OnWeaponComp_Implementation() {
@@ -539,3 +533,48 @@ void AHunter::NetMulticastRPC_CancelHandler_Implementation(const struct FWeaponD
 {
 	WeaponComp->CancelHandler(CurrentData);
 }
+
+void AHunter::PossessedBy(AController* NewController)
+{
+	PRINTLOG_NET(TEXT("Begin"));
+
+	Super::PossessedBy(NewController);
+
+	if (IsLocallyControlled())
+	{
+		InitUIWidget();
+
+
+	}
+	PRINTLOG_NET(TEXT("End"));
+
+}
+
+void AHunter::InitUIWidget()
+{
+	PRINTLOG_NET(TEXT("[%s] Begin"), Controller ? TEXT("PLAYER") : TEXT("Not Player"));
+
+	auto PC = Cast<AHunterController>(Controller);
+	if (PC == nullptr)
+	{
+		return;
+	}
+
+	if (PC->mainUIWidget)
+	{
+		if (PC->mainUI == nullptr)
+		{
+			PC->mainUI = Cast<UHunterMainWidget>(CreateWidget(GetWorld(), PC->mainUIWidget));
+		}
+		MainWidget = PC->mainUI;
+		MainWidget->AddToViewport();
+			float h = FMath::Clamp(MaxHP / 200, 0.0f, 1.0f);
+			float s = FMath::Clamp(MaxStamina / 200, 0.0f, 1.0f);
+			hp = MaxHP;
+			MainWidget->uiHp = 1.0f;
+			MainWidget->uiSp = 1.0f;
+	}
+
+
+}
+

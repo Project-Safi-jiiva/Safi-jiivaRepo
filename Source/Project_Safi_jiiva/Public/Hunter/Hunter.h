@@ -17,8 +17,12 @@ private:
 	const float MaxHP=200;
 	const float MaxStamina=200;
 
-	UPROPERTY(Replicated)
-	float HP = MaxHP;
+	UPROPERTY(ReplicatedUsing= OnRep_HP)
+	float hp = MaxHP;
+
+
+	UFUNCTION()
+	void OnRep_HP();
 public:
 	UPROPERTY(Replicated)
 	float Stamina = MaxStamina;
@@ -31,8 +35,10 @@ public:
 	AHunter();
 public:
 	FInputBindingDeleagate InputBindingDeleagate;
-	void SetHP(float value);
+
+	__declspec(property(get = GetHP, put = SetHP)) float HP;
 	float GetHP();
+	void SetHP(float value);
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -224,11 +230,8 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void NetMulticastRPC_JumpToNextCombo();
 	//Èý ÆÇÁ¤
-	UFUNCTION(Server,Reliable)
-	void ServerRPC_HitEvent(UPrimitiveComponent* DamageCauserComponent ,float Damage);
+	void HitEvent(UPrimitiveComponent* DamageCauserComponent ,float Damage);
 
-	UFUNCTION(NetMulticast, Reliable)
-	void NetMulticastRPC_HitEvent(UPrimitiveComponent* DamageCauserComponent, float Damage);
 
 
 	UFUNCTION(Server, Reliable)
@@ -242,6 +245,10 @@ public:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void NetMulticastRPC_CancelHandler(const struct FWeaponDataTable& CurrentData);
+
+	virtual void PossessedBy(AController* NewController) override;
+
+	void InitUIWidget();
 
 
 

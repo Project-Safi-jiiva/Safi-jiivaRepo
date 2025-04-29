@@ -22,4 +22,10 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerRPC_RespawnPlayer();
 
+	UPROPERTY(EditDefaultsOnly, Category = UI)
+	TSubclassOf<class UHunterMainWidget> mainUIWidget;
+	// mainUIWidget 으로 부터 만들어진 인스턴스
+	UPROPERTY()
+	class UHunterMainWidget* mainUI;
+
 };

@@ -81,7 +81,7 @@ void UMHGameInstance::OnCreateSessionComplete(FName SessionName, bool bWasSucces
 			PRINT_LOG(TEXT("Failed to get ROOM_NAME for session: %s"), *SessionName.ToString());
 			return;
 		}
-		GetWorld()->ServerTravel(TEXT("/Game/LHW/Map/KJY_TestMap?listen"));
+		GetWorld()->ServerTravel(TEXT("/Game/ForMap/TriMap2?listen"));
 		OnCreateSessionCompleted.Broadcast();
 	}
 }
