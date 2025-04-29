@@ -25,6 +25,7 @@
 #include "Net/UnrealNetwork.h"
 #include "Hunter/HunterController.h"
 #include "Widget/HunterMainWidget.h"
+#include "Widget/QuestBoardWidget.h"
 
 void AHunter::SetHP(float value)
 {
@@ -588,9 +589,16 @@ void AHunter::PossessedBy(AController* NewController)
 
 void AHunter::InitUIWidget()
 {
-	PRINTLOG_NET(TEXT("[%s] Begin"), Controller ? TEXT("PLAYER") : TEXT("Not Player"));
-
+	FString LevelName = GetWorld()->GetMapName();
 	auto PC = Cast<AHunterController>(Controller);
+	PC->bShowMouseCursor = false;
+	if (LevelName == TEXT("LobbyMap")) {
+		PC->BoardWidget=Cast<UQuestBoardWidget>(CreateWidget(GetWorld(), PC->QuestBoardWidget));
+		QuestBoardWidget = PC->BoardWidget;
+		QuestBoardWidget->AddToViewport();
+		return;
+	}
+	PC->SetInputMode(FInputModeGameOnly());
 	if (PC == nullptr)
 	{
 		PRINTLOG_NET(TEXT("PlayerController is null"));
