@@ -86,4 +86,18 @@ public:	// AnimNotify 관련 -------- UFUNCTION() 잊지말것!!!
 	UFUNCTION()
 	void AnimNotify_Att_Special_Spawn();
 
+	UFUNCTION()
+	void AnimNotify_Att_Special_Spawn2();
+
+	UFUNCTION()
+	void AnimNotify_Att_Special_End2();
+
+	UFUNCTION()
+	void AnimNotify_Att_Special_Spawn4();
+
+
+	UFUNCTION()
+	void AnimNotify_Att_Special_Spawn_END2();
+	
+
 };

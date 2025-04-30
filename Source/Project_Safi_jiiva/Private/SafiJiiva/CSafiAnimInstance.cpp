@@ -145,3 +145,27 @@ void UCSafiAnimInstance::AnimNotify_Att_Special_Spawn()
 {
 	me->SetSpecial();
 }
+
+void UCSafiAnimInstance::AnimNotify_Att_Special_Spawn2()
+{
+
+	me->isDoingSpecial = true;
+	me->SetSpecial2();
+	me->SetSpecial3();
+}
+
+void UCSafiAnimInstance::AnimNotify_Att_Special_End2()
+{
+	me->isDoingSpecial = false;
+}
+
+void UCSafiAnimInstance::AnimNotify_Att_Special_Spawn4()
+{
+	me->SetSpecial4();
+}
+
+void UCSafiAnimInstance::AnimNotify_Att_Special_Spawn_END2()
+{
+	me->SetSpecial3_End();
+
+}

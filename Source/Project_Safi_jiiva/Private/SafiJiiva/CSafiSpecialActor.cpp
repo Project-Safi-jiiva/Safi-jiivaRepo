@@ -42,6 +42,7 @@ void ACSafiSpecialActor::Tick(float DeltaTime)
 		{
 			KillingTime();
 			ReturnToBase();
+
 			currentTime = 0.f;
 		}
 
@@ -96,47 +97,7 @@ void ACSafiSpecialActor::KillingTime()
 
 			}
 		}
-		/*
-		if (bHit)
-		{
-			// 헌터가 아닌게 맞으면 처리중지
-			if (Hit.GetActor() != Hunter)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Hit something else: %s"), *Hit.GetActor()->GetName());
-				continue;
-			}
-			// 아니면 헌터일테니 데미지
-			else
-			{
-				UE_LOG(LogTemp, Log, TEXT("Successfully hit hunter: %s"), *Hunter->GetName());
-				UGameplayStatics::ApplyDamage(Hunter, 200, nullptr, me, nullptr);
-			}
 
-		}
-		*/
-
-		/*
-		bool bHit = GetWorld()->LineTraceSingleByChannel( Hit, Start, End, ECC_Pawn, Params );
-
-		DrawDebugLine(GetWorld(), Start, End, bHit ? FColor::Red : FColor::Blue, false, 2.0f, 0, 3.0f);
-
-		if (bHit)
-		{
-			// 헌터가 아닌게 맞으면 처리중지
-			if (Hit.GetActor() != Hunter)	
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Hit something else: %s"), *Hit.GetActor()->GetName());
-				continue;
-			}
-			// 아니면 헌터일테니 데미지
-			else
-			{
-				UE_LOG(LogTemp, Log, TEXT("Successfully hit hunter: %s"), *Hunter->GetName());
-				UGameplayStatics::ApplyDamage(Hunter, 200, nullptr, me, nullptr);
-			}
-
-		}
-		*/
 	}
 
 }
