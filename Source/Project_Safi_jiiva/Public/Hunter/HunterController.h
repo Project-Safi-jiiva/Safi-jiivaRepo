@@ -25,9 +25,14 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = UI)
 	TSubclassOf<class UHunterMainWidget> mainUIWidget;
+
+	UPROPERTY(EditDefaultsOnly, Category = UI)
+	TSubclassOf<class UQuestBoardWidget> QuestBoardWidget;
 	// mainUIWidget 으로 부터 만들어진 인스턴스
 	UPROPERTY()
 	UHunterMainWidget* mainUI;
+
+	UQuestBoardWidget* BoardWidget;
 
 	UFUNCTION(Client, Reliable)
     void ClientRPC_InitUIWidget();

@@ -11,6 +11,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Hunter/HunterAnim.h"
 #include "Net/UnrealNetwork.h"
+#include "Widget/QuestBoardWidget.h"
+#include "Components/WidgetSwitcher.h"
 
 // Sets default values for this component's properties
 UWeaponComponent::UWeaponComponent(){
@@ -100,6 +102,15 @@ void UWeaponComponent::InputQuickEnd()
 void UWeaponComponent::InputHeavyStart()
 {
 	Owner->ServerRPC_HeavyStart();
+	if (Owner->QuestBoardWidget) {
+		int32 index = Owner->QuestBoardWidget->WidgetSwitcher->GetActiveWidgetIndex();
+		if (index <= 1) {
+		Owner->QuestBoardWidget->WidgetSwitcher->SetActiveWidgetIndex(0);
+		}
+		else {
+			Owner->QuestBoardWidget->WidgetSwitcher->SetActiveWidgetIndex(index-1);
+		}
+	}
 }
 
 void UWeaponComponent::InputHeavyHolding()

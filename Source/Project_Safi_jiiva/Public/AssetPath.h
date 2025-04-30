@@ -38,6 +38,7 @@ namespace AssetPaths
 
     //타격 사운드
     constexpr const TCHAR* HIT_SOUND = TEXT("/Script/Engine.SoundCue'/Game/LHW/Sound/SwordHit_Cue.SwordHit_Cue'");
+    constexpr const TCHAR* CAMERA_SHAKE = TEXT("/Script/Engine.Blueprint'/Game/LHW/Cam/BP_CameraShake.BP_CameraShake_C'");
 
 
 }

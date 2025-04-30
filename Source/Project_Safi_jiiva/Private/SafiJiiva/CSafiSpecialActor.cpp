@@ -26,14 +26,14 @@ void ACSafiSpecialActor::BeginPlay()
 void ACSafiSpecialActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
+
 	if (bOnSpawn)
 	{
 		currentTime += DeltaTime;
 		FVector P = GetActorLocation();
-		
+
 		speed += PlusSpeed;
-		P.Z -= speed * DeltaTime;		// ¼öÁ÷ ÇÏ°­ÇÏµµ·Ï ÇÏ±â.
+		P.Z -= speed * DeltaTime;		// ìˆ˜ì§ í•˜ê°•í•˜ë„ë¡ í•˜ê¸°.
 
 		this->SetActorLocation(P);
 
@@ -64,7 +64,7 @@ void ACSafiSpecialActor::KillingTime()
 		//FHitResult Hit;
 		FCollisionQueryParams Params;
 
-		Params.AddIgnoredActor(this); 
+		Params.AddIgnoredActor(this);
 
 		TArray<FHitResult> Hits;
 
@@ -82,13 +82,13 @@ void ACSafiSpecialActor::KillingTime()
 
 				AActor* Hunters = Cast<AHunter>(HitActor);
 
-				// ÇåÅÍ°¡ ¾Æ´Ñ°Ô ¸ÂÀ¸¸é Ã³¸®ÁßÁö
+				// í—Œí„°ê°€ ì•„ë‹Œê²Œ ë§žìœ¼ë©´ ì²˜ë¦¬ì¤‘ì§€
 				if (HitActor != Hunters)
 				{
 					//UE_LOG(LogTemp, Warning, TEXT("Hit something else: %s"), *Hits.GetActor()->GetName());
 					continue;
 				}
-				// ¾Æ´Ï¸é ÇåÅÍÀÏÅ×´Ï µ¥¹ÌÁö
+				// ì•„ë‹ˆë©´ í—Œí„°ì¼í…Œë‹ˆ ë°ë¯¸ì§€
 				else
 				{
 					UE_LOG(LogTemp, Log, TEXT("Successfully hit hunter: %s"), *Hunters->GetName());
@@ -97,6 +97,7 @@ void ACSafiSpecialActor::KillingTime()
 
 			}
 		}
+
 
 	}
 

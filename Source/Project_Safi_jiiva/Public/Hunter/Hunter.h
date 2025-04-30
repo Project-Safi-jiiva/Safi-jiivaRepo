@@ -75,8 +75,13 @@ private:
 
 	class USkeletalMeshComponent* SkeletalMeshComp;
 	TSubclassOf<class UHunterMainWidget> MainWidgetClass;
+public:
 	UPROPERTY()
 	class UHunterMainWidget* MainWidget;
+	UPROPERTY()
+	class UQuestBoardWidget* QuestBoardWidget;
+
+
 
 
 public:
@@ -249,9 +254,8 @@ public:
 	void InitUIWidget();
 
 	void SetStatus();
-
 	//Ω√∞£ ∏ÿ√ﬂ±‚
-	float DelayTime = 1.3;
+	float DelayTime = 0.15f;
 
 
 

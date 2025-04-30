@@ -18,6 +18,7 @@
 #include "Sound/SoundCue.h"
 #include "Camera/CameraComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Hunter/HunterController.h"
 
 AGreatSwordActor::AGreatSwordActor()
 {
@@ -34,7 +35,9 @@ AGreatSwordActor::AGreatSwordActor()
 	}
 	ConstructorHelpers::FObjectFinder<UParticleSystem>Particle(AssetPaths::GREATSWORDMESHPARTICLE);
     ConstructorHelpers::FObjectFinder<USoundCue>Sound(AssetPaths::HIT_SOUND);
+    ConstructorHelpers::FClassFinder<UCameraShakeBase>Shake(AssetPaths::CAMERA_SHAKE);
     HitSound = Sound.Object;
+    CameraShake = Shake.Class;
 
 	ParticleSystem = Particle.Object;
 	bReplicates = true;
@@ -134,6 +137,10 @@ void AGreatSwordActor::ApplyHitStop()
     {
         // 로컬 클라이언트에서만 시간 멈춤 적용
         // 캐릭터와 카메라에 CustomTimeDilation 설정
+        if (Hunter->DelayTime >= 0.5f) {
+            auto pc = Cast<AHunterController>(Hunter->GetController());
+            pc->ClientStartCameraShake(CameraShake);
+        }
         CustomTimeDilation = 0.1f;
         if (Hunter->CameraComponent)
         {
@@ -142,12 +149,6 @@ void AGreatSwordActor::ApplyHitStop()
         if (Hunter->GetMesh())
         {
             Hunter->CustomTimeDilation = 0.1f;
-        }
-
-        // 사운드 재생 (느린 피치로)
-        if (HitSound)
-        {
-            UGameplayStatics::PlaySound2D(GetWorld(), HitSound, 1.0f, 0.5f); // 피치 0.5로 느리게
         }
 
         // 타이머로 일정 시간 후 복구
@@ -166,6 +167,7 @@ void AGreatSwordActor::ResetHitStop()
     if (Hunter->IsLocallyControlled())
     {
         // 시간 속도 복구
+        Hunter->DelayTime = 0.2f;
         CustomTimeDilation = 1.0f;
         if (Hunter->CameraComponent)
         {
