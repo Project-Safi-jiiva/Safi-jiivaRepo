@@ -107,6 +107,8 @@ void AGreatSwordActor::ShowEffectClient_Implementation(AActor* OtherActor,UPrimi
         ParticleTransform.SetScale3D(FVector(1.0f));
         UGameplayStatics::PlaySoundAtLocation(this, HitSound, SurfacePoint);
         ApplyHitStop();
+        Hunter->DelayTime = 0.2f;
+
     }
     else
     {
@@ -167,7 +169,6 @@ void AGreatSwordActor::ResetHitStop()
     if (Hunter->IsLocallyControlled())
     {
         // 시간 속도 복구
-        Hunter->DelayTime = 0.2f;
         CustomTimeDilation = 1.0f;
         if (Hunter->CameraComponent)
         {

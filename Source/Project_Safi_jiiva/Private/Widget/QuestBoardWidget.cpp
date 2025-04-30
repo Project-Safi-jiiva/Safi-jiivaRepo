@@ -63,6 +63,8 @@ void UQuestBoardWidget::QuestJoinYButtonHandler()
 	if (gi)
 	{
 		gi->JoinSelectedSession(SessionNumber);
+		WidgetSwitcher->SetActiveWidgetIndex(5);
+
 	}
 }
 

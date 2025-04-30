@@ -180,9 +180,9 @@ public:	// 체력 등 스탯 계수
 	int32 RepellCount = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Status)
 	int32 MAXRepellCount = 2;
-	int32 SpecialCount = 8;
+	int32 SpecialCount = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Status)
-	int32 MAXSpecialCount = 10;
+	int32 MAXSpecialCount = 5;
 
 
 public:	// 사거리, 속도 등

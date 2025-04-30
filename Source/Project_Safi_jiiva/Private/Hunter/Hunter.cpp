@@ -127,7 +127,7 @@ void AHunter::BeginPlay()
 void AHunter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	NetLog();
+	//NetLog();
 
 	if (Anim&& Anim->Montage_IsPlaying(nullptr)&&isHit)
 		Anim->Montage_Stop(0.1f);

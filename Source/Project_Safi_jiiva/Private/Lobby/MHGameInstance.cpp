@@ -188,6 +188,7 @@ void UMHGameInstance::OnJoinSessionComplete(FName sessionName, EOnJoinSessionCom
 			return;
 		}
 		pc->ClientTravel(url, ETravelType::TRAVEL_Absolute);
+
 	}
 	else
 	{

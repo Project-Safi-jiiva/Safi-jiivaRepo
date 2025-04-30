@@ -238,7 +238,7 @@ void ACSafiJiiva::Tick(float DeltaTime)
 //	}
 //
 //==================================================================================
-// 
+//
 	// 노티파이 제어시 생길 문제들 없애는 용도 :D...
 	if (isDisturbed == true) { FSM->OnDisturbedProcess(); }
 
@@ -250,8 +250,8 @@ void ACSafiJiiva::Tick(float DeltaTime)
 #pragma region CollisionEnable
 
 // 몸통공격 콜리전 활성화 / 비활성화
-	if (isOnBodyPress == true) 
-	{ 
+	if (isOnBodyPress == true)
+	{
 		Socket_Body_37->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	}
 	else
@@ -261,10 +261,10 @@ void ACSafiJiiva::Tick(float DeltaTime)
 
 
 // 머리공격 콜리전 활성화 / 비활성화
-	if (isOnBodyPress == true || isOnAttBite == true) 
+	if (isOnBodyPress == true || isOnAttBite == true)
 	{ AttCollisionBite->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics); }
-	else 
-	{ 
+	else
+	{
 		AttCollisionBite->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 
@@ -275,7 +275,7 @@ void ACSafiJiiva::Tick(float DeltaTime)
 		// AttCollisionRF->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		// AttCollisionLB->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		// AttCollisionRB->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		
+
 
 		switch (attackPos)
 		{
@@ -690,7 +690,7 @@ void ACSafiJiiva::SetSpecial()
 
 void ACSafiJiiva::SetSpecial2()
 {
-	
+
 	FVector Pos = SpecialArrowComp->GetComponentLocation();
 	FVector NewLocation(Pos.X, Pos.Y, 0.f);
 
@@ -729,7 +729,7 @@ void ACSafiJiiva::ControlBGM_Stop()
 	{
 		//BackgroundAudioComponent->Stop();                     // 즉시 정지
 		BackgroundAudioComponent->SetVolumeMultiplier(0.05f);
-		//BackgroundAudioComponent->FadeOut(2.0f, 0.05f); 
+		//BackgroundAudioComponent->FadeOut(2.0f, 0.05f);
 	}
 
 }
@@ -739,7 +739,7 @@ void ACSafiJiiva::ControlBGM_Play()
 
 	if (BackgroundAudioComponent)
 	{
-		BackgroundAudioComponent->SetVolumeMultiplier(0.3f);
+		BackgroundAudioComponent->SetVolumeMultiplier(0.25f);
 		// BackgroundAudioComponent->FadeOut(2.0f, 0.0f);        // 2초간 점점 꺼짐
 		// BackgroundAudioComponent->Stop();                     // 즉시 정지
 		// BackgroundAudioComponent->Play();                     // 재생
