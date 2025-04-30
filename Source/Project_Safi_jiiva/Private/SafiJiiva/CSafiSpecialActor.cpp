@@ -26,12 +26,12 @@ void ACSafiSpecialActor::BeginPlay()
 void ACSafiSpecialActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
+
 	if (bOnSpawn)
 	{
 		currentTime += DeltaTime;
 		FVector P = GetActorLocation();
-		
+
 		speed += PlusSpeed;
 		P.Z -= speed * DeltaTime;		// 수직 하강하도록 하기.
 
@@ -63,7 +63,7 @@ void ACSafiSpecialActor::KillingTime()
 		//FHitResult Hit;
 		FCollisionQueryParams Params;
 
-		Params.AddIgnoredActor(this); 
+		Params.AddIgnoredActor(this);
 
 		TArray<FHitResult> Hits;
 
@@ -123,7 +123,7 @@ void ACSafiSpecialActor::KillingTime()
 		if (bHit)
 		{
 			// 헌터가 아닌게 맞으면 처리중지
-			if (Hit.GetActor() != Hunter)	
+			if (Hit.GetActor() != Hunter)
 			{
 				UE_LOG(LogTemp, Warning, TEXT("Hit something else: %s"), *Hit.GetActor()->GetName());
 				continue;

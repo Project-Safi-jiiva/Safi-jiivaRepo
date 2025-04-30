@@ -83,6 +83,8 @@ void UGreatSword::UniqueInputEnd()
 
 void UGreatSword::checkCommand(float DeltaTime)
 {
+	FString LevelName = GetWorld()->GetMapName();
+	if (LevelName == TEXT("LobbyMap"))return;
 	Super::checkCommand(DeltaTime);
 	FWeaponDataTable CurrentData = GetCurrentWeaponData();
 	if (isCommandInput[0] || isCommandInput[1] || isCommandInput[2])

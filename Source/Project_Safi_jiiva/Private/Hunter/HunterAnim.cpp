@@ -48,7 +48,10 @@ void UHunterAnim::NativeUpdateAnimation(float DeltaTime)
 
 void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload)
 {
-    Owner->DelayTime = 0.15f;
+    if (Owner->IsLocallyControlled()){
+        //Owner->DelayTime = 0.15f;
+        if (NotifyName == FName(TEXT("Delay"))) { Owner->DelayTime = 0.5f; PRINTLOG_NET(TEXT("Delay")); }
+    }
     if (!Owner->IsLocallyControlled())return;
     //if (!Owner->HasAuthority())return;
     Owner->ServerRPC_SetIsJumpDelay(true);
@@ -79,7 +82,6 @@ void UHunterAnim::OnMontageNotifyBegin(FName NotifyName, const FBranchingPointNo
     //구르기, 캔슬 노티파이
     if (NotifyName == FName(TEXT("Roll"))) { Owner->ServerRPC_SetAllowRoll(false); }
     if (NotifyName == FName(TEXT("iscancelEnd"))) { Owner->WeaponComp->iscancel = false;}
-    if (NotifyName == FName(TEXT("Delay"))) { Owner->DelayTime = 1.0f; }
 
 
     //중복 입력 방지 부분

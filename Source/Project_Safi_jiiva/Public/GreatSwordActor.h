@@ -57,5 +57,8 @@ private:
 	void ResetHitStop();
 
 	FTimerHandle HitStopTimerHandle;
+	public:
+		UPROPERTY(EditDefaultsOnly,BlueprintReadWrite, Category = UI)
+		TSubclassOf<class UCameraShakeBase> CameraShake;
 
 };
