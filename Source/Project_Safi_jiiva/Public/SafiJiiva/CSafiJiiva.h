@@ -48,10 +48,13 @@ public: //기본 세팅 파트
 	UPROPERTY(EditDefaultsOnly)
 	class UArrowComponent* LineArrowComp;
 
+	UPROPERTY(EditDefaultsOnly)
+	class UArrowComponent* SpecialArrowComp;
+
+	UPROPERTY(EditDefaultsOnly)
+	class UArrowComponent* SpecialArrowComp2;
 
 public:	// 소켓 추가 파트
-
-#pragma region CollisionSocketPart
 
 // =================== 피격용 콜리전 ===================
 #pragma region Collision_Body
@@ -105,7 +108,7 @@ public:	// 소켓 추가 파트
 	UPROPERTY(EditDefaultsOnly)
 	class UBoxComponent* Socket_Body_36;
 #pragma endregion Collision_Body
-
+#pragma region Collision_Att
 // =================== 공격용 콜리전 ===================
 
 	UPROPERTY(EditDefaultsOnly)
@@ -132,7 +135,7 @@ public:	// 소켓 추가 파트
 
 
 // =================== 공격 위치 판정용 콜리전===================
-#pragma region Collision_Att
+
 	UPROPERTY(EditDefaultsOnly)
 	class UBoxComponent* AttPosLF;
 
@@ -149,16 +152,26 @@ public:	// 소켓 추가 파트
 public:	//스페셜 소환용
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<class ACSafiSpecialActor> SpecialFactory;
-
 	class ACSafiSpecialActor* SpecialBox;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class ACSafiSpecialActor2> SpecialFactory2;
+	class ACSafiSpecialActor2* SpecialBox2;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class ACSafiSpecialActor3> SpecialFactory3;
+	class ACSafiSpecialActor3* SpecialBox3;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class ACSafiSpecial4> SpecialFactory4;
+	class ACSafiSpecial4* SpecialBox4;
 
 private: // 함수용 변수들
 	float currentTime = 0.f;
 
 public:	// 체력 등 스탯 계수
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Status)
-	float MAXHP = 50.f;
+	float MAXHP = 1000.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Status)
 	float hp = MAXHP;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Status)
@@ -167,9 +180,9 @@ public:	// 체력 등 스탯 계수
 	int32 RepellCount = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Status)
 	int32 MAXRepellCount = 2;
-	int32 SpecialCount = 0;
+	int32 SpecialCount = 8;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Status)
-	int32 MAXSpecialCount = 2;
+	int32 MAXSpecialCount = 10;
 
 
 public:	// 사거리, 속도 등
@@ -227,6 +240,23 @@ public:
 
 public:	// 스페셜 관련 함수
 	void SetSpecial();
+	void SetSpecial2();
+	void SetSpecial3();
+	void SetSpecial4();
+	void SetSpecial3_End();
+	bool isDoingSpecial = false;
+
+public: //사운드
+	
+	UPROPERTY(EditAnywhere, Category="Sound")
+	class USoundBase* BackgroundMusic;
+
+	void ControlBGM_Stop();
+	void ControlBGM_Play();
+	
+	UPROPERTY()
+	class UAudioComponent* BackgroundAudioComponent;
+	
 
 public:	// 충돌처리
 

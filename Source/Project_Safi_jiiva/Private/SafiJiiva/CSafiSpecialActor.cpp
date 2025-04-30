@@ -33,7 +33,7 @@ void ACSafiSpecialActor::Tick(float DeltaTime)
 		FVector P = GetActorLocation();
 
 		speed += PlusSpeed;
-		P.Z -= speed * DeltaTime;		// ¼öÁ÷ ÇÏ°­ÇÏµµ·Ï ÇÏ±â.
+		P.Z -= speed * DeltaTime;		// ìˆ˜ì§ í•˜ê°•í•˜ë„ë¡ í•˜ê¸°.
 
 		this->SetActorLocation(P);
 
@@ -42,6 +42,7 @@ void ACSafiSpecialActor::Tick(float DeltaTime)
 		{
 			KillingTime();
 			ReturnToBase();
+
 			currentTime = 0.f;
 		}
 
@@ -50,7 +51,7 @@ void ACSafiSpecialActor::Tick(float DeltaTime)
 
 void ACSafiSpecialActor::KillingTime()
 {
-	FVector Start = FVector(GetActorLocation().X, GetActorLocation().Y, 400.f);
+	FVector Start = FVector(GetActorLocation().X, GetActorLocation().Y, 1000.f);
 
 	UpdateHunterList();
 
@@ -69,8 +70,8 @@ void ACSafiSpecialActor::KillingTime()
 
 		bool bHit = GetWorld()->SweepMultiByChannel(Hits, Start, End, FQuat::Identity, ECC_Pawn, FCollisionShape::MakeSphere(10.f), Params);
 
-		DrawDebugLine(GetWorld(), Start, End, bHit ? FColor::Red : FColor::Blue, false, 2.0f, 0, 3.0f);
-		//
+		//DrawDebugLine(GetWorld(), Start, End, bHit ? FColor::Red : FColor::Blue, false, 2.0f, 0, 3.0f);
+	
 
 		for (const FHitResult& HitResult : Hits)
 		{
@@ -81,13 +82,13 @@ void ACSafiSpecialActor::KillingTime()
 
 				AActor* Hunters = Cast<AHunter>(HitActor);
 
-				// ÇåÅÍ°¡ ¾Æ´Ñ°Ô ¸ÂÀ¸¸é Ã³¸®ÁßÁö
+				// í—Œí„°ê°€ ì•„ë‹Œê²Œ ë§žìœ¼ë©´ ì²˜ë¦¬ì¤‘ì§€
 				if (HitActor != Hunters)
 				{
 					//UE_LOG(LogTemp, Warning, TEXT("Hit something else: %s"), *Hits.GetActor()->GetName());
 					continue;
 				}
-				// ¾Æ´Ï¸é ÇåÅÍÀÏÅ×´Ï µ¥¹ÌÁö
+				// ì•„ë‹ˆë©´ í—Œí„°ì¼í…Œë‹ˆ ë°ë¯¸ì§€
 				else
 				{
 					UE_LOG(LogTemp, Log, TEXT("Successfully hit hunter: %s"), *Hunters->GetName());
@@ -96,47 +97,8 @@ void ACSafiSpecialActor::KillingTime()
 
 			}
 		}
-		/*
-		if (bHit)
-		{
-			// ÇåÅÍ°¡ ¾Æ´Ñ°Ô ¸ÂÀ¸¸é Ã³¸®ÁßÁö
-			if (Hit.GetActor() != Hunter)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Hit something else: %s"), *Hit.GetActor()->GetName());
-				continue;
-			}
-			// ¾Æ´Ï¸é ÇåÅÍÀÏÅ×´Ï µ¥¹ÌÁö
-			else
-			{
-				UE_LOG(LogTemp, Log, TEXT("Successfully hit hunter: %s"), *Hunter->GetName());
-				UGameplayStatics::ApplyDamage(Hunter, 200, nullptr, me, nullptr);
-			}
 
-		}
-		*/
 
-		/*
-		bool bHit = GetWorld()->LineTraceSingleByChannel( Hit, Start, End, ECC_Pawn, Params );
-
-		DrawDebugLine(GetWorld(), Start, End, bHit ? FColor::Red : FColor::Blue, false, 2.0f, 0, 3.0f);
-
-		if (bHit)
-		{
-			// ÇåÅÍ°¡ ¾Æ´Ñ°Ô ¸ÂÀ¸¸é Ã³¸®ÁßÁö
-			if (Hit.GetActor() != Hunter)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Hit something else: %s"), *Hit.GetActor()->GetName());
-				continue;
-			}
-			// ¾Æ´Ï¸é ÇåÅÍÀÏÅ×´Ï µ¥¹ÌÁö
-			else
-			{
-				UE_LOG(LogTemp, Log, TEXT("Successfully hit hunter: %s"), *Hunter->GetName());
-				UGameplayStatics::ApplyDamage(Hunter, 200, nullptr, me, nullptr);
-			}
-
-		}
-		*/
 	}
 
 }

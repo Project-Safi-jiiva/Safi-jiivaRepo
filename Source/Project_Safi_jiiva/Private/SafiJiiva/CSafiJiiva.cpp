@@ -18,6 +18,11 @@
 #include "Kismet/GameplayStatics.h"
 #include "Project_Safi_jiiva.h"
 #include "SafiJiiva/CSafiSpecialActor.h"
+#include "CSafiSpecialActor2.h"
+#include "SafiJiiva/CSafiSpecialActor3.h"
+#include "SafiJiiva/CSafiSpecial4.h"
+#include "Components/AudioComponent.h"
+#include "Sound/SoundBase.h"
 
 
 // Sets default values
@@ -54,6 +59,17 @@ ACSafiJiiva::ACSafiJiiva()
 	LineArrowComp->SetupAttachment(SafiComponent /*, TEXT("Socket_Nose")*/);
 	LineArrowComp->SetRelativeLocation(FVector(0.f, 1600.f, 250.f));
 	LineArrowComp->SetRelativeRotation(FRotator(0.f, 90.f, 0.f));
+
+	SpecialArrowComp = CreateDefaultSubobject<UArrowComponent>(TEXT("SpecialArrowComp"));
+	SpecialArrowComp->SetupAttachment(SafiComponent, TEXT("Socket_FirePos"));
+	//SpecialArrowComp->SetRelativeLocation(FVector(0.f, 1600.f, -60.f));
+	SpecialArrowComp->SetRelativeRotation(FRotator(90.f, 0.f, 0.f));
+
+	SpecialArrowComp2 = CreateDefaultSubobject<UArrowComponent>(TEXT("SpecialArrowComp2"));
+	SpecialArrowComp2->SetupAttachment(SafiComponent);
+	SpecialArrowComp2->SetRelativeLocation(FVector(0.f));
+	SpecialArrowComp2->SetRelativeRotation(FRotator(90.f, 0.f, 0.f));
+
 
 
 	FSM = CreateDefaultSubobject<UCSafiFSM>(TEXT("FSM"));
@@ -151,20 +167,63 @@ ACSafiJiiva::ACSafiJiiva()
 
 	// 필요에 따라 추가 설정
 	PrimaryActorTick.bCanEverTick = true;
+
+	static ConstructorHelpers::FObjectFinder<USoundBase> BgmAsset(TEXT("/Game/KJY/RSS/Safi_BGM.Safi_BGM"));
+	if (BgmAsset.Succeeded())
+	{
+		BackgroundMusic = BgmAsset.Object;
+	}
+
 }
 
-// Called when the game starts or when spawned
+// =============================== BeginPlay 파트 ===============================
 void ACSafiJiiva::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (BackgroundMusic)
+	{
+		BackgroundAudioComponent = UGameplayStatics::SpawnSoundAttached(
+			BackgroundMusic,
+			GetRootComponent(), // 캐릭터에 붙일 수도 있고
+			NAME_None,
+			FVector::ZeroVector,
+			EAttachLocation::KeepRelativeOffset,
+			true,  // bStopWhenAttachedToDestroyed
+			0.3f,  // Volume
+			1.0f,  // Pitch
+			0.0f   // StartTime
+		);
+	}
+
+
+
 	SpecialBox = GetWorld()->SpawnActor<ACSafiSpecialActor>(SpecialFactory, FTransform(FRotator(0, 0, 0), FVector(8000), FVector(1.0f, 1.0f, 1.0f)));
+	SpecialBox2 = GetWorld()->SpawnActor<ACSafiSpecialActor2>(SpecialFactory2, FTransform(FRotator(0, 0, 0), FVector(-10000), FVector(1.0f, 1.0f, 1.0f)));
+	SpecialBox3 = GetWorld()->SpawnActor<ACSafiSpecialActor3>(SpecialFactory3, FTransform(FRotator(0, 0, 0), FVector(-10000.f, 0.f, 0.f), FVector(1.5f)));
+	SpecialBox4 = GetWorld()->SpawnActor<ACSafiSpecial4>(SpecialFactory4, FTransform(FRotator(0, 0, 0), FVector(-8000.f, 0.f, 0.f), FVector(1.5f)));
 }
 
 // Called every frame
 void ACSafiJiiva::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if(isDoingSpecial == true)
+	{
+		FVector Pos = FireArrowComp->GetComponentLocation();
+		FVector NewLocation(Pos.X, Pos.Y + 30.f, Pos.Z - 2400.f);
+
+		SpecialBox2->SetActorLocation(NewLocation);
+	}
+
+	else
+	{
+		SpecialBox2->ReturnToBase();
+		SpecialBox3->ReturnToBase();
+		SpecialBox4->ReturnToBase();
+	}
+
 
 // ============================= 테스트용 Tick 데미지 =============================
 //
@@ -283,7 +342,7 @@ void ACSafiJiiva::DrawLineTrace()
 
 	bool bHit = CheckHitLineTrace(StartPos, EndPos);
 
-	DrawDebugLine(GetWorld(), StartPos, EndPos, FColor::Red, false, -1, 0, 3.f);
+	// DrawDebugLine(GetWorld(), StartPos, EndPos, FColor::Red, false, -1, 0, 3.f);
 }
 
 bool ACSafiJiiva::CheckHitLineTrace(FVector _startPos, FVector& _curPos)
@@ -627,6 +686,65 @@ void ACSafiJiiva::SetSpecial()
 {
 	SpecialBox->SetActorLocation(FireArrowComp->GetComponentLocation());	// 입 위치
 	SpecialBox->SetbOnSpawn();
+}
+
+void ACSafiJiiva::SetSpecial2()
+{
+	
+	FVector Pos = SpecialArrowComp->GetComponentLocation();
+	FVector NewLocation(Pos.X, Pos.Y, 0.f);
+
+	//SpecialBox2->SetActorLocation(Pos);
+	SpecialBox2->SetbOnSpawn();
+}
+
+void ACSafiJiiva::SetSpecial3()
+{
+
+	FVector Pos = SpecialArrowComp2->GetComponentLocation();
+	FVector NewLocation(Pos.X, Pos.Y, -200.f);
+
+	SpecialBox3->SetActorLocation(Pos);
+	SpecialBox3->SetbOnSpawn();
+}
+
+void ACSafiJiiva::SetSpecial4()
+{
+	FVector Pos = SpecialArrowComp2->GetComponentLocation();
+	FVector NewLocation(Pos.X, Pos.Y, -200.f);
+
+	SpecialBox4->SetActorLocation(Pos);
+	SpecialBox4->SetbOnSpawn();
+}
+
+void ACSafiJiiva::SetSpecial3_End()
+{
+	SpecialBox3->ReturnToBase();
+}
+
+void ACSafiJiiva::ControlBGM_Stop()
+{
+
+	if (BackgroundAudioComponent)
+	{
+		//BackgroundAudioComponent->Stop();                     // 즉시 정지
+		BackgroundAudioComponent->SetVolumeMultiplier(0.05f);
+		//BackgroundAudioComponent->FadeOut(2.0f, 0.05f); 
+	}
+
+}
+
+void ACSafiJiiva::ControlBGM_Play()
+{
+
+	if (BackgroundAudioComponent)
+	{
+		BackgroundAudioComponent->SetVolumeMultiplier(0.3f);
+		// BackgroundAudioComponent->FadeOut(2.0f, 0.0f);        // 2초간 점점 꺼짐
+		// BackgroundAudioComponent->Stop();                     // 즉시 정지
+		// BackgroundAudioComponent->Play();                     // 재생
+	}
+
 }
 
 // ===================================================콜리전 세팅 ===================================================
