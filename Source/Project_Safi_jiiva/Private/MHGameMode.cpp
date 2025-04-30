@@ -2,4 +2,14 @@
 
 
 #include "MHGameMode.h"
+#include "Hunter/Hunter.h"
 
+void AMHGameMode::setQuestLife()
+{
+	QuestLife--;
+}
+
+int32 AMHGameMode::GetQuestLife()
+{
+	return QuestLife;
+}

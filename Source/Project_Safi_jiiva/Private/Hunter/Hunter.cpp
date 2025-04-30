@@ -26,6 +26,7 @@
 #include "Hunter/HunterController.h"
 #include "Widget/HunterMainWidget.h"
 #include "Widget/QuestBoardWidget.h"
+#include "MHGameMode.h"
 
 void AHunter::SetHP(float value)
 {
@@ -534,6 +535,8 @@ void AHunter::HitEvent(UPrimitiveComponent* DamageCauserComponent, float Damage)
 				if (IsLocallyControlled()) {
 					PC->ServerRPC_RespawnPlayer();
 					WeaponComp->DestroyEquippedWeapon();
+					AMHGameMode* gm = Cast<AMHGameMode>(GetWorld()->GetAuthGameMode());
+					gm->setQuestLife();
 				}
 				return;
 			}
