@@ -14,12 +14,6 @@ class PROJECT_SAFI_JIIVA_API AMHGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 
-public:
-	UPROPERTY(BlueprintReadWrite)
-	int32 QuestLife = 3;
-
-	void setQuestLife();
-	int32 GetQuestLife();
 
 
 };

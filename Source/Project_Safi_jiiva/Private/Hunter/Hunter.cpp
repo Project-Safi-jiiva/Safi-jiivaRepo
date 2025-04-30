@@ -535,8 +535,6 @@ void AHunter::HitEvent(UPrimitiveComponent* DamageCauserComponent, float Damage)
 				if (IsLocallyControlled()) {
 					PC->ServerRPC_RespawnPlayer();
 					WeaponComp->DestroyEquippedWeapon();
-					AMHGameMode* gm = Cast<AMHGameMode>(GetWorld()->GetAuthGameMode());
-					gm->setQuestLife();
 				}
 				return;
 			}
