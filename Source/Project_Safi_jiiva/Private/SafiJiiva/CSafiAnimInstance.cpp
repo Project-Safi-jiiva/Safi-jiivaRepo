@@ -144,6 +144,7 @@ void UCSafiAnimInstance::AnimNotify_Search_End()
 void UCSafiAnimInstance::AnimNotify_Att_Special_Spawn()
 {
 	me->SetSpecial();
+	me->ControlBGM_Stop();
 }
 
 void UCSafiAnimInstance::AnimNotify_Att_Special_Spawn2()
@@ -162,6 +163,7 @@ void UCSafiAnimInstance::AnimNotify_Att_Special_End2()
 void UCSafiAnimInstance::AnimNotify_Att_Special_Spawn4()
 {
 	me->SetSpecial4();
+	me->ControlBGM_Play();
 }
 
 void UCSafiAnimInstance::AnimNotify_Att_Special_Spawn_END2()

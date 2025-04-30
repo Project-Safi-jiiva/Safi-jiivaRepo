@@ -29,16 +29,16 @@ public:
 	class ACSafiJiiva* me;
 
 	float currentTime = 0.f;
-	float defaultSpeed = 400.f;
+	float defaultSpeed = 350.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Status)
-	float MaxTime = 2.2f;
+	float MaxTime = 1.9f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Status)
 	float speed = defaultSpeed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Status)
-	float PlusSpeed = 50.f;
+	float PlusSpeed = 40.f;
 
 public:
 	bool bOnSpawn = false;

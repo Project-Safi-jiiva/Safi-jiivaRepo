@@ -51,7 +51,7 @@ void ACSafiSpecialActor::Tick(float DeltaTime)
 
 void ACSafiSpecialActor::KillingTime()
 {
-	FVector Start = FVector(GetActorLocation().X, GetActorLocation().Y, 400.f);
+	FVector Start = FVector(GetActorLocation().X, GetActorLocation().Y, 1000.f);
 
 	UpdateHunterList();
 
@@ -70,8 +70,8 @@ void ACSafiSpecialActor::KillingTime()
 
 		bool bHit = GetWorld()->SweepMultiByChannel(Hits, Start, End, FQuat::Identity, ECC_Pawn, FCollisionShape::MakeSphere(10.f), Params);
 
-		DrawDebugLine(GetWorld(), Start, End, bHit ? FColor::Red : FColor::Blue, false, 2.0f, 0, 3.0f);
-		//
+		//DrawDebugLine(GetWorld(), Start, End, bHit ? FColor::Red : FColor::Blue, false, 2.0f, 0, 3.0f);
+	
 
 		for (const FHitResult& HitResult : Hits)
 		{

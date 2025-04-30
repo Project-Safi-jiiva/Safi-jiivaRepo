@@ -40,8 +40,8 @@ void ACSafiSpecial4::Tick(float DeltaTime)
 
 	
 		FVector CurrentScale = ParticleComponent->GetComponentScale();
-		FVector TargetScale = FVector(20.0f); // 원하는 최종 크기
-		float GrowSpeed = 0.5f;              // 초당 성장 속도
+		FVector TargetScale = FVector(30.0f); // 원하는 최종 크기
+		float GrowSpeed = 0.6f;              // 초당 성장 속도
 
 		// 선형 보간 (Lerp)
 		FVector NewScale = FMath::VInterpTo(CurrentScale, TargetScale, DeltaTime, GrowSpeed);
